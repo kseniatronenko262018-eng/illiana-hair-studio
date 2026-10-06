@@ -6,7 +6,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-const MONO_TOKEN = 'mF4VYm_rjXjOAAAF1FJJ5yw';[cite: 1, 4]
+const MONO_TOKEN = 'mF4VYm_rjXjOAAAF1FJJ5yw';
 
 // Створення інвойсу на оплату (500 грн)
 app.post('/api/create-invoice', async (req, res) => {
