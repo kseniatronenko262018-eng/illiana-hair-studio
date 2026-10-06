@@ -8,6 +8,37 @@ app.use(express.static(path.join(__dirname)));
 
 const MONO_TOKEN = 'mF4VYm_rjXjOAAAF1FJJ5yw';
 
+// Тимчасове сховище для вихідних днів (у пам'яті сервера)
+let blockedDays = [];
+
+// API: Отримати список вихідних днів
+app.get('/api/blocked-days', (req, res) => {
+    res.json(blockedDays);
+});
+
+// API: Майстер додає вихідний день
+app.post('/api/block-day', (req, res) => {
+    const { date, password } = req.body;
+    // Простий захист паролем для майстра (можете змінити 'admin123' на свій пароль)
+    if (password !== 'admin123') {
+        return res.status(403).json({ error: 'Невірний пароль майстра!' });
+    }
+    if (date && !blockedDays.includes(date)) {
+        blockedDays.push(date);
+    }
+    res.json({ success: true, blockedDays });
+});
+
+// API: Майстер видаляє вихідний день (робить знову робочим)
+app.post('/api/unblock-day', (req, res) => {
+    const { date, password } = req.body;
+    if (password !== 'admin123') {
+        return res.status(403).json({ error: 'Невірний пароль майстра!' });
+    }
+    blockedDays = blockedDays.filter(d => d !== date);
+    res.json({ success: true, blockedDays });
+});
+
 // Створення інвойсу на оплату (500 грн)
 app.post('/api/create-invoice', async (req, res) => {
     try {
@@ -39,7 +70,7 @@ app.post('/api/create-invoice', async (req, res) => {
     }
 });
 
-// Перевірка статусу інвойсу (виправляє помилку «Запис не підтверджено»)
+// Перевірка статусу інвойсу
 app.post('/api/check-invoice', async (req, res) => {
     try {
         const { invoiceId } = req.body;
