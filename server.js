@@ -8,7 +8,7 @@ app.use(express.static(path.join(__dirname)));
 
 const MONO_TOKEN = 'mF4VYm_rjXjOAAAF1FJJ5yw'; //[cite: 1, 4]
 
-// Ендпоінт для створення платежу через еквайринг Monobank
+// Г…Г­Г¤ГЇГ®ВіГ­ГІ Г¤Г«Гї Г±ГІГўГ®Г°ГҐГ­Г­Гї ГЇГ«Г ГІГҐГ¦Гі Г·ГҐГ°ГҐГ§ ГҐГЄГўГ Г©Г°ГЁГ­ГЈ Monobank
 app.post('/api/create-invoice', async (req, res) => {
     try {
         const { name, date, time } = req.body;
@@ -20,11 +20,11 @@ app.post('/api/create-invoice', async (req, res) => {
                 "X-Token": MONO_TOKEN
             },
             body: JSON.stringify({
-                amount: 50000, // 500 грн у копійках
+                amount: 50000, // 500 ГЈГ°Г­ Гі ГЄГ®ГЇВіГ©ГЄГ Гµ
                 ccy: 980,
                 merchantPaymInfo: {
-                    destination: "Завдаток за послугу (ФОП Явір І.В.)",
-                    comment: `Запис клієнта ${name} на ${date} о ${time}`
+                    destination: "Г‡Г ГўГ¤Г ГІГ®ГЄ Г§Г  ГЇГ®Г±Г«ГіГЈГі (Г”ГЋГЏ ГџГўВіГ° ВІ.Г‚.)",
+                    comment: `Г‡Г ГЇГЁГ± ГЄГ«ВіВєГ­ГІГ  ${name} Г­Г  ${date} Г® ${time}`
                 },
                 redirectUrl: req.headers.referer || "https://render.com",
                 webHookUrl: "https://example.com/webhook"
@@ -34,12 +34,12 @@ app.post('/api/create-invoice', async (req, res) => {
         const data = await response.json();
         res.json(data);
     } catch (error) {
-        console.error("Помилка при створенні інвойсу:", error);
-        res.status(500).json({ error: "Не вдалося створити платіж" });
+        console.error("ГЏГ®Г¬ГЁГ«ГЄГ  ГЇГ°ГЁ Г±ГІГўГ®Г°ГҐГ­Г­Ві ВіГ­ГўГ®Г©Г±Гі:", error);
+        res.status(500).json({ error: "ГЌГҐ ГўГ¤Г Г«Г®Г±Гї Г±ГІГўГ®Г°ГЁГІГЁ ГЇГ«Г ГІВіГ¦" });
     }
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Сервер запущено на порту ${PORT}`);
+    console.log(`Г‘ГҐГ°ГўГҐГ° Г§Г ГЇГіГ№ГҐГ­Г® Г­Г  ГЇГ®Г°ГІГі ${PORT}`);
 });
