@@ -1,12 +1,12 @@
 const express = require('express');
-const fetch = require('node-fetch');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const path = require('path');
 const app = express();
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-const MONO_TOKEN = 'mF4VYm_rjXjOAAAF1FJJ5yw';[cite: 1, 4]
+const MONO_TOKEN = 'mF4VYm_rjXjOAAAF1FJJ5yw';
 
 // Сховища в пам'яті сервера для синхронізації
 let blockedDays = [];
@@ -80,8 +80,8 @@ app.post('/api/create-invoice', async (req, res) => {
                 amount: 50000, // 500 грн у копійках
                 ccy: 980,
                 merchantPaymInfo: {
-                    destination: "Завдаток за послугу (ФОП Явір І.В.)",[cite: 3]
-                    comment: `Запис клієнта ${name} на ${date} о ${time}`[cite: 3]
+                    destination: "Завдаток за послугу (ФОП Явір І.В.)",
+                    comment: `Запис клієнта ${name} на ${date} о ${time}`
                 },
                 redirectUrl: req.headers.referer || "https://render.com",
                 webHookUrl: "https://example.com/webhook"
