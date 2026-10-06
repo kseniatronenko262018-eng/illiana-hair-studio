@@ -607,7 +607,3 @@ function closeLightbox() {
     let modal = document.getElementById('imageLightboxModal');
     if(modal) modal.style.display = 'none'; 
 }
-function closeLightbox() { 
-    let modal = document.getElementById('imageLightboxModal');
-    if(modal) modal.style.display = 'none'; 
-}
