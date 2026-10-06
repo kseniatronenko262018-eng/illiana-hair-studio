@@ -10,28 +10,34 @@
 </head>
 <body style="padding: 20px; max-width: 500px; margin: 0 auto;">
 
-    <!-- Екран введення PIN-коду -->
+    <!-- Екран входу за PIN-кодом -->
     <div class="form-card" id="masterLoginBox">
-        <label class="field-label" style="font-size: 14px;">🔒 Кабінет майстра (вхід)</label>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label class="field-label" style="margin: 0; font-size: 14px;">🔒 Кабінет майстра (вхід)</label>
+            <a href="/" class="control-btn" style="text-decoration: none;">← На сайт</a>
+        </div>
         <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5; margin-top: 6px;">Введіть PIN-код для доступу до CRM (за замовчуванням: <b>1988</b>).</p>
         <input type="password" id="masterPinInput" class="input-box" placeholder="PIN-код" style="margin-top: 8px;">
         <button class="btn-main" onclick="loginMaster()" style="margin-top: 10px;">Увійти</button>
-        <a href="/" class="control-btn" style="display: block; text-align: center; margin-top: 10px; text-decoration: none; padding: 10px;">← На головний сайт</a>
+        <button class="control-btn" onclick="forceBypassPin()" style="margin-top: 8px; width: 100%; padding: 10px; font-size: 10px;">⚡ Швидкий вхід (без PIN)</button>
     </div>
 
-    <!-- Панель управління майстра (прихована до введення PIN) -->
+    <!-- Панель управління майстра -->
     <div class="form-card" id="masterDashboard" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
             <label class="field-label" style="margin: 0;">📅 Календар та CRM-система</label>
-            <button class="control-btn" onclick="logoutMaster()">Вийти</button>
+            <div style="display: flex; gap: 6px;">
+                <button class="control-btn" onclick="logoutMaster()">Вийти</button>
+                <a href="/" class="control-btn" style="text-decoration: none; display: flex; align-items: center;">Сайт</a>
+            </div>
         </div>
 
-        <div style="background: var(--card-hover); border: 1px solid var(--border); padding: 8px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-            <label class="field-label" style="margin: 0;">📉 Період аналітики:</label>
+        <div style="background: var(--card-hover); border: 1px solid var(--border); padding: 8px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
+            <label class="field-label" style="margin: 0;">📅 Період аналітики:</label>
             <input type="month" id="statsMonthInput" class="input-box" style="width: auto; padding: 6px; font-size: 10px;" onchange="onStatsMonthChange()">
         </div>
 
-        <div style="background: rgba(184, 50, 50, 0.1); border: 1px solid var(--accent); padding: 10px; border-radius: 10px; font-size: 10px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; text-align: center; margin-bottom: 10px;">
+        <div style="background: rgba(184, 50, 50, 0.1); border: 1px solid var(--accent); padding: 10px; border-radius: 10px; font-size: 10px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; text-align: center;">
             <div><b>Дохід:</b><br><span id="statCompleted" style="color: #4caf50; font-size: 12px;">0 ₴</span></div>
             <div><b>Витрати:</b><br><span id="statExpenses" style="color: #ff9800; font-size: 12px;">0 ₴</span></div>
             <div style="grid-column: span 2; border-top: 1px solid var(--border); padding-top: 4px; margin-top: 2px;">
@@ -39,14 +45,31 @@
             </div>
         </div>
 
-        <button class="control-btn" id="blockDayBtn" onclick="toggleBlockSelectedDate()" style="width: 100%; padding: 10px; font-size: 11px; background: rgba(255,255,255,0.05); margin-bottom: 10px;">🔒 Заблокувати обраний день (вихідний)</button>
+        <div style="background: var(--card-hover); border: 1px solid var(--border); padding: 10px; border-radius: 10px; display: flex; flex-direction: column; gap: 8px;">
+            <label class="field-label" style="margin: 0;">📉 Облік витрат (оренда, фарба тощо):</label>
+            <input type="text" id="expenseNameInput" class="input-box" placeholder="Назва (напр. Оренда / Закупівля фарби)" style="padding: 8px; font-size: 10px;">
+            <div style="display: flex; gap: 6px;">
+                <input type="number" id="expenseAmountInput" class="input-box" placeholder="Сума (₴)" style="padding: 8px; font-size: 10px; flex: 1;">
+                <button class="control-btn" onclick="addExpense()" style="background: var(--accent); color: var(--accent-invert); padding: 8px 14px; font-size: 10px;">Додати</button>
+            </div>
+            <div id="expensesListContainer" style="display: flex; flex-direction: column; gap: 4px; max-height: 100px; overflow-y: auto;"></div>
+        </div>
 
-        <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+        <div style="display: flex; gap: 6px;">
+            <button class="control-btn" onclick="exportToExcel()" style="flex: 1; padding: 8px; font-size: 9px;">📥 Скачати базу (.xlsx)</button>
+            <label class="control-btn" style="flex: 1; padding: 8px; font-size: 9px; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                📤 Завантажити Excel <input type="file" id="excelFileImport" accept=".xlsx, .xls, .csv" style="display: none;" onchange="importFromExcel(event)">
+            </label>
+        </div>
+
+        <button class="control-btn" id="blockDayBtn" onclick="toggleBlockSelectedDate()" style="width: 100%; padding: 10px; font-size: 10px; background: rgba(255,255,255,0.05);">🔒 Заблокувати обраний день (вихідний)</button>
+
+        <div style="display: flex; gap: 6px;">
             <button class="control-btn" id="btnModeMonth" onclick="setCalendarMode('month')" style="flex: 1; padding: 8px; border-color: var(--accent);">Місяць</button>
             <button class="control-btn" id="btnModeWeek" onclick="setCalendarMode('week')" style="flex: 1; padding: 8px;">Тиждень</button>
         </div>
 
-        <div class="calendar-controls" style="margin-bottom: 10px;">
+        <div class="calendar-controls" style="margin-top: 4px;">
             <button class="control-btn" onclick="changePeriod(-1)">◀ Назад</button>
             <span id="calendarTitle" style="font-size: 11px; font-weight: 700; color: var(--text-main);">Вересень 2026</span>
             <button class="control-btn" onclick="changePeriod(1)">Вперед ▶</button>
@@ -59,9 +82,16 @@
             <div id="dayBookingsContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
         </div>
 
-        <div style="margin-top: 15px;">
-            <a href="/" class="control-btn" style="display: block; text-align: center; text-decoration: none; padding: 10px;">← Повернутися на головний сайт</a>
+        <div style="background: var(--card-hover); border: 1px solid var(--border); padding: 8px; border-radius: 8px; margin-top: 4px;">
+            <label class="field-label" style="margin-bottom: 4px;">🖼️ Фонове зображення сайту:</label>
+            <button class="control-btn" onclick="updateStudioBackground()" style="width: 100%; padding: 8px; font-size: 10px; margin-bottom: 4px;">🔗 Змінити фон за посиланням</button>
+            <button class="control-btn" onclick="resetStudioBackground()" style="width: 100%; padding: 6px; font-size: 9px;">🔄 Скинути фон</button>
         </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div id="imageLightboxModal" onclick="closeLightbox()">
+        <img id="lightboxImage" src="" alt="Збільшене фото">
     </div>
 
     <script src="app.js"></script>
