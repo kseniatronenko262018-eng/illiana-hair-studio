@@ -1,0 +1,45 @@
+const express = require('express');
+const fetch = require('node-fetch');
+const path = require('path');
+const app = express();
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname)));
+
+const MONO_TOKEN = 'mF4VYm_rjXjOAAAF1FJJ5yw'; //[cite: 1, 4]
+
+// Ендпоінт для створення платежу через еквайринг Monobank
+app.post('/api/create-invoice', async (req, res) => {
+    try {
+        const { name, date, time } = req.body;
+
+        const response = await fetch("https://api.monobank.ua/api/merchant/invoice/create", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Token": MONO_TOKEN
+            },
+            body: JSON.stringify({
+                amount: 50000, // 500 грн у копійках
+                ccy: 980,
+                merchantPaymInfo: {
+                    destination: "Завдаток за послугу (ФОП Явір І.В.)",
+                    comment: `Запис клієнта ${name} на ${date} о ${time}`
+                },
+                redirectUrl: req.headers.referer || "https://render.com",
+                webHookUrl: "https://example.com/webhook"
+            })
+        });
+
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error("Помилка при створенні інвойсу:", error);
+        res.status(500).json({ error: "Не вдалося створити платіж" });
+    }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Сервер запущено на порту ${PORT}`);
+});
