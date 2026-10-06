@@ -6,7 +6,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-const MONO_TOKEN = 'mF4VYm_rjXjOAAAF1FJJ5yw';[cite: 1, 4]
+const MONO_TOKEN = 'mF4VYm_rjXjOAAAF1FJJ5yw';
 
 app.post('/api/create-invoice', async (req, res) => {
     try {
@@ -22,7 +22,7 @@ app.post('/api/create-invoice', async (req, res) => {
                 amount: 100,
                 ccy: 980,
                 merchantPaymInfo: {
-                    destination: "Zavdatok za poslugu (FOP Yavir I.V.)",
+                    destination: "Zavdatok za poslugu",
                     comment: `Zapis klienta ${name} na ${date} o ${time}`
                 },
                 redirectUrl: req.headers.referer || "https://render.com",
