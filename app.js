@@ -84,15 +84,25 @@ function switchTab(tabName, el) {
     if (el) el.classList.add('active');
 }
 
+// Нова структура послуг згідно з актуальним прайсом та тривалістю
 const subServicesData = {
-    cut: [{ id: 'cut_main', title: 'Стрижка (1.5 год)', price: 1000, duration: 90 }],
+    cut: [
+        { id: 'cut_main', title: 'Стрижка (будь-яка)', price: 1000, duration: 90 }
+    ],
     color: {
-        virgin: [
-            { id: 'roots_virgin', title: 'Коріння (до 2 см)', price: 1300, duration: 120 },
-            { id: 'primary_color', title: 'Первинне фарбування', price: 1800, duration: 150 }
+        roots: [
+            { id: 'roots_2cm', title: 'Фарбування коріння (до 2 см)', price: 2500, duration: 150 }
         ],
-        toned: [{ id: 'toning', title: 'Тонування', price: 1500, duration: 120 }],
-        grey: [{ id: 'grey_roots', title: 'Фарбування сивого коріння', price: 1500, duration: 135 }]
+        primary: [
+            { id: 'prim_shoulders', title: 'Первинне (до плечей)', price: 4250, duration: 180 },
+            { id: 'prim_blades', title: 'Первинне (від плечей до лопаток)', price: 6250, duration: 360 },
+            { id: 'prim_below', title: 'Первинне (нижче лопаток)', price: 8750, duration: 420 }
+        ],
+        toned: [
+            { id: 'ton_shoulders', title: 'Тонування / Однотон (до плечей)', price: 3000, duration: 120 },
+            { id: 'ton_blades', title: 'Тонування / Однотон (від плечей до лопаток)', price: 3500, duration: 150 },
+            { id: 'ton_below', title: 'Тонування / Однотон (нижче лопаток)', price: 5000, duration: 180 }
+        ]
     }
 };
 
@@ -153,16 +163,16 @@ function renderColorSubmenu() {
     const container = document.getElementById('submenuItems');
     if (!container) return;
     container.innerHTML = `
-        <div class="sub-service-card" onclick="selectColorState('virgin')">
-            <div><div class="s-title">Натуральне волосся</div><div class="s-sub">Корінь або первинне</div></div>
+        <div class="sub-service-card" onclick="selectColorState('roots')">
+            <div><div class="s-title">Корінь (до 2 см)</div><div class="s-sub">2500 ₴ • 2.5 год</div></div>
+            <div>➔</div>
+        </div>
+        <div class="sub-service-card" onclick="selectColorState('primary')">
+            <div><div class="s-title">Первинне фарбування (блонд/яскраве)</div><div class="s-sub">За довжиною</div></div>
             <div>➔</div>
         </div>
         <div class="sub-service-card" onclick="selectColorState('toned')">
-            <div><div class="s-title">Раніше фарбоване волосся</div><div class="s-sub">Тонування довжини</div></div>
-            <div>➔</div>
-        </div>
-        <div class="sub-service-card" onclick="selectColorState('grey')">
-            <div><div class="s-title">З сивиною</div><div class="s-sub">Фарбування сивого коріння</div></div>
+            <div><div class="s-title">Тонування / Однотон</div><div class="s-sub">За довжиною</div></div>
             <div>➔</div>
         </div>
     `;
@@ -172,6 +182,15 @@ function selectColorState(stateKey) {
     selectedSubItem = stateKey;
     document.querySelectorAll('#submenuItems .sub-service-card').forEach(c => c.classList.remove('selected'));
     if (event && event.currentTarget) event.currentTarget.classList.add('selected');
+
+    if (stateKey === 'roots') {
+        selectedServiceObj = subServicesData.color.roots[0];
+        const colorSub = document.getElementById('coloringSubOptions');
+        if (colorSub) colorSub.classList.remove('visible');
+        updateServiceDetails();
+        renderTimeSlots();
+        return;
+    }
 
     const colorSub = document.getElementById('coloringSubOptions');
     if (colorSub) colorSub.classList.add('visible');
@@ -183,7 +202,7 @@ function selectColorState(stateKey) {
     subServicesData.color[stateKey].forEach((srv, idx) => {
         listContainer.innerHTML += `
             <div class="sub-service-card ${idx===0?'selected':''}" onclick="selectSpecificService('${srv.id}')" id="srvCard_${srv.id}">
-                <div><div class="s-title">${srv.title}</div><div class="s-sub">${srv.price} ₴ • ${srv.duration} хв</div></div>
+                <div><div class="s-title">${srv.title}</div><div class="s-sub">${srv.price} ₴ • ${srv.duration / 60} год</div></div>
                 <div>✓</div>
             </div>
         `;
@@ -211,16 +230,12 @@ function updateServiceDetails() {
 
 function updateServiceInputText() {
     if (!selectedServiceObj) return;
-    const lengthSelect = document.getElementById('hairLengthSelect');
-    let lengthKey = lengthSelect ? lengthSelect.value : 'shoulders';
-    let coeff = (selectedMainCat === 'color') ? lengthCoefficients[lengthKey] : 1.0;
-    let finalPrice = Math.round(selectedServiceObj.price * coeff);
-
-    let text = `${selectedServiceObj.title} — ${finalPrice} ₴`;
+    let text = `${selectedServiceObj.title} — ${selectedServiceObj.price} ₴`;
     const srvInput = document.getElementById('selectedServiceInput');
     if (srvInput) srvInput.value = text;
 }
 
+// Генерація слотів: робота з 10:00 до 19:00, перевірка за тривалістю та 3-годинний ліміт для запису день-у-день
 function renderTimeSlots() {
     const grid = document.getElementById('timeSlotsGrid');
     if (!grid) return;
@@ -240,8 +255,8 @@ function renderTimeSlots() {
     }
 
     let workStartMinutes = 10 * 60; // 10:00
-    let workEndMinutes = 20 * 60;   // 20:00
-    let intervalMinutes = 180;      // 3 години проміжок
+    let workEndMinutes = 19 * 60;   // 19:00 (кінець робочого дня)
+    let intervalMinutes = 180;      // 3 години проміжок між слотами
 
     let slots = [];
     for (let m = workStartMinutes; m <= workEndMinutes; m += intervalMinutes) {
@@ -249,27 +264,37 @@ function renderTimeSlots() {
             let hours = Math.floor(m / 60);
             let mins = m % 60;
             let timeStr = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
-            slots.push(timeStr);
+            slots.push({ minutes: m, timeStr: timeStr });
         }
     }
 
-    if (slots.length === 0) {
-        slots = ["10:00"];
-    }
+    // Перевірка запису день у день (мінімум за 3 години)
+    let now = new Date();
+    let todayStr = now.toISOString().split('T')[0];
+    let currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
 
     let dayBookings = serverBookingsList.filter(b => b.date === dateVal);
 
-    slots.forEach(time => {
-        let isBooked = dayBookings.some(b => b.time === time);
+    if (slots.length === 0) {
+        slots = [{ minutes: 600, timeStr: "10:00" }];
+    }
+
+    slots.forEach(slot => {
+        let isBooked = dayBookings.some(b => b.time === slot.timeStr);
+        let isTooSoonToday = (dateVal === todayStr) && (slot.minutes < currentTotalMinutes + 180);
+
         let div = document.createElement('div');
         div.className = 'time-cell';
 
         if (isBooked) {
             div.className += ' booked';
-            div.innerText = `${time}\n(Зайнято)`;
+            div.innerText = `${slot.timeStr}\n(Зайнято)`;
+        } else if (isTooSoonToday) {
+            div.className += ' booked';
+            div.innerText = `${slot.timeStr}\n(Менш ніж за 3 год)`;
         } else {
-            div.innerText = time;
-            div.onclick = () => selectTime(time, div);
+            div.innerText = slot.timeStr;
+            div.onclick = () => selectTime(slot.timeStr, div);
         }
         grid.appendChild(div);
     });
@@ -323,7 +348,7 @@ async function submitBooking() {
     let depositPaid = false;
     let payAction = confirm(
         `✨ Увага, ${name}!\n\n` +
-        `Для нових клієнтів обов'язковий завдаток 500 ₴ (ФОП Явір Ілліяна Володимирівна)[cite: 1, 5].\n\n` +
+        `Для нових клієнтів обов'язковий завдаток 500 ₴ (ФОП Явір Ілліяна Володимирівна).\n\n` +
         `Натисніть "OK", щоб перейти до оплати через еквайринг Monobank.`
     );
     
