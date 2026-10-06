@@ -129,6 +129,7 @@ function selectMainCategory(cat) {
         updateServiceInputText();
         if (photoSec) photoSec.classList.add('visible');
     }
+    renderTimeSlots();
 }
 
 function selectHaircutReference(imgUrl, el) {
@@ -180,6 +181,7 @@ function selectColorState(stateKey) {
     });
     selectedServiceObj = subServicesData.color[stateKey][0];
     updateServiceDetails();
+    renderTimeSlots();
 }
 
 function selectSpecificService(srvId) {
@@ -190,6 +192,7 @@ function selectSpecificService(srvId) {
     const targetCard = document.getElementById(`srvCard_${srvId}`);
     if (targetCard) targetCard.classList.add('selected');
     updateServiceDetails();
+    renderTimeSlots();
 }
 
 function updateServiceDetails() {
@@ -209,18 +212,41 @@ function updateServiceInputText() {
     if (srvInput) srvInput.value = text;
 }
 
+// Динамічна генерація слотів з урахуванням тривалості послуги та інтервалу 3 години
 function renderTimeSlots() {
     const grid = document.getElementById('timeSlotsGrid');
     if (!grid) return;
     grid.innerHTML = '';
-    const slots = ["10:00", "12:00", "14:00", "16:00", "18:00"];
-    
+
     const dateInput = document.getElementById('clientDate');
     let dateVal = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
 
     if (serverBlockedDays.includes(dateVal)) {
         grid.innerHTML = `<div style="font-size:11px; color:var(--accent); grid-column:span 4; text-align:center;">Цей день заблоковано майстром (вихідний).</div>`;
         return;
+    }
+
+    let serviceDuration = 90;
+    if (selectedServiceObj && selectedServiceObj.duration) {
+        serviceDuration = selectedServiceObj.duration;
+    }
+
+    let workStartMinutes = 10 * 60; // 10:00
+    let workEndMinutes = 20 * 60;   // 20:00
+    let intervalMinutes = 180;      // 3 години проміжок
+
+    let slots = [];
+    for (let m = workStartMinutes; m <= workEndMinutes; m += intervalMinutes) {
+        if (m + serviceDuration <= workEndMinutes) {
+            let hours = Math.floor(m / 60);
+            let mins = m % 60;
+            let timeStr = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+            slots.push(timeStr);
+        }
+    }
+
+    if (slots.length === 0) {
+        slots = ["10:00"];
     }
 
     let dayBookings = serverBookingsList.filter(b => b.date === dateVal);
@@ -456,153 +482,7 @@ async function initCalendar() {
             grid.appendChild(cell);
         }
     }
-    container.appendChild(grid);
-    renderDayBookings(selectedCalendarDateStr);
-}
-
-function renderDayBookings(dateStr) {
-    let selLabel = document.getElementById('selectedDateLabel');
-    if (selLabel) selLabel.innerText = `Записи на ${dateStr}:`;
-    
-    const container = document.getElementById('dayBookingsContainer');
-    if (!container) return;
-    container.innerHTML = '';
-
-    let dayList = serverBookingsList.filter(b => b.date === dateStr);
-    if (dayList.length === 0) {
-        container.innerHTML = `<div style="font-size:10px; color:var(--text-muted); padding: 4px;">Немає записів на цей день.</div>`;
-        return;
-    }
-
-    dayList.forEach((b) => {
-        let phoneClean = b.phone ? b.phone.replace(/[^0-9]/g, '') : '';
-        let item = document.createElement('div');
-        item.className = 'booking-item';
-        item.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <b>🕒 ${b.time} — ${b.name}</b>
-            </div>
-            <div style="font-size:10px; color:var(--text-main);"><b>Послуга:</b> ${b.service}</div>
-            <div style="font-size:10px; color:var(--text-muted);">📞 ${b.phone} | ✉️ ${b.email}</div>
-            <div style="display:flex; gap:6px; margin-top:4px;">
-                <a href="https://t.me/${phoneClean}" target="_blank" class="social-btn">💬 Telegram</a>
-            </div>
-        `;
-        container.appendChild(item);
-    });
-}
-
-async function toggleBlockSelectedDate() {
-    let password = prompt("Введіть PIN-код майстра (1988):");
-    if (!password) return;
-
-    let isBlocked = serverBlockedDays.includes(selectedCalendarDateStr);
-    let endpoint = isBlocked ? '/api/unblock-day' : '/api/block-day';
-
-    try {
-        let res = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ date: selectedCalendarDateStr, password: password })
-        });
-        let result = await res.json();
-        if (res.ok && result.success) {
-            serverBlockedDays = result.blockedDays;
-            alert(isBlocked ? "День розблоковано!" : "День заблоковано як вихідний!");
-            initCalendar();
-        } else {
-            alert(result.error || "Помилка");
-        }
-    } catch (e) {
-        console.error("Помилка:", e);
-        alert("Не вдалося зв'язатися з сервером.");
-    }
-}
-
-// Витрати та статистика
-function getStoredExpenses() { return JSON.parse(localStorage.getItem('illiana_expenses') || '[]'); }
-function saveExpensesToStorage(exp) { localStorage.setItem('illiana_expenses', JSON.stringify(exp)); }
-function loadExpensesFromStorage() { renderExpensesList(); }
-
-function addExpense() {
-    let nameInput = document.getElementById('expenseNameInput');
-    let amountInput = document.getElementById('expenseAmountInput');
-    let name = nameInput ? nameInput.value.trim() : '';
-    let amount = amountInput ? parseFloat(amountInput.value) : 0;
-    
-    if (!name || isNaN(amount)) return alert("Введіть дані витрат!");
-    let expenses = getStoredExpenses();
-    let statsMonth = document.getElementById('statsMonthInput');
-    expenses.push({ id: 'exp_' + Date.now(), monthStr: statsMonth ? statsMonth.value : '', name, amount });
-    saveExpensesToStorage(expenses);
-    if (nameInput) nameInput.value = '';
-    if (amountInput) amountInput.value = '';
-    renderExpensesList();
-    updateDashboardStats();
-}
-
-function deleteExpense(id) {
-    saveExpensesToStorage(getStoredExpenses().filter(e => e.id !== id));
-    renderExpensesList();
-    updateDashboardStats();
-}
-
-function renderExpensesList() {
-    const container = document.getElementById('expensesListContainer');
-    if (!container) return;
-    container.innerHTML = '';
-    let statsMonth = document.getElementById('statsMonthInput');
-    let targetMonth = statsMonth ? statsMonth.value : '';
-    getStoredExpenses().filter(e => e.monthStr === targetMonth).forEach(e => {
-        container.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:10px; background:var(--card-bg); padding:4px 8px; border-radius:6px;"><span>${e.name} — <b>${e.amount} ₴</b></span><button onclick="deleteExpense('${e.id}')" style="background:none; border:none; color:var(--accent); cursor:pointer;">✕</button></div>`;
-    });
-}
-
-function updateDashboardStats() {
-    let statsMonth = document.getElementById('statsMonthInput');
-    let targetMonth = statsMonth ? statsMonth.value : '';
-    let totalIncome = 0;
-    serverBookingsList.forEach(b => {
-        if (b.date.startsWith(targetMonth)) {
-            let match = b.service.match(/—\s*(\d+)\s*₴/);
-            if (match) totalIncome += parseInt(match[1]);
-        }
-    });
-    let totalExp = getStoredExpenses().filter(e => e.monthStr === targetMonth).reduce((s, e) => s + e.amount, 0);
-    
-    let elInc = document.getElementById('statCompleted');
-    let elExp = document.getElementById('statExpenses');
-    let elNet = document.getElementById('statNetProfit');
-    
-    if (elInc) elInc.innerText = `${totalIncome} ₴`;
-    if (elExp) elExp.innerText = `${totalExp} ₴`;
-    if (elNet) elNet.innerText = `${totalIncome - totalExp} ₴`;
-}
-
-function exportToExcel() {
-    let ws = XLSX.utils.json_to_sheet(serverBookingsList);
-    let wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Записи");
-    XLSX.writeFile(wb, "bookings.xlsx");
-}
-
-function updateStudioBackground() {
-    let url = prompt("Введіть силку на фон:");
-    if (url) { localStorage.setItem('illiana_custom_bg', url); let bgEl = document.getElementById('bgImageElement'); if(bgEl) bgEl.src = url; }
-}
-
-function resetStudioBackground() { 
-    localStorage.removeItem('illiana_custom_bg'); 
-    let bgEl = document.getElementById('bgImageElement');
-    if(bgEl) bgEl.src = "https://i.ibb.co/M5stSykh/photo-2026-09-30-14-50-24.jpg"; 
-}
-
-function openLightbox(url) { 
-    let img = document.getElementById('lightboxImage');
-    let modal = document.getElementById('imageLightboxModal');
-    if(img && modal) { img.src = url; modal.style.display = 'flex'; }
-}
-
+    container.appendChild(
 function closeLightbox() { 
     let modal = document.getElementById('imageLightboxModal');
     if(modal) modal.style.display = 'none'; 
