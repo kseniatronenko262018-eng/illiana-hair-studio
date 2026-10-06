@@ -33,7 +33,7 @@
             <div class="profile-bio">не відрощуй волосся — відрощуй індивідуальність</div>
         </div>
 
-        <div class="quick-nav">
+        <div class="quick-nav" style="grid-template-columns: repeat(3, 1fr);">
             <div class="nav-chip active" onclick="switchTab('book', this)" data-i18n="tab_book">Запис</div>
             <div class="nav-chip" onclick="switchTab('works', this)" data-i18n="tab_works">Архів</div>
             <div class="nav-chip" onclick="switchTab('loc', this)" data-i18n="tab_loc">Локація</div>
@@ -67,7 +67,6 @@
                     </div>
                 </div>
 
-                <!-- Блок каруселі робіт стрижок -->
                 <div id="haircutExamplesSection" style="margin-top: 10px; display: none;">
                     <label class="field-label">✨ Оберіть приклад стрижки (натисніть, щоб обрати як референс):</label>
                     <div class="haircut-carousel">
@@ -178,7 +177,7 @@
                 </div>
 
                 <div class="notice-badge" data-i18n="deposit_notice">
-                    ⚡ <b>Умова броні:</b> Завдаток <b>500 грн</b> підтверджує запис.
+                    ⚡ <b>Умова броні:</b> Завдаток <b>500 грн</b> підтверджує запис[cite: 1, 5].
                 </div>
 
                 <div class="policy-highlight-card">
@@ -245,6 +244,9 @@
         <img id="lightboxImage" src="" alt="Збільшене фото">
     </div>
 
+    <script src="app.js"></script>
+</body>
+</html>
     <script src="app.js"></script>
 </body>
 </html>
