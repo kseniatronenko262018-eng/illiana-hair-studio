@@ -45,6 +45,22 @@
             </div>
         </div>
 
+        <!-- БЛОК БАЗИ ПОСТІЙНИХ КЛІЄНТІВ -->
+        <div style="background: var(--card-hover); border: 1px solid var(--border); padding: 10px; border-radius: 10px; display: flex; flex-direction: column; gap: 8px;">
+            <label class="field-label" style="margin: 0;">👥 База постійних клієнтів (без завдатку):</label>
+            <div style="display: flex; gap: 6px; align-items: center;">
+                <label class="control-btn" style="flex: 1; padding: 8px; font-size: 10px; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; background: var(--card-bg);">
+                    📁 Імпорт бази з Excel <input type="file" id="excelClientsFile" accept=".xlsx, .xls" style="display: none;" onchange="handleExcelImport(event)">
+                </label>
+            </div>
+            <div style="display: flex; gap: 6px;">
+                <input type="text" id="regClientName" class="input-box" placeholder="Ім'я клієнта" style="padding: 6px; font-size: 10px; flex: 1;">
+                <input type="text" id="regClientPhone" class="input-box" placeholder="Телефон" style="padding: 6px; font-size: 10px; flex: 1;">
+                <button class="control-btn" onclick="addRegularClientManual()" style="background: var(--accent); color: var(--accent-invert); padding: 6px 10px; font-size: 10px;">Додати</button>
+            </div>
+            <div id="regularClientsContainer" style="display: flex; flex-direction: column; gap: 4px; max-height: 120px; overflow-y: auto;"></div>
+        </div>
+
         <div style="background: var(--card-hover); border: 1px solid var(--border); padding: 10px; border-radius: 10px; display: flex; flex-direction: column; gap: 8px;">
             <label class="field-label" style="margin: 0;">📉 Облік витрат (оренда, фарба тощо):</label>
             <input type="text" id="expenseNameInput" class="input-box" placeholder="Назва (напр. Оренда / Закупівля фарби)" style="padding: 8px; font-size: 10px;">
@@ -56,10 +72,7 @@
         </div>
 
         <div style="display: flex; gap: 6px;">
-            <button class="control-btn" onclick="exportToExcel()" style="flex: 1; padding: 8px; font-size: 9px;">📥 Скачати базу (.xlsx)</button>
-            <label class="control-btn" style="flex: 1; padding: 8px; font-size: 9px; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                📤 Завантажити Excel <input type="file" id="excelFileImport" accept=".xlsx, .xls, .csv" style="display: none;" onchange="importFromExcel(event)">
-            </label>
+            <button class="control-btn" onclick="exportToExcel()" style="flex: 1; padding: 8px; font-size: 9px;">📥 Скачати базу записів (.xlsx)</button>
         </div>
 
         <button class="control-btn" id="blockDayBtn" onclick="toggleBlockSelectedDate()" style="width: 100%; padding: 10px; font-size: 10px; background: rgba(255,255,255,0.05);">🔒 Заблокувати обраний день (вихідний)</button>
