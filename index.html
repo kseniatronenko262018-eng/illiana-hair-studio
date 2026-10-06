@@ -82,4 +82,169 @@
                         <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/Hc5z6f0b/images9-png.png', this)"><img src="https://i.postimg.cc/Hc5z6f0b/images9-png.png" alt="Робота 9"><span>Обрати</span></div>
                         <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/WDdXkDhJ/images10-png.png', this)"><img src="https://i.postimg.cc/WDdXkDhJ/images10-png.png" alt="Робота 10"><span>Обрати</span></div>
                         <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/f3VB93JY/images11-png.png', this)"><img src="https://i.postimg.cc/f3VB93JY/images11-png.png" alt="Робота 11"><span>Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/XZrQCZpd/images12-png.png', this)"><img src="
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/XZrQCZpd/images12-png.png', this)"><img src="https://i.postimg.cc/XZrQCZpd/images12-png.png" alt="Робота 12"><span>Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/QBF0TBH0/images13-png.png', this)"><img src="https://i.postimg.cc/QBF0TBH0/images13-png.png" alt="Робота 13"><span>Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/QBF0TBH4/images14-png.png', this)"><img src="https://i.postimg.cc/QBF0TBH4/images14-png.png" alt="Робота 14"><span>Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/5HDpqxCs/images15-png.png', this)"><img src="https://i.postimg.cc/5HDpqxCs/images15-png.png" alt="Робота 15"><span>Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/Z9XjFTdf/images16-png.png', this)"><img src="https://i.postimg.cc/Z9XjFTdf/images16-png.png" alt="Робота 16"><span>Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/f315jw92/images17-png.png', this)"><img src="https://i.postimg.cc/f315jw92/images17-png.png" alt="Робота 17"><span>Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/7CjXMx2W/images18-png.png', this)"><img src="https://i.postimg.cc/7CjXMx2W/images18-png.png" alt="Робота 18"><span>Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/mcKVNbH0/images19-png.png', this)"><img src="https://i.postimg.cc/mcKVNbH0/images19-png.png" alt="Робота 19"><span>Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/zL4pSJh5/images20-png.png', this)"><img src="https://i.postimg.cc/zL4pSJh5/images20-png.png" alt="Робота 20"><span>Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/DJs6xtQV/images21-png.png', this)"><img src="https://i.postimg.cc/DJs6xtQV/images21-png.png" alt="Робота 21"><span>Обрати</span></div>
+                    </div>
+                    <div id="selectedRefNotice" style="font-size: 10px; color: var(--accent); margin-top: 6px; font-weight: 700; display: none;">
+                        ✓ Обрано фото-референс із портфоліо!
+                    </div>
+                </div>
+
+                <div id="categorySubmenu">
+                    <label class="field-label" style="margin-top: 6px;" data-i18n="step2">2. Оберіть ваш поточний стан волосся:</label>
+                    <div id="submenuItems" style="display: flex; flex-direction: column; gap: 6px;"></div>
+                </div>
+
+                <div id="coloringSubOptions">
+                    <label class="field-label" data-i18n="step3">3. Доступні послуги та довжина:</label>
+                    <div id="specificServicesList" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px;"></div>
+                    <div id="lengthContainer">
+                        <label class="field-label" data-i18n="length_label">Довжина волосся:</label>
+                        <select id="hairLengthSelect" class="input-box" onchange="updateServiceDetails()">
+                            <option value="shoulders" data-i18n="len_shoulders">До плечей</option>
+                            <option value="shoulder_blades" data-i18n="len_blades">Від плечей до лопаток</option>
+                            <option value="below_blades" data-i18n="len_below">Нижче лопаток</option>
+                        </select>
+                    </div>
+
+                    <div class="notice-badge enhanced-notice">
+                        <div class="notice-title">📌 Важливі примітки та правила майстра:</div>
+                        <ul class="notice-list">
+                            <li>Якщо ваше коріння більше 2 см, послуга фарбування вважається первинною відповідно до довжини відрослого волосся.</li>
+                            <li>Я не роблю блонд у техніці (AirTouch, балаяж і т. д.).</li>
+                            <li>Я не роблю вихід із чорного або рудого.</li>
+                            <li>Я не фарбую волосся після біозавивки, ботоксу, кератину.</li>
+                            <li>Якщо не знайшли підходящого варіанту — напишіть мені в дірект для консультації.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="photoUploadSection">
+                    <label class="field-label" data-i18n="photo_current_label">4. Завантажте фото вашого волосся:</label>
+                    <input type="file" id="clientHairPhoto" class="input-box" accept="image/*" style="padding: 8px;">
+                    <label class="field-label" style="margin-top: 4px;" data-i18n="photo_ref_label">5. Завантажте фото-референс або оберіть з портфоліо вище:</label>
+                    <input type="file" id="clientRefPhoto" class="input-box" accept="image/*" style="padding: 8px;">
+                </div>
+            </div>
+
+            <div class="form-card">
+                <div>
+                    <label class="field-label" data-i18n="selected_service_label">Обрана послуга та час</label>
+                    <input type="text" id="selectedServiceInput" class="input-box" readonly value="Спочатку оберіть категорію вище" style="font-weight:700;">
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div>
+                        <label class="field-label" data-i18n="date_label">Дата</label>
+                        <input type="date" id="clientDate" class="input-box" onchange="renderTimeSlots()">
+                    </div>
+                    <div>
+                        <label class="field-label" data-i18n="name_label">Ім'я</label>
+                        <input type="text" id="clientName" class="input-box" placeholder="Як звертатись">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div>
+                        <label class="field-label" data-i18n="phone_label">Телефон</label>
+                        <input type="tel" id="clientPhone" class="input-box" placeholder="+380...">
+                    </div>
+                    <div>
+                        <label class="field-label" data-i18n="email_label">Email (обов'язково)</label>
+                        <input type="email" id="clientEmail" class="input-box" placeholder="mail@example.com">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="field-label" data-i18n="social_label">Нік / соцмережа</label>
+                    <input type="text" id="clientSocial" class="input-box" placeholder="@username">
+                </div>
+
+                <div>
+                    <label class="field-label" data-i18n="slots_label">Доступні слоти часу (реальний час)</label>
+                    <div class="time-grid" id="timeSlotsGrid"></div>
+                </div>
+
+                <div class="notice-badge" id="slotNotice" data-i18n="slot_notice_init">
+                    ⚡ <b>Слот заброньовано на:</b> оберіть послугу та час.
+                </div>
+
+                <div class="notice-badge" data-i18n="deposit_notice">
+                    ⚡ <b>Умова броні:</b> Завдаток <b>500 грн</b> підтверджує запис.
+                </div>
+
+                <div class="policy-highlight-card">
+                    ⚠️ <b>Правила скасування:</b> Зміна або скасування можливі не пізніш ніж за 48 годин.<br>
+                    📄 Оформлюючи запис, ви погоджуєтесь із умовами <a onclick="openOffer()">Публічного договору оферти</a>.
+                </div>
+
+                <button class="btn-main" onclick="submitBooking()" data-i18n="pay_btn">Сплатити завдаток 500 ₴ та забронювати</button>
+            </div>
+        </div>
+
+        <!-- TAB: WORKS -->
+        <div id="paneWorks" class="section-pane">
+            <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/yJDvZJkZ/images1-png.png')"><img src="https://i.postimg.cc/yJDvZJkZ/images1-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/v1CXLQnw/images2-png.png')"><img src="https://i.postimg.cc/v1CXLQnw/images2-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/BLDpmd54/images3-png.png')"><img src="https://i.postimg.cc/BLDpmd54/images3-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/9RTbLvP0/images4-png.png')"><img src="https://i.postimg.cc/9RTbLvP0/images4-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/8JW4Zqd7/images5-png.png')"><img src="https://i.postimg.cc/8JW4Zqd7/images5-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/S28dgwLj/images6-png.png')"><img src="https://i.postimg.cc/S28dgwLj/images6-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/7G79Kp12/images7-png.png')"><img src="https://i.postimg.cc/7G79Kp12/images7-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/ph8CsgQz/images8-png.png')"><img src="https://i.postimg.cc/ph8CsgQz/images8-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/Hc5z6f0b/images9-png.png')"><img src="https://i.postimg.cc/Hc5z6f0b/images9-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/WDdXkDhJ/images10-png.png')"><img src="https://i.postimg.cc/WDdXkDhJ/images10-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/f3VB93JY/images11-png.png')"><img src="https://i.postimg.cc/f3VB93JY/images11-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/XZrQCZpd/images12-png.png')"><img src="https://i.postimg.cc/XZrQCZpd/images12-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/QBF0TBH0/images13-png.png')"><img src="https://i.postimg.cc/QBF0TBH0/images13-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/QBF0TBH4/images14-png.png')"><img src="https://i.postimg.cc/QBF0TBH4/images14-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/5HDpqxCs/images15-png.png')"><img src="https://i.postimg.cc/5HDpqxCs/images15-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/Z9XjFTdf/images16-png.png')"><img src="https://i.postimg.cc/Z9XjFTdf/images16-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/f315jw92/images17-png.png')"><img src="https://i.postimg.cc/f315jw92/images17-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/7CjXMx2W/images18-png.png')"><img src="https://i.postimg.cc/7CjXMx2W/images18-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/mcKVNbH0/images19-png.png')"><img src="https://i.postimg.cc/mcKVNbH0/images19-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/zL4pSJh5/images20-png.png')"><img src="https://i.postimg.cc/zL4pSJh5/images20-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div style="height:170px; border-radius:10px; overflow:hidden; border:1px solid var(--border); cursor:pointer;" onclick="openLightbox('https://i.postimg.cc/DJs6xtQV/images21-png.png')"><img src="https://i.postimg.cc/DJs6xtQV/images21-png.png" style="width:100%; height:100%; object-fit:cover;"></div>
+            </div>
+        </div>
+
+        <!-- TAB: LOCATION -->
+        <div id="paneLoc" class="section-pane">
+            <div class="info-card" data-i18n-html="loc_info">
+                📍 <b>Локація:</b> м. Дніпро, вул. Володимира Вернадського, 356.<br><br>
+                Приватний простір, мінімалізм та фокус на якості.<br>
+                <a href="https://maps.google.com/?q=Dnipro,+Volodymyra+Vernadskoho+356" target="_blank" class="map-btn">Відкрити в Google Maps</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Offer -->
+    <div id="offerModal">
+        <div class="modal-body">
+            <h3 data-i18n="modal_title">Публічний договір оферти</h3>
+            <p data-i18n-html="modal_text">
+                <b>1. Загальні положення</b><br>Умови надання послуг.<br><br>
+                <b>2. Передоплата</b><br>Завдаток 500 грн.<br><br>
+                <b>3. Скасування</b><br>Менш ніж за 48 годин — без повернення.
+            </p>
+            <button class="btn-main" onclick="closeOffer()" data-i18n="modal_btn">Зрозуміло</button>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div id="imageLightboxModal" onclick="closeLightbox()">
+        <img id="lightboxImage" src="" alt="Збільшене фото">
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
