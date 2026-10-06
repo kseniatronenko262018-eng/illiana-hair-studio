@@ -19,7 +19,7 @@ app.post('/api/create-invoice', async (req, res) => {
                 "X-Token": MONO_TOKEN
             },
             body: JSON.stringify({
-                amount: 50000,
+                amount: 100,
                 ccy: 980,
                 merchantPaymInfo: {
                     destination: "Zavdatok za poslugu (FOP Yavir I.V.)",
