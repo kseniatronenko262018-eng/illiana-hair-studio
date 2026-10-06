@@ -6,18 +6,18 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-const MONO_TOKEN = 'mF4VYm_rjXjOAAAF1FJJ5yw';
+const MONO_TOKEN = 'mF4VYm_rjXjOAAAF1FJJ5yw';[cite: 1, 4]
 
 // Сховища в пам'яті сервера для синхронізації
 let blockedDays = [];
 let studioBookings = [];
 
-// Маршрут головної сторінки для клієнтів
+// Головна сторінка для клієнтів
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Окремий захищений маршрут для сторінки майстра
+// Окрема захищена сторінка кабінету майстра
 app.get('/master', (req, res) => {
     res.sendFile(path.join(__dirname, 'master.html'));
 });
@@ -27,7 +27,7 @@ app.get('/api/blocked-days', (req, res) => {
     res.json(blockedDays);
 });
 
-// API: Блокування дня майстром (потрібен PIN)
+// API: Блокування дня майстром (потрібен PIN 1988)
 app.post('/api/block-day', (req, res) => {
     const { date, password } = req.body;
     if (password !== '1988') {
@@ -39,7 +39,7 @@ app.post('/api/block-day', (req, res) => {
     res.json({ success: true, blockedDays });
 });
 
-// API: Розблокування дня майстром (потрібен PIN)
+// API: Розблокування дня майстром
 app.post('/api/unblock-day', (req, res) => {
     const { date, password } = req.body;
     if (password !== '1988') {
@@ -65,7 +65,7 @@ app.post('/api/bookings', (req, res) => {
     }
 });
 
-// Створення інвойсу на оплату через Monobank (500 грн)
+// Ендпоінт для створення платежу через еквайринг Monobank
 app.post('/api/create-invoice', async (req, res) => {
     try {
         const { name, date, time } = req.body;
@@ -80,8 +80,8 @@ app.post('/api/create-invoice', async (req, res) => {
                 amount: 50000, // 500 грн у копійках
                 ccy: 980,
                 merchantPaymInfo: {
-                    destination: "Zavdatok za poslugu (FOP Yavir I.V.)",
-                    comment: `Zapis klienta ${name} na ${date} o ${time}`
+                    destination: "Завдаток за послугу (ФОП Явір І.В.)",[cite: 3]
+                    comment: `Запис клієнта ${name} на ${date} о ${time}`[cite: 3]
                 },
                 redirectUrl: req.headers.referer || "https://render.com",
                 webHookUrl: "https://example.com/webhook"
@@ -91,30 +91,12 @@ app.post('/api/create-invoice', async (req, res) => {
         const data = await response.json();
         res.json(data);
     } catch (error) {
-        console.error("Pomylka pry stvorenni invoisu:", error);
-        res.status(500).json({ error: "Ne vdalosya stvoryty platizh" });
-    }
-});
-
-// Перевірка статусу інвойсу
-app.post('/api/check-invoice', async (req, res) => {
-    try {
-        const { invoiceId } = req.body;
-        const response = await fetch(`https://api.monobank.ua/api/merchant/invoice/status?invoiceId=${invoiceId}`, {
-            method: "GET",
-            headers: {
-                "X-Token": MONO_TOKEN
-            }
-        });
-        const data = await response.json();
-        res.json(data);
-    } catch (error) {
-        console.error("Pomylka pervirky statusu:", error);
-        res.status(500).json({ error: "Ne vdalosya perviryty status" });
+        console.error("Помилка при створенні інвойсу:", error);
+        res.status(500).json({ error: "Не вдалося створити платіж" });
     }
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server zapusheno na portu ${PORT}`);
+    console.log(`Сервер запущено на порту ${PORT}`);
 });
