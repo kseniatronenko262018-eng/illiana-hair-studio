@@ -1,77 +1,44 @@
-﻿document.addEventListener('DOMContentLoaded', () => {
-    const bookingForm = document.getElementById('bookingForm'); // Замініть на ваш реальний ID форми або кнопки запису
+﻿const express = require('express');
+const fetch = require('node-fetch');
+const path = require('path');
+const app = express();
 
-    if (bookingForm) {
-        bookingForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+app.use(express.json());
+app.use(express.static(path.join(__dirname)));
 
-            // Отримуємо дані з форми (адаптуйте під ваші поля введення)
-            const name = document.getElementById('clientName')?.value || 'Klient';
-            const date = document.getElementById('bookingDate')?.value || '2026-10-06';
-            const time = document.getElementById('bookingTime')?.value || '12:00';
+const MONO_TOKEN = 'mF4VYm_rjXjOAAAF1FJJ5yw';
 
-            try {
-                // 1. Створюємо інвойс на бекенді
-                const response = await fetch('/api/create-invoice', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, date, time })
-                });
+app.post('/api/create-invoice', async (req, res) => {
+    try {
+        const { name, date, time } = req.body;
 
-                const data = await response.json();
-
-                if (data.pageUrl && data.invoiceId) {
-                    // Зберігаємо invoiceId в пам'яті браузера для перевірки після повернення
-                    localStorage.setItem('currentInvoiceId', data.invoiceId);
-                    
-                    // Перенаправляємо користувача на сторінку оплати Monobank
-                    window.location.href = data.pageUrl;
-                } else {
-                    alert('Не вдалося створити платіжне посилання.');
-                }
-            } catch (err) {
-                console.error('Помилка:', err);
-                let errorMessage = 'Сталася помилка зв’язку з сервером.';
-                if (err instanceof Error) {
-                    errorMessage += ` Деталі: ${err.message}`;
-                }
-                alert(errorMessage);
-            }
+        const response = await fetch("https://api.monobank.ua/api/merchant/invoice/create", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Token": MONO_TOKEN
+            },
+            body: JSON.stringify({
+                amount: 50000, // 500 грн у копійках
+                ccy: 980,
+                merchantPaymInfo: {
+                    destination: "Zavdatok za poslugu (FOP Yavir I.V.)",
+                    comment: `Zapis klienta ${name} na ${date} o ${time}`
+                },
+                redirectUrl: req.headers.referer || "https://render.com",
+                webHookUrl: "https://example.com/webhook"
+            })
         });
+
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error("Pomylka pry stvorenni invoisu:", error);
+        res.status(500).json({ error: "Ne vdalosya stvoryty platizh" });
     }
+});
 
-    // 2. Перевірка оплати після повернення клієнта на сайт
-    async function verifyPaymentOnReturn() {
-        const invoiceId = localStorage.getItem('currentInvoiceId');
-        if (!invoiceId) return;
-
-        try {
-            const response = await fetch('/api/check-invoice', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ invoiceId })
-            });
-
-            const paymentData = await response.json();
-
-            // Статус "success" означає, що кошти успішно сплачено
-            if (paymentData.status === 'success') {
-                alert('Оплату успішно підтверджено! Ваш запис збережено.');
-                localStorage.removeItem('currentInvoiceId');
-                // Тут можна додати логіку очищення форми або оновлення сторінки
-            } else if (paymentData.status === 'processing' || paymentData.status === 'hold') {
-                // Якщо платіж ще в обробці
-                console.log('Платіж обробляється...');
-            } else {
-                // Якщо не сплачено або скасовано
-                // alert('Запис не збережено, оскільки оплату не підтверджено.');
-                localStorage.removeItem('currentInvoiceId');
-            }
-        } catch (err) {
-            console.error('Помилка перевірки статусу оплати:', err);
-        }
-    }
-
-    // Викликаємо перевірку при завантаженні сторінки (якщо клієнт повернувся з оплати)
-    verifyPaymentOnReturn();
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server zapusheno na portu ${PORT}`);
 });
