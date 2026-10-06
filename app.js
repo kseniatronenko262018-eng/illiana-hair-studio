@@ -242,7 +242,7 @@ function updateServiceInputText() {
     if (srvInput) srvInput.value = text;
 }
 
-// Генерація слотів: робота з 10:00 до 19:00, перевірка за тривалістю та 3-годинний ліміт для запису день-у-день
+// Генерація слотів: робота з 10:00 до 19:00 з кроком 30 хвилин
 function renderTimeSlots() {
     const grid = document.getElementById('timeSlotsGrid');
     if (!grid) return;
@@ -263,10 +263,10 @@ function renderTimeSlots() {
 
     let workStartMinutes = 10 * 60; // 10:00
     let workEndMinutes = 19 * 60;   // 19:00
-    let intervalMinutes = 180;      // 3 години проміжок
+    let intervalMinutes = 30;       // Крок у 30 хвилин (10:00, 10:30, 11:00...)
 
     let slots = [];
-    for (let m = workStartMinutes; m <= workEndMinutes; m += intervalMinutes) {
+    for (let m = workStartMinutes; m < workEndMinutes; m += intervalMinutes) {
         if (m + serviceDuration <= workEndMinutes) {
             let hours = Math.floor(m / 60);
             let mins = m % 60;
@@ -297,7 +297,7 @@ function renderTimeSlots() {
             div.innerText = `${slot.timeStr}\n(Зайнято)`;
         } else if (isTooSoonToday) {
             div.className += ' booked';
-            div.innerText = `${slot.timeStr}\n(Менш ніж за 3 год)`;
+            div.innerText = `${slot.timeStr}\n(< 3 год)`;
         } else {
             div.innerText = slot.timeStr;
             div.onclick = () => selectTime(slot.timeStr, div);
@@ -374,7 +374,7 @@ async function submitBooking() {
     if (isRegular) {
         let confirmRegular = confirm(`✨ Вітаємо, ${name}!\n\nМи розпізнали вас як постійного клієнта. Для вас завдаток 500 ₴ скасовано!\n\nНатисніть "OK", щоб завершити бронювання.`);
         if (!confirmRegular) { alert("Бронювання скасовано."); return; }
-        depositPaid = true; // Для постійних вважається підтвердженим без оплати
+        depositPaid = true;
     } else {
         let payAction = confirm(
             `✨ Увага, ${name}!\n\n` +
@@ -532,7 +532,6 @@ function handleExcelImport(event) {
             let worksheet = workbook.Sheets[firstSheetName];
             let json = XLSX.utils.sheet_to_json(worksheet);
 
-            // Очікуємо поля у файлі на зразок name/Ім'я та phone/Телефон
             json.forEach(row => {
                 let name = row['Name'] || row['Ім’я'] || row['Імя'] || row['name'] || '';
                 let phone = row['Phone'] || row['Телефон'] || row['phone'] || '';
