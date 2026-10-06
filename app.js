@@ -13,8 +13,9 @@ let selectedCalendarDateStr = new Date().toISOString().split('T')[0];
 const TELEGRAM_BOT_USERNAME = 'illianahair_bot';
 let serverBlockedDays = [];
 let serverBookingsList = [];
+let regularClientsList = []; // База постійних клієнтів
 
-// Автоматичне завантаження заблокованих днів та записів з сервера
+// Автоматичне завантаження заблокованих днів, записів та постійних клієнтів з сервера
 async function syncServerData() {
     try {
         let resBlocks = await fetch('/api/blocked-days');
@@ -25,6 +26,11 @@ async function syncServerData() {
         let resBooks = await fetch('/api/bookings');
         serverBookingsList = await resBooks.json() || [];
     } catch (e) { console.error("Помилка завантаження записів:", e); }
+
+    // Завантаження постійних клієнтів із локального сховища або сервера
+    try {
+        regularClientsList = JSON.parse(localStorage.getItem('illiana_regular_clients') || '[]');
+    } catch (e) { regularClientsList = []; }
 }
 
 window.onload = async function() {
@@ -45,6 +51,7 @@ window.onload = async function() {
     renderTimeSlots();
     loadExpensesFromStorage();
     updateDashboardStats();
+    renderRegularClientsList();
     
     let savedBg = localStorage.getItem('illiana_custom_bg');
     const bgImgEl = document.getElementById('bgImageElement');
@@ -84,7 +91,7 @@ function switchTab(tabName, el) {
     if (el) el.classList.add('active');
 }
 
-// Нова структура послуг згідно з актуальним прайсом та тривалістю
+// Актуальний прайс та тривалість
 const subServicesData = {
     cut: [
         { id: 'cut_main', title: 'Стрижка (будь-яка)', price: 1000, duration: 90 }
@@ -255,8 +262,8 @@ function renderTimeSlots() {
     }
 
     let workStartMinutes = 10 * 60; // 10:00
-    let workEndMinutes = 19 * 60;   // 19:00 (кінець робочого дня)
-    let intervalMinutes = 180;      // 3 години проміжок між слотами
+    let workEndMinutes = 19 * 60;   // 19:00
+    let intervalMinutes = 180;      // 3 години проміжок
 
     let slots = [];
     for (let m = workStartMinutes; m <= workEndMinutes; m += intervalMinutes) {
@@ -268,7 +275,6 @@ function renderTimeSlots() {
         }
     }
 
-    // Перевірка запису день у день (мінімум за 3 години)
     let now = new Date();
     let todayStr = now.toISOString().split('T')[0];
     let currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
@@ -322,6 +328,22 @@ function readFileAsBase64(fileInputId) {
     });
 }
 
+// Перевірка, чи є клієнт постійним (за телефоном або іменем)
+function checkIfRegularClient(name, phone) {
+    let cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : '';
+    let cleanName = name ? name.trim().toLowerCase() : '';
+
+    return regularClientsList.some(client => {
+        let cPhone = client.phone ? client.phone.replace(/[^0-9]/g, '') : '';
+        let cName = client.name ? client.name.trim().toLowerCase() : '';
+        
+        let matchPhone = cleanPhone && cPhone && (cleanPhone === cPhone || cleanPhone.endsWith(cPhone) || cPhone.endsWith(cleanPhone));
+        let matchName = cleanName && cName && cleanName === cName;
+
+        return matchPhone || matchName;
+    });
+}
+
 async function submitBooking() {
     const nameEl = document.getElementById('clientName');
     const phoneEl = document.getElementById('clientPhone');
@@ -345,31 +367,40 @@ async function submitBooking() {
         return;
     }
 
+    // Перевірка на постійного клієнта
+    let isRegular = checkIfRegularClient(name, phone);
     let depositPaid = false;
-    let payAction = confirm(
-        `✨ Увага, ${name}!\n\n` +
-        `Для нових клієнтів обов'язковий завдаток 500 ₴ (ФОП Явір Ілліяна Володимирівна).\n\n` +
-        `Натисніть "OK", щоб перейти до оплати через еквайринг Monobank.`
-    );
-    
-    if (!payAction) { alert("Бронювання скасовано."); return; }
 
-    try {
-        let response = await fetch("/api/create-invoice", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, date, time: selectedTimeSlot })
-        });
-        let result = await response.json();
-        if (result && result.pageUrl) { window.open(result.pageUrl, '_blank'); }
-        else { window.open("https://send.monobank.ua/", '_blank'); }
-    } catch (error) {
-        window.open("https://send.monobank.ua/", '_blank');
+    if (isRegular) {
+        let confirmRegular = confirm(`✨ Вітаємо, ${name}!\n\nМи розпізнали вас як постійного клієнта. Для вас завдаток 500 ₴ скасовано!\n\nНатисніть "OK", щоб завершити бронювання.`);
+        if (!confirmRegular) { alert("Бронювання скасовано."); return; }
+        depositPaid = true; // Для постійних вважається підтвердженим без оплати
+    } else {
+        let payAction = confirm(
+            `✨ Увага, ${name}!\n\n` +
+            `Для нових клієнтів обов'язковий завдаток 500 ₴ (ФОП Явір Ілліяна Володимирівна).\n\n` +
+            `Натисніть "OK", щоб перейти до оплати через еквайринг Monobank.`
+        );
+        
+        if (!payAction) { alert("Бронювання скасовано."); return; }
+
+        try {
+            let response = await fetch("/api/create-invoice", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, date, time: selectedTimeSlot })
+            });
+            let result = await response.json();
+            if (result && result.pageUrl) { window.open(result.pageUrl, '_blank'); }
+            else { window.open("https://send.monobank.ua/", '_blank'); }
+        } catch (error) {
+            window.open("https://send.monobank.ua/", '_blank');
+        }
+
+        let confirmPaid = confirm(`💳 Після здійснення оплати 500 ₴ поверніться сюди.\n\nЧи успішно ви сплатили завдаток?\nНатисніть "OK", щоб завершити запис.`);
+        if (!confirmPaid) { alert("Запис не збережено."); return; }
+        depositPaid = true;
     }
-
-    let confirmPaid = confirm(`💳 Після здійснення оплати 500 ₴ поверніться сюди.\n\nЧи успішно ви сплатили завдаток?\nНатисніть "OK", щоб завершити запис.`);
-    if (!confirmPaid) { alert("Запис не збережено."); return; }
-    depositPaid = true;
 
     let hairPhotoBase64 = await readFileAsBase64('clientHairPhoto');
     let refPhotoBase64 = await readFileAsBase64('clientRefPhoto');
@@ -389,7 +420,7 @@ async function submitBooking() {
         hairPhoto: hairPhotoBase64,
         refPhoto: refPhotoBase64,
         depositPaid: depositPaid,
-        status: 'pending'
+        status: isRegular ? 'regular_client' : 'pending'
     };
 
     try {
@@ -405,7 +436,7 @@ async function submitBooking() {
     let botUsername = typeof TELEGRAM_BOT_USERNAME !== 'undefined' ? TELEGRAM_BOT_USERNAME : 'illianahair_bot';
     let botLink = `https://t.me/${botUsername}?start=booking_${newBooking.id}`;
     let successMessage = `Дякуємо, ${name}! Запис на ${date} о ${selectedTimeSlot} успішно збережено!\n\n` +
-        `✅ Завдаток 500 ₴ сплачено та підтверджено.\n\n` +
+        (isRegular ? `🌟 Ви увійшли як постійний клієнт (без завдатку).\n\n` : `✅ Завдаток 500 ₴ сплачено та підтверджено.\n\n`) +
         `📱 Зараз ви будете перенаправлені в наш Telegram бот для фіксації та нагадувань.`;
     
     alert(successMessage);
@@ -413,7 +444,7 @@ async function submitBooking() {
     location.reload();
 }
 
-// --- КАБІНЕТ МАЙСТРА ---
+// --- КАБІНЕТ МАЙСТРА ТА БАЗА ПОСТІЙНИХ КЛІЄНТІВ ---
 function forceBypassPin() {
     const loginBox = document.getElementById('masterLoginBox');
     const dashBox = document.getElementById('masterDashboard');
@@ -421,6 +452,7 @@ function forceBypassPin() {
     if (dashBox) dashBox.style.display = 'flex';
     initCalendar();
     updateDashboardStats();
+    renderRegularClientsList();
 }
 
 function loginMaster() {
@@ -437,6 +469,87 @@ function logoutMaster() {
     if (dashBox) dashBox.style.display = 'none';
     if (loginBox) loginBox.style.display = 'flex';
     if (pinInput) pinInput.value = '';
+}
+
+// Функції управління базою постійних клієнтів (імпорт з Excel та ручне додавання)
+function renderRegularClientsList() {
+    let container = document.getElementById('regularClientsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (regularClientsList.length === 0) {
+        container.innerHTML = `<div style="font-size:11px; color:var(--text-muted);">База постійних клієнтів порожня. Імпортуйте Excel або додайте клієнтів нижче.</div>`;
+        return;
+    }
+
+    regularClientsList.forEach((client, idx) => {
+        container.innerHTML += `
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; background:var(--card-bg); padding:6px 10px; border-radius:6px; margin-bottom:4px;">
+                <span><b>${client.name}</b> — 📞 ${client.phone}</span>
+                <button onclick="deleteRegularClient(${idx})" style="background:none; border:none; color:var(--accent); cursor:pointer;">✕ Видалити</button>
+            </div>
+        `;
+    });
+}
+
+function addRegularClientManual() {
+    let nameInput = document.getElementById('regClientName');
+    let phoneInput = document.getElementById('regClientPhone');
+    let name = nameInput ? nameInput.value.trim() : '';
+    let phone = phoneInput ? phoneInput.value.trim() : '';
+
+    if (!name || !phone) {
+        alert("Введіть ім'я та телефон клієнта!");
+        return;
+    }
+
+    regularClientsList.push({ name, phone });
+    localStorage.setItem('illiana_regular_clients', JSON.stringify(regularClientsList));
+    
+    if (nameInput) nameInput.value = '';
+    if (phoneInput) phoneInput.value = '';
+    renderRegularClientsList();
+    alert("Постійного клієнта успішно додано!");
+}
+
+function deleteRegularClient(index) {
+    regularClientsList.splice(index, 1);
+    localStorage.setItem('illiana_regular_clients', JSON.stringify(regularClientsList));
+    renderRegularClientsList();
+}
+
+// Імпорт постійних клієнтів з Excel файлу
+function handleExcelImport(event) {
+    let file = event.target.files[0];
+    if (!file) return;
+
+    let reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            let data = new Uint8Array(e.target.result);
+            let workbook = XLSX.read(data, { type: 'array' });
+            let firstSheetName = workbook.SheetNames[0];
+            let worksheet = workbook.Sheets[firstSheetName];
+            let json = XLSX.utils.sheet_to_json(worksheet);
+
+            // Очікуємо поля у файлі на зразок name/Ім'я та phone/Телефон
+            json.forEach(row => {
+                let name = row['Name'] || row['Ім’я'] || row['Імя'] || row['name'] || '';
+                let phone = row['Phone'] || row['Телефон'] || row['phone'] || '';
+                if (name && phone) {
+                    regularClientsList.push({ name: String(name), phone: String(phone) });
+                }
+            });
+
+            localStorage.setItem('illiana_regular_clients', JSON.stringify(regularClientsList));
+            renderRegularClientsList();
+            alert(`Успішно імпортовано клієнтів із файлу Excel!`);
+        } catch (err) {
+            console.error("Помилка читання Excel:", err);
+            alert("Не вдалося прочитати файл Excel. Перевірте формат.");
+        }
+    };
+    reader.readAsArrayBuffer(file);
 }
 
 function setCalendarMode(mode) { 
@@ -539,7 +652,7 @@ function renderDayBookings(dateStr) {
         item.className = 'booking-item';
         item.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <b>🕒 ${b.time} — ${b.name}</b>
+                <b>🕒 ${b.time} — ${b.name}</b> ${b.status === 'regular_client' ? '<span style="color:var(--accent); font-size:9px;">(Постійний)</span>' : ''}
             </div>
             <div style="font-size:10px; color:var(--text-main);"><b>Послуга:</b> ${b.service}</div>
             <div style="font-size:10px; color:var(--text-muted);">📞 ${b.phone} | ✉️ ${b.email}</div>
