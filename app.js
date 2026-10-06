@@ -1,44 +1,35 @@
-﻿const express = require('express');
-const fetch = require('node-fetch');
-const path = require('path');
-const app = express();
+﻿document.addEventListener('DOMContentLoaded', () => {
+    // Шукаємо форму або кнопку оплати на сайті
+    const payButton = document.getElementById('payButton') || document.querySelector('form');
 
-app.use(express.json());
-app.use(express.static(path.join(__dirname)));
+    if (payButton) {
+        payButton.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-const MONO_TOKEN = 'mF4VYm_rjXjOAAAF1FJJ5yw';
+            try {
+                // Відправляємо запит на створення інвойсу до server.js
+                const response = await fetch('/api/create-invoice', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: "Klient",
+                        date: "2026-10-06",
+                        time: "12:00"
+                    })
+                });
 
-app.post('/api/create-invoice', async (req, res) => {
-    try {
-        const { name, date, time } = req.body;
+                const data = await response.json();
 
-        const response = await fetch("https://api.monobank.ua/api/merchant/invoice/create", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-Token": MONO_TOKEN
-            },
-            body: JSON.stringify({
-                amount: 50000, // 500 грн у копійках
-                ccy: 980,
-                merchantPaymInfo: {
-                    destination: "Zavdatok za poslugu (FOP Yavir I.V.)",
-                    comment: `Zapis klienta ${name} na ${date} o ${time}`
-                },
-                redirectUrl: req.headers.referer || "https://render.com",
-                webHookUrl: "https://example.com/webhook"
-            })
+                if (data.pageUrl) {
+                    // Перенаправляємо на сторінку оплати Monobank
+                    window.location.href = data.pageUrl;
+                } else {
+                    alert('Не вдалося створити платіж.');
+                }
+            } catch (error) {
+                console.error('Помилка:', error);
+                alert('Сталася помилка при з'єднанні з сервером.');
+            }
         });
-
-        const data = await response.json();
-        res.json(data);
-    } catch (error) {
-        console.error("Pomylka pry stvorenni invoisu:", error);
-        res.status(500).json({ error: "Ne vdalosya stvoryty platizh" });
     }
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server zapusheno na portu ${PORT}`);
 });
