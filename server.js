@@ -6,9 +6,8 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-const MONO_TOKEN = 'mF4VYm_rjXjOAAAF1FJJ5yw'; //[cite: 1, 4]
+const MONO_TOKEN = 'mF4VYm_rjXjOAAAF1FJJ5yw';[cite: 1, 4]
 
-// Åíäïî³íò äëÿ ñòâîðåííÿ ïëàòåæó ÷åðåç åêâàéðèíã Monobank
 app.post('/api/create-invoice', async (req, res) => {
     try {
         const { name, date, time } = req.body;
@@ -20,11 +19,11 @@ app.post('/api/create-invoice', async (req, res) => {
                 "X-Token": MONO_TOKEN
             },
             body: JSON.stringify({
-                amount: 50000, // 500 ãðí ó êîï³éêàõ
+                amount: 50000,
                 ccy: 980,
                 merchantPaymInfo: {
-                    destination: "Çàâäàòîê çà ïîñëóãó (ÔÎÏ ßâ³ð ².Â.)",
-                    comment: `Çàïèñ êë³ºíòà ${name} íà ${date} î ${time}`
+                    destination: "Zavdatok za poslugu (FOP Yavir I.V.)",
+                    comment: `Zapis klienta ${name} na ${date} o ${time}`
                 },
                 redirectUrl: req.headers.referer || "https://render.com",
                 webHookUrl: "https://example.com/webhook"
@@ -34,12 +33,12 @@ app.post('/api/create-invoice', async (req, res) => {
         const data = await response.json();
         res.json(data);
     } catch (error) {
-        console.error("Ïîìèëêà ïðè ñòâîðåíí³ ³íâîéñó:", error);
-        res.status(500).json({ error: "Íå âäàëîñÿ ñòâîðèòè ïëàò³æ" });
+        console.error("Pomylka pry stvorenni invoisu:", error);
+        res.status(500).json({ error: "Ne vdalosya stvoryty platizh" });
     }
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Ñåðâåð çàïóùåíî íà ïîðòó ${PORT}`);
+    console.log(`Server zapusheno na portu ${PORT}`);
 });
