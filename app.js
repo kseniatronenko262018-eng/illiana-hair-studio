@@ -68,9 +68,18 @@ function switchTab(tabName, el) {
     document.querySelectorAll('.section-pane').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.quick-nav .nav-chip').forEach(c => c.classList.remove('active'));
     
-    if (tabName === 'book') document.getElementById('paneBook').classList.add('active');
-    if (tabName === 'works') document.getElementById('paneWorks').classList.add('active');
-    if (tabName === 'loc') document.getElementById('paneLoc').classList.add('active');
+    if (tabName === 'book') {
+        let pane = document.getElementById('paneBook');
+        if (pane) pane.classList.add('active');
+    }
+    if (tabName === 'works') {
+        let pane = document.getElementById('paneWorks');
+        if (pane) pane.classList.add('active');
+    }
+    if (tabName === 'loc') {
+        let pane = document.getElementById('paneLoc');
+        if (pane) pane.classList.add('active');
+    }
     
     if (el) el.classList.add('active');
 }
@@ -212,7 +221,6 @@ function updateServiceInputText() {
     if (srvInput) srvInput.value = text;
 }
 
-// Динамічна генерація слотів з урахуванням тривалості послуги та інтервалу 3 години
 function renderTimeSlots() {
     const grid = document.getElementById('timeSlotsGrid');
     if (!grid) return;
@@ -482,7 +490,153 @@ async function initCalendar() {
             grid.appendChild(cell);
         }
     }
-    container.appendChild(
+    container.appendChild(grid);
+    renderDayBookings(selectedCalendarDateStr);
+}
+
+function renderDayBookings(dateStr) {
+    let selLabel = document.getElementById('selectedDateLabel');
+    if (selLabel) selLabel.innerText = `Записи на ${dateStr}:`;
+    
+    const container = document.getElementById('dayBookingsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    let dayList = serverBookingsList.filter(b => b.date === dateStr);
+    if (dayList.length === 0) {
+        container.innerHTML = `<div style="font-size:10px; color:var(--text-muted); padding: 4px;">Немає записів на цей день.</div>`;
+        return;
+    }
+
+    dayList.forEach((b) => {
+        let phoneClean = b.phone ? b.phone.replace(/[^0-9]/g, '') : '';
+        let item = document.createElement('div');
+        item.className = 'booking-item';
+        item.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <b>🕒 ${b.time} — ${b.name}</b>
+            </div>
+            <div style="font-size:10px; color:var(--text-main);"><b>Послуга:</b> ${b.service}</div>
+            <div style="font-size:10px; color:var(--text-muted);">📞 ${b.phone} | ✉️ ${b.email}</div>
+            <div style="display:flex; gap:6px; margin-top:4px;">
+                <a href="https://t.me/${phoneClean}" target="_blank" class="social-btn">💬 Telegram</a>
+            </div>
+        `;
+        container.appendChild(item);
+    });
+}
+
+async function toggleBlockSelectedDate() {
+    let password = prompt("Введіть PIN-код майстра (1988):");
+    if (!password) return;
+
+    let isBlocked = serverBlockedDays.includes(selectedCalendarDateStr);
+    let endpoint = isBlocked ? '/api/unblock-day' : '/api/block-day';
+
+    try {
+        let res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ date: selectedCalendarDateStr, password: password })
+        });
+        let result = await res.json();
+        if (res.ok && result.success) {
+            serverBlockedDays = result.blockedDays;
+            alert(isBlocked ? "День розблоковано!" : "День заблоковано як вихідний!");
+            initCalendar();
+        } else {
+            alert(result.error || "Помилка");
+        }
+    } catch (e) {
+        console.error("Помилка:", e);
+        alert("Не вдалося зв'язатися з сервером.");
+    }
+}
+
+// Витрати та статистика
+function getStoredExpenses() { return JSON.parse(localStorage.getItem('illiana_expenses') || '[]'); }
+function saveExpensesToStorage(exp) { localStorage.setItem('illiana_expenses', JSON.stringify(exp)); }
+function loadExpensesFromStorage() { renderExpensesList(); }
+
+function addExpense() {
+    let nameInput = document.getElementById('expenseNameInput');
+    let amountInput = document.getElementById('expenseAmountInput');
+    let name = nameInput ? nameInput.value.trim() : '';
+    let amount = amountInput ? parseFloat(amountInput.value) : 0;
+    
+    if (!name || isNaN(amount)) return alert("Введіть дані витрат!");
+    let expenses = getStoredExpenses();
+    let statsMonth = document.getElementById('statsMonthInput');
+    expenses.push({ id: 'exp_' + Date.now(), monthStr: statsMonth ? statsMonth.value : '', name, amount });
+    saveExpensesToStorage(expenses);
+    if (nameInput) nameInput.value = '';
+    if (amountInput) amountInput.value = '';
+    renderExpensesList();
+    updateDashboardStats();
+}
+
+function deleteExpense(id) {
+    saveExpensesToStorage(getStoredExpenses().filter(e => e.id !== id));
+    renderExpensesList();
+    updateDashboardStats();
+}
+
+function renderExpensesList() {
+    const container = document.getElementById('expensesListContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    let statsMonth = document.getElementById('statsMonthInput');
+    let targetMonth = statsMonth ? statsMonth.value : '';
+    getStoredExpenses().filter(e => e.monthStr === targetMonth).forEach(e => {
+        container.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:10px; background:var(--card-bg); padding:4px 8px; border-radius:6px;"><span>${e.name} — <b>${e.amount} ₴</b></span><button onclick="deleteExpense('${e.id}')" style="background:none; border:none; color:var(--accent); cursor:pointer;">✕</button></div>`;
+    });
+}
+
+function updateDashboardStats() {
+    let statsMonth = document.getElementById('statsMonthInput');
+    let targetMonth = statsMonth ? statsMonth.value : '';
+    let totalIncome = 0;
+    serverBookingsList.forEach(b => {
+        if (b.date.startsWith(targetMonth)) {
+            let match = b.service.match(/—\s*(\d+)\s*₴/);
+            if (match) totalIncome += parseInt(match[1]);
+        }
+    });
+    let totalExp = getStoredExpenses().filter(e => e.monthStr === targetMonth).reduce((s, e) => s + e.amount, 0);
+    
+    let elInc = document.getElementById('statCompleted');
+    let elExp = document.getElementById('statExpenses');
+    let elNet = document.getElementById('statNetProfit');
+    
+    if (elInc) elInc.innerText = `${totalIncome} ₴`;
+    if (elExp) elExp.innerText = `${totalExp} ₴`;
+    if (elNet) elNet.innerText = `${totalIncome - totalExp} ₴`;
+}
+
+exportToExcel = function() {
+    let ws = XLSX.utils.json_to_sheet(serverBookingsList);
+    let wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Записи");
+    XLSX.writeFile(wb, "bookings.xlsx");
+};
+
+function updateStudioBackground() {
+    let url = prompt("Введіть силку на фон:");
+    if (url) { localStorage.setItem('illiana_custom_bg', url); let bgEl = document.getElementById('bgImageElement'); if(bgEl) bgEl.src = url; }
+}
+
+function resetStudioBackground() { 
+    localStorage.removeItem('illiana_custom_bg'); 
+    let bgEl = document.getElementById('bgImageElement');
+    if(bgEl) bgEl.src = "https://i.ibb.co/M5stSykh/photo-2026-09-30-14-50-24.jpg"; 
+}
+
+function openLightbox(url) { 
+    let img = document.getElementById('lightboxImage');
+    let modal = document.getElementById('imageLightboxModal');
+    if(img && modal) { img.src = url; modal.style.display = 'flex'; }
+}
+
 function closeLightbox() { 
     let modal = document.getElementById('imageLightboxModal');
     if(modal) modal.style.display = 'none'; 
