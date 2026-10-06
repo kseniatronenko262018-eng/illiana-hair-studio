@@ -1,4 +1,4 @@
-﻿// --- СИНХРОНІЗАЦІЯ ВИХІДНИХ ТА БЛОКУВАННЯ ДНІВ ---
+﻿// --- БЛОКУВАННЯ ВИХІДНИХ ДНІВ ---
 let blockedDaysCache = [];
 
 async function loadBlockedDays() {
@@ -11,14 +11,13 @@ async function loadBlockedDays() {
     }
 }
 
-// Завантажуємо вихідні одразу при старті сторінки
 loadBlockedDays();
 
 function isDayBlocked(dateString) {
     return blockedDaysCache.includes(dateString);
 }
 
-// Функція блокування/розблокування дня з кабінету майстра
+// Функція блокування/розблокування дня з кабінету майстра (працює лише на сторінці /master)
 async function toggleBlockSelectedDate() {
     const dateInput = document.getElementById('clientDate'); 
     if (!dateInput || !dateInput.value) {
@@ -43,7 +42,6 @@ async function toggleBlockSelectedDate() {
         if (response.ok && result.success) {
             blockedDaysCache = result.blockedDays;
             alert(isDayBlocked(targetDate) ? "День успішно заблоковано (вихідний)!" : "День знову зроблено робочим!");
-            // Якщо відкритий календар майстра — оновлюємо відображення
             if (typeof renderCalendar === 'function') renderCalendar();
         } else {
             alert(result.error || "Помилка при зміні статусу дня.");
@@ -55,7 +53,7 @@ async function toggleBlockSelectedDate() {
 }
 
 
-// --- ОСНОВНА ЛОГІКА БРОНЮВАННЯ ТА ОПЛАТИ ---
+// --- ОСНОВНА ЛОГІКА КЛИЄНТСЬКОГО ЗАПИСУ ---
 
 async function submitBooking() {
     const nameEl = document.getElementById('clientName');
@@ -70,18 +68,17 @@ async function submitBooking() {
     let email = emailEl ? emailEl.value.trim() : '';
     let date = dateEl ? dateEl.value : '';
 
-    if (!name || !phone || !email || !selectedTimeSlot || !selectedServiceObj) {
+    if (!name || !phone || !email || typeof selectedTimeSlot === 'undefined' || !selectedTimeSlot || typeof selectedServiceObj === 'undefined' || !selectedServiceObj) {
         alert("Будь ласка, заповніть ім'я, телефон, email, оберіть послугу та вільний час!");
         return;
     }
 
-    // Перевірка, чи не обрав клієнт заблокований майстром день
     if (isDayBlocked(date)) {
         alert("На жаль, обраний день є вихідним у майстра. Будь ласка, оберіть іншу дату.");
         return;
     }
 
-    let isNewClient = checkIsClientNew(phone);
+    let isNewClient = typeof checkIsClientNew === 'function' ? checkIsClientNew(phone) : true;
     let depositPaid = false;
 
     if (isNewClient) {
@@ -96,7 +93,6 @@ async function submitBooking() {
             return;
         }
 
-        // Запит до бекенду на Render для створення рахунку
         try {
             let response = await fetch("/api/create-invoice", {
                 method: "POST",
@@ -152,9 +148,11 @@ async function submitBooking() {
         }
     }
 
-    let hairPhotoBase64 = await readFileAsBase64('clientHairPhoto');
-    let refPhotoBase64 = await readFileAsBase64('clientRefPhoto');
-    if (!refPhotoBase64 && selectedHaircutRefUrl) refPhotoBase64 = selectedHaircutRefUrl;
+    let hairPhotoBase64 = typeof readFileAsBase64 === 'function' ? await readFileAsBase64('clientHairPhoto') : '';
+    let refPhotoBase64 = typeof readFileAsBase64 === 'function' ? await readFileAsBase64('clientRefPhoto') : '';
+    if (!refPhotoBase64 && typeof selectedHaircutRefUrl !== 'undefined' && selectedHaircutRefUrl) {
+        refPhotoBase64 = selectedHaircutRefUrl;
+    }
     
     let serviceText = srvInput ? srvInput.value : 'Послуга';
 
@@ -173,10 +171,10 @@ async function submitBooking() {
         status: 'pending'
     };
 
-    // Зберігаємо локально у браузері
-    saveBookingToStorage(newBooking);
+    if (typeof saveBookingToStorage === 'function') {
+        saveBookingToStorage(newBooking);
+    }
 
-    // ІНТЕГРАЦІЯ: відправляємо запит на сервер, щоб майстер одразу бачив його в CRM
     try {
         await fetch('/api/bookings', {
             method: 'POST',
@@ -191,10 +189,11 @@ async function submitBooking() {
         confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
     }
 
-    let botLink = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=booking_${newBooking.id}`;
+    let botUsername = typeof TELEGRAM_BOT_USERNAME !== 'undefined' ? TELEGRAM_BOT_USERNAME : 'illiana_studio_bot';
+    let botLink = `https://t.me/${botUsername}?start=booking_${newBooking.id}`;
     let successMessage = `Дякуємо, ${name}! Запис на ${date} о ${selectedTimeSlot} успішно збережено!\n\n` +
         (depositPaid ? `✅ Завдаток 500 ₴ сплачено та підтверджено.\n\n` : `ℹ Запис зареєстровано.\n\n`) +
-        `📱 Зараз ви будете перенаправлені в наш Telegram бот @${TELEGRAM_BOT_USERNAME} для фіксації та нагадувань.`;
+        `📱 Зараз ви будете перенаправлені в наш Telegram бот для фіксації та нагадувань.`;
     
     alert(successMessage);
     window.open(botLink, '_blank');
