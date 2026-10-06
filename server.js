@@ -11,6 +11,7 @@ const MONO_TOKEN = 'mF4VYm_rjXjOAAAF1FJJ5yw';
 // Сховища в пам'яті сервера для синхронізації
 let blockedDays = [];
 let studioBookings = [];
+let studioRegularClients = []; // База постійних клієнтів на сервері
 
 // Головна сторінка для клієнтів
 app.get('/', (req, res) => {
@@ -63,6 +64,34 @@ app.post('/api/bookings', (req, res) => {
     } else {
         res.status(400).json({ error: 'Невірні дані запису' });
     }
+});
+
+// API: Отримати базу постійних клієнтів
+app.get('/api/regular-clients', (req, res) => {
+    res.json(studioRegularClients);
+});
+
+// API: Додати або оновити базу постійних клієнтів (з перевіркою PIN 1988)
+app.post('/api/regular-clients', (req, res) => {
+    const { name, phone, password, clientsArray } = req.body;
+    
+    if (password !== '1988') {
+        return res.status(403).json({ error: 'Невірний PIN-код майстра!' });
+    }
+
+    // Якщо передано цілий масив (наприклад, при імпорті з Excel)
+    if (Array.isArray(clientsArray)) {
+        studioRegularClients = clientsArray;
+        return res.json({ success: true, regularClients: studioRegularClients });
+    }
+
+    // Якщо додається один клієнт вручну
+    if (name && phone) {
+        studioRegularClients.push({ name, phone });
+        return res.json({ success: true, regularClients: studioRegularClients });
+    }
+
+    res.status(400).json({ error: 'Невірні дані клієнта' });
 });
 
 // Ендпоінт для створення платежу через еквайринг Monobank
