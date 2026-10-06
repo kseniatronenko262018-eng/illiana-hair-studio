@@ -1,59 +1,261 @@
-﻿// --- БЛОКУВАННЯ ВИХІДНИХ ДНІВ ---
-let blockedDaysCache = [];
+﻿let currentLang = 'ua';
+let currentTheme = 'dark';
+let selectedMainCat = null;
+let selectedSubItem = null;
+let selectedServiceObj = null;
+let selectedTimeSlot = null;
+let selectedHaircutRefUrl = '';
+let calendarMode = 'month';
+let calendarCurrentDate = new Date();
+let selectedCalendarDateStr = new Date().toISOString().split('T')[0];
 
-async function loadBlockedDays() {
+const TELEGRAM_BOT_USERNAME = 'illianahair_bot';
+let serverBlockedDays = [];
+let serverBookingsList = [];
+
+// Автоматичне завантаження заблокованих днів та записів з сервера
+async function syncServerData() {
     try {
-        let response = await fetch('/api/blocked-days');
-        let data = await response.json();
-        blockedDaysCache = data || [];
-    } catch (e) {
-        console.error("Не вдалося завантажити вихідні дні:", e);
+        let resBlocks = await fetch('/api/blocked-days');
+        serverBlockedDays = await resBlocks.json() || [];
+    } catch (e) { console.error(e); }
+
+    try {
+        let resBooks = await fetch('/api/bookings');
+        serverBookingsList = await resBooks.json() || [];
+    } catch (e) { console.error(e); }
+}
+
+window.onload = async function() {
+    await syncServerData();
+
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('clientDate');
+    if (dateInput) dateInput.value = today;
+
+    const statsMonth = document.getElementById('statsMonthInput');
+    if (statsMonth) {
+        let now = new Date();
+        let year = now.getFullYear();
+        let month = String(now.getMonth() + 1).padStart(2, '0');
+        statsMonth.value = `${year}-${month}`;
+    }
+
+    renderTimeSlots();
+    loadExpensesFromStorage();
+    updateDashboardStats();
+    
+    let savedBg = localStorage.getItem('illiana_custom_bg');
+    const bgImgEl = document.getElementById('bgImageElement');
+    if (bgImgEl && savedBg) bgImgEl.src = savedBg;
+};
+
+function toggleLang() {
+    currentLang = currentLang === 'ua' ? 'en' : 'ua';
+    const langBtn = document.getElementById('langToggle');
+    if (langBtn) langBtn.innerText = currentLang.toUpperCase() + ' / ' + (currentLang === 'ua' ? 'EN' : 'UA');
+}
+
+function toggleTheme() {
+    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    const themeBtn = document.getElementById('themeToggle');
+    if (themeBtn) themeBtn.innerText = currentTheme === 'dark' ? '☀️ / 🌙' : '🌙 / ☀️';
+}
+
+function switchTab(tabName, el) {
+    document.querySelectorAll('.section-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.quick-nav .nav-chip').forEach(c => c.classList.remove('active'));
+    
+    if (tabName === 'book') document.getElementById('paneBook').classList.add('active');
+    if (tabName === 'works') document.getElementById('paneWorks').classList.add('active');
+    if (tabName === 'loc') document.getElementById('paneLoc').classList.add('active');
+    
+    if (el) el.classList.add('active');
+}
+
+const subServicesData = {
+    cut: [{ id: 'cut_main', title: 'Стрижка (1.5 год)', price: 1000, duration: 90 }],
+    color: {
+        virgin: [
+            { id: 'roots_virgin', title: 'Коріння (до 2 см)', price: 1300, duration: 120 },
+            { id: 'primary_color', title: 'Первинне фарбування', price: 1800, duration: 150 }
+        ],
+        toned: [{ id: 'toning', title: 'Тонування', price: 1500, duration: 120 }],
+        grey: [{ id: 'grey_roots', title: 'Фарбування сивого коріння', price: 1500, duration: 135 }]
+    }
+};
+
+const lengthCoefficients = { shoulders: 1.0, shoulder_blades: 1.25, below_blades: 1.5 };
+
+function selectMainCategory(cat) {
+    selectedMainCat = cat;
+    selectedSubItem = null;
+    selectedServiceObj = null;
+
+    const cardCut = document.getElementById('mainCardCut');
+    const cardColor = document.getElementById('mainCardColor');
+    const cardComplex = document.getElementById('mainCardComplex');
+    
+    if (cardCut) cardCut.classList.remove('selected');
+    if (cardColor) cardColor.classList.remove('selected');
+    if (cardComplex) cardComplex.classList.remove('selected');
+
+    const subMenu = document.getElementById('categorySubmenu');
+    const colorSub = document.getElementById('coloringSubOptions');
+    const photoSec = document.getElementById('photoUploadSection');
+    const haircutExamples = document.getElementById('haircutExamplesSection');
+
+    if (subMenu) subMenu.classList.remove('visible');
+    if (colorSub) colorSub.classList.remove('visible');
+    if (photoSec) photoSec.classList.remove('visible');
+    if (haircutExamples) haircutExamples.style.display = 'none';
+
+    if (cat === 'cut') {
+        if (cardCut) cardCut.classList.add('selected');
+        selectedServiceObj = subServicesData.cut[0];
+        updateServiceInputText();
+        if (photoSec) photoSec.classList.add('visible');
+        if (haircutExamples) haircutExamples.style.display = 'block';
+    } else if (cat === 'color') {
+        if (cardColor) cardColor.classList.add('selected');
+        renderColorSubmenu();
+        if (subMenu) subMenu.classList.add('visible');
+        if (photoSec) photoSec.classList.add('visible');
+    } else if (cat === 'complex') {
+        if (cardComplex) cardComplex.classList.add('selected');
+        selectedServiceObj = { id: 'complex_cut_roots', title: 'Стрижка + Фарбування коріння (до 2 см)', price: 3000, duration: 180 };
+        updateServiceInputText();
+        if (photoSec) photoSec.classList.add('visible');
     }
 }
 
-loadBlockedDays();
-
-function isDayBlocked(dateString) {
-    return blockedDaysCache.includes(dateString);
+function selectHaircutReference(imgUrl, el) {
+    selectedHaircutRefUrl = imgUrl;
+    document.querySelectorAll('.haircut-carousel-item').forEach(i => i.classList.remove('selected'));
+    if (el) el.classList.add('selected');
+    const notice = document.getElementById('selectedRefNotice');
+    if (notice) notice.style.display = 'block';
 }
 
-// Функція блокування/розблокування дня з кабінету майстра (працює лише на сторінці /master)
-async function toggleBlockSelectedDate() {
-    const dateInput = document.getElementById('clientDate'); 
-    if (!dateInput || !dateInput.value) {
-        alert("Будь ласка, оберіть дату у календарі!");
+function renderColorSubmenu() {
+    const container = document.getElementById('submenuItems');
+    if (!container) return;
+    container.innerHTML = `
+        <div class="sub-service-card" onclick="selectColorState('virgin')">
+            <div><div class="s-title">Натуральне волосся</div><div class="s-sub">Корінь або первинне</div></div>
+            <div>➔</div>
+        </div>
+        <div class="sub-service-card" onclick="selectColorState('toned')">
+            <div><div class="s-title">Раніше фарбоване волосся</div><div class="s-sub">Тонування довжини</div></div>
+            <div>➔</div>
+        </div>
+        <div class="sub-service-card" onclick="selectColorState('grey')">
+            <div><div class="s-title">З сивиною</div><div class="s-sub">Фарбування сивого коріння</div></div>
+            <div>➔</div>
+        </div>
+    `;
+}
+
+function selectColorState(stateKey) {
+    selectedSubItem = stateKey;
+    document.querySelectorAll('#submenuItems .sub-service-card').forEach(c => c.classList.remove('selected'));
+    if (event && event.currentTarget) event.currentTarget.classList.add('selected');
+
+    const colorSub = document.getElementById('coloringSubOptions');
+    if (colorSub) colorSub.classList.add('visible');
+
+    const listContainer = document.getElementById('specificServicesList');
+    if (!listContainer) return;
+    listContainer.innerHTML = '';
+
+    subServicesData.color[stateKey].forEach((srv, idx) => {
+        listContainer.innerHTML += `
+            <div class="sub-service-card ${idx===0?'selected':''}" onclick="selectSpecificService('${srv.id}')" id="srvCard_${srv.id}">
+                <div><div class="s-title">${srv.title}</div><div class="s-sub">${srv.price} ₴ • ${srv.duration} хв</div></div>
+                <div>✓</div>
+            </div>
+        `;
+    });
+    selectedServiceObj = subServicesData.color[stateKey][0];
+    updateServiceDetails();
+}
+
+function selectSpecificService(srvId) {
+    for (let key in subServicesData.color) {
+        subServicesData.color[key].forEach(s => { if (s.id === srvId) selectedServiceObj = s; });
+    }
+    document.querySelectorAll('#specificServicesList .sub-service-card').forEach(c => c.classList.remove('selected'));
+    const targetCard = document.getElementById(`srvCard_${srvId}`);
+    if (targetCard) targetCard.classList.add('selected');
+    updateServiceDetails();
+}
+
+function updateServiceDetails() {
+    if (!selectedServiceObj) return;
+    const lengthSelect = document.getElementById('hairLengthSelect');
+    let lengthKey = lengthSelect ? lengthSelect.value : 'shoulders';
+    let coeff = (selectedMainCat === 'color') ? lengthCoefficients[lengthKey] : 1.0;
+    let finalPrice = Math.round(selectedServiceObj.price * coeff);
+
+    let text = `${selectedServiceObj.title} — ${finalPrice} ₴`;
+    const srvInput = document.getElementById('selectedServiceInput');
+    if (srvInput) srvInput.value = text;
+}
+
+function renderTimeSlots() {
+    const grid = document.getElementById('timeSlotsGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    const slots = ["10:00", "12:00", "14:00", "16:00", "18:00"];
+    
+    const dateInput = document.getElementById('clientDate');
+    let dateVal = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
+
+    if (serverBlockedDays.includes(dateVal)) {
+        grid.innerHTML = `<div style="font-size:11px; color:var(--accent); grid-column:span 4; text-align:center;">Цей день заблоковано майстром (вихідний).</div>`;
         return;
     }
-    
-    let targetDate = dateInput.value;
-    let password = prompt("Введіть PIN-код майстра для зміни статусу дня (за замовчуванням 1988):");
-    if (!password) return;
 
-    let endpoint = isDayBlocked(targetDate) ? '/api/unblock-day' : '/api/block-day';
+    let dayBookings = serverBookingsList.filter(b => b.date === dateVal);
 
-    try {
-        let response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ date: targetDate, password: password })
-        });
+    slots.forEach(time => {
+        let isBooked = dayBookings.some(b => b.time === time);
+        let div = document.createElement('div');
+        div.className = 'time-cell';
 
-        let result = await response.json();
-        if (response.ok && result.success) {
-            blockedDaysCache = result.blockedDays;
-            alert(isDayBlocked(targetDate) ? "День успішно заблоковано (вихідний)!" : "День знову зроблено робочим!");
-            if (typeof renderCalendar === 'function') renderCalendar();
+        if (isBooked) {
+            div.className += ' booked';
+            div.innerText = `${time}\n(Зайнято)`;
         } else {
-            alert(result.error || "Помилка при зміні статусу дня.");
+            div.innerText = time;
+            div.onclick = () => selectTime(time, div);
         }
-    } catch (e) {
-        console.error("Помилка:", e);
-        alert("Не вдалося зв'язатися з сервером.");
-    }
+        grid.appendChild(div);
+    });
 }
 
+function selectTime(time, el) {
+    document.querySelectorAll('.time-cell').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedTimeSlot = time;
+    
+    const dateInput = document.getElementById('clientDate');
+    let dateVal = dateInput ? dateInput.value : '';
+    const slotNotice = document.getElementById('slotNotice');
+    if (slotNotice) slotNotice.innerHTML = `⚡ <b>Обрано час:</b> ${dateVal} о ${time}`;
+}
 
-// --- ОСНОВНА ЛОГІКА КЛИЄНТСЬКОГО ЗАПИСУ ---
+function readFileAsBase64(fileInputId) {
+    return new Promise((resolve) => {
+        const fileInput = document.getElementById(fileInputId);
+        if (!fileInput || !fileInput.files || fileInput.files.length === 0) { resolve(''); return; }
+        let reader = new FileReader();
+        reader.onload = function(e) { resolve(e.target.result); };
+        reader.onerror = function() { resolve(''); };
+        reader.readAsDataURL(fileInput.files[0]);
+    });
+}
 
 async function submitBooking() {
     const nameEl = document.getElementById('clientName');
@@ -68,91 +270,45 @@ async function submitBooking() {
     let email = emailEl ? emailEl.value.trim() : '';
     let date = dateEl ? dateEl.value : '';
 
-    if (!name || !phone || !email || typeof selectedTimeSlot === 'undefined' || !selectedTimeSlot || typeof selectedServiceObj === 'undefined' || !selectedServiceObj) {
+    if (!name || !phone || !email || !selectedTimeSlot || !selectedServiceObj) {
         alert("Будь ласка, заповніть ім'я, телефон, email, оберіть послугу та вільний час!");
         return;
     }
 
-    if (isDayBlocked(date)) {
-        alert("На жаль, обраний день є вихідним у майстра. Будь ласка, оберіть іншу дату.");
+    if (serverBlockedDays.includes(date)) {
+        alert("На жаль, цей день є вихідним у майстра.");
         return;
     }
 
-    let isNewClient = typeof checkIsClientNew === 'function' ? checkIsClientNew(phone) : true;
     let depositPaid = false;
+    let payAction = confirm(
+        `✨ Увага, ${name}!\n\n` +
+        `Обов'язковий завдаток 500 ₴ (ФОП Явір І.В.)[cite: 1, 5].\n\n` +
+        `Натисніть "OK", щоб перейти до оплати через еквайринг Monobank.`
+    );
+    
+    if (!payAction) { alert("Бронювання скасовано."); return; }
 
-    if (isNewClient) {
-        let payAction = confirm(
-            `✨ Увага, ${name}!\n\n` +
-            `Для нових клієнтів обов'язковий завдаток 500 ₴ (ФОП Явір Ілліяна Володимирівна).\n\n` +
-            `Натисніть "OK", щоб перейти до оплати через еквайринг Monobank.`
-        );
-        
-        if (!payAction) {
-            alert("Бронювання скасовано.");
-            return;
-        }
-
-        try {
-            let response = await fetch("/api/create-invoice", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, date, time: selectedTimeSlot })
-            });
-
-            let result = await response.json();
-            
-            if (result && result.pageUrl && result.invoiceId) {
-                localStorage.setItem('currentInvoiceId', result.invoiceId);
-                window.open(result.pageUrl, '_blank');
-            } else {
-                alert("Не вдалося створити платіжне посилання.");
-                return;
-            }
-        } catch (error) {
-            console.error("Помилка еквайрингу:", error);
-            alert("Сталася помилка при зв'язку з платіжною системою.");
-            return;
-        }
-
-        let confirmPaid = confirm(
-            `💳 Після здійснення оплати 500 ₴ у новій вкладці поверніться сюди.\n\n` +
-            `Чи завершили ви оплату?\n` +
-            `Натисніть "OK", щоб підтвердити та зберегти запис.`
-        );
-        
-        if (!confirmPaid) {
-            alert("Запис не збережено, оскільки оплату не підтверджено.");
-            return;
-        }
-
-        const invoiceId = localStorage.getItem('currentInvoiceId');
-        if (invoiceId) {
-            try {
-                let statusRes = await fetch("/api/check-invoice", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ invoiceId })
-                });
-                let statusData = await statusRes.json();
-                
-                if (statusData.status === 'success') {
-                    depositPaid = true;
-                    localStorage.removeItem('currentInvoiceId');
-                } else {
-                    alert("⚠️ Увага: система бачить, що платіж ще не проведено або скасовано (статус: " + (statusData.status || 'невідомо') + "). Запис збережено у режимі очікування.");
-                }
-            } catch (err) {
-                console.error("Помилка перевірки статусу:", err);
-            }
-        }
+    try {
+        let response = await fetch("/api/create-invoice", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, date, time: selectedTimeSlot })
+        });
+        let result = await response.json();
+        if (result && result.pageUrl) { window.open(result.pageUrl, '_blank'); }
+        else { window.open("https://send.monobank.ua/", '_blank'); }
+    } catch (error) {
+        window.open("https://send.monobank.ua/", '_blank');
     }
 
-    let hairPhotoBase64 = typeof readFileAsBase64 === 'function' ? await readFileAsBase64('clientHairPhoto') : '';
-    let refPhotoBase64 = typeof readFileAsBase64 === 'function' ? await readFileAsBase64('clientRefPhoto') : '';
-    if (!refPhotoBase64 && typeof selectedHaircutRefUrl !== 'undefined' && selectedHaircutRefUrl) {
-        refPhotoBase64 = selectedHaircutRefUrl;
-    }
+    let confirmPaid = confirm(`💳 Після оплати 500 ₴ поверніться сюди.\n\nЧи успішно ви сплатили завдаток?\nНатисніть "OK", щоб завершити запис.`);
+    if (!confirmPaid) { alert("Запис не збережено."); return; }
+    depositPaid = true;
+
+    let hairPhotoBase64 = await readFileAsBase64('clientHairPhoto');
+    let refPhotoBase64 = await readFileAsBase64('clientRefPhoto');
+    if (!refPhotoBase64 && selectedHaircutRefUrl) refPhotoBase64 = selectedHaircutRefUrl;
     
     let serviceText = srvInput ? srvInput.value : 'Послуга';
 
@@ -171,31 +327,224 @@ async function submitBooking() {
         status: 'pending'
     };
 
-    if (typeof saveBookingToStorage === 'function') {
-        saveBookingToStorage(newBooking);
-    }
-
+    // Зберігаємо на сервері через API
     try {
         await fetch('/api/bookings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newBooking)
         });
-    } catch (e) {
-        console.error("Помилка синхронізації запису з сервером:", e);
-    }
+    } catch (e) { console.error(e); }
 
-    if (typeof confetti === 'function') {
-        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-    }
+    if (typeof confetti === 'function') { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
 
-    let botUsername = typeof TELEGRAM_BOT_USERNAME !== 'undefined' ? TELEGRAM_BOT_USERNAME : 'illiana_studio_bot';
-    let botLink = `https://t.me/${botUsername}?start=booking_${newBooking.id}`;
-    let successMessage = `Дякуємо, ${name}! Запис на ${date} о ${selectedTimeSlot} успішно збережено!\n\n` +
-        (depositPaid ? `✅ Завдаток 500 ₴ сплачено та підтверджено.\n\n` : `ℹ Запис зареєстровано.\n\n`) +
-        `📱 Зараз ви будете перенаправлені в наш Telegram бот для фіксації та нагадувань.`;
-    
-    alert(successMessage);
+    let botLink = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=booking_${newBooking.id}`;
+    alert(`Дякуємо, ${name}! Запис на ${date} о ${selectedTimeSlot} успішно збережено!\n\n✅ Завдаток 500 ₴ сплачено.`);
     window.open(botLink, '_blank');
-    location.reload();
 }
+
+// Кабінет майстра
+function forceBypassPin() {
+    document.getElementById('masterLoginBox').style.display = 'none';
+    document.getElementById('masterDashboard').style.display = 'flex';
+    initCalendar();
+    updateDashboardStats();
+}
+
+function loginMaster() {
+    let pin = document.getElementById('masterPinInput').value;
+    if (pin === '1988' || pin === '0000') forceBypassPin();
+    else alert('Невірний PIN-код!');
+}
+
+function logoutMaster() {
+    document.getElementById('masterDashboard').style.display = 'none';
+    document.getElementById('masterLoginBox').style.display = 'flex';
+    document.getElementById('masterPinInput').value = '';
+}
+
+function setCalendarMode(mode) { calendarMode = mode; initCalendar(); }
+
+function changePeriod(dir) {
+    if (calendarMode === 'month') {
+        calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + dir);
+        let year = calendarCurrentDate.getFullYear();
+        let month = String(calendarCurrentDate.getMonth() + 1).padStart(2, '0');
+        document.getElementById('statsMonthInput').value = `${year}-${month}`;
+        updateDashboardStats();
+    } else {
+        calendarCurrentDate.setDate(calendarCurrentDate.getDate() + (dir * 7));
+    }
+    initCalendar();
+}
+
+function onStatsMonthChange() {
+    let parts = document.getElementById('statsMonthInput').value.split('-');
+    calendarCurrentDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, 1);
+    initCalendar();
+    updateDashboardStats();
+}
+
+async function initCalendar() {
+    await syncServerData();
+    const container = document.getElementById('calendarGridContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    let year = calendarCurrentDate.getFullYear();
+    let month = calendarCurrentDate.getMonth();
+    const monthNames = ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"];
+    
+    document.getElementById('calendarTitle').innerText = `${monthNames[month]} ${year}`;
+
+    let grid = document.createElement('div');
+    grid.className = 'cal-grid';
+
+    ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'].forEach(d => {
+        let hd = document.createElement('div');
+        hd.className = 'cal-header-day';
+        hd.innerText = d;
+        grid.appendChild(hd);
+    });
+
+    if (calendarMode === 'month') {
+        let firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
+        let totalDays = new Date(year, month + 1, 0).getDate();
+
+        for (let i = 0; i < firstDayIndex; i++) grid.appendChild(document.createElement('div'));
+
+        for (let day = 1; day <= totalDays; day++) {
+            let dStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            let cell = document.createElement('div');
+            cell.className = 'cal-day';
+            if (dStr === selectedCalendarDateStr) cell.classList.add('active-booking');
+            if (serverBlockedDays.includes(dStr)) cell.classList.add('day-blocked');
+
+            cell.innerHTML = `<span>${day}</span>`;
+            if (serverBookingsList.some(b => b.date === dStr)) cell.innerHTML += `<div class="dot"></div>`;
+
+            cell.onclick = () => {
+                selectedCalendarDateStr = dStr;
+                initCalendar();
+                renderDayBookings(dStr);
+            };
+            grid.appendChild(cell);
+        }
+    }
+    container.appendChild(grid);
+    renderDayBookings(selectedCalendarDateStr);
+}
+
+function renderDayBookings(dateStr) {
+    document.getElementById('selectedDateLabel').innerText = `Записи на ${dateStr}:`;
+    const container = document.getElementById('dayBookingsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    let dayList = serverBookingsList.filter(b => b.date === dateStr);
+    if (dayList.length === 0) {
+        container.innerHTML = `<div style="font-size:10px; color:var(--text-muted); padding: 4px;">Немає записів на цей день.</div>`;
+        return;
+    }
+
+    dayList.forEach((b, idx) => {
+        let phoneClean = b.phone ? b.phone.replace(/[^0-9]/g, '') : '';
+        let item = document.createElement('div');
+        item.className = 'booking-item';
+        item.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <b>🕒 ${b.time} — ${b.name}</b>
+            </div>
+            <div style="font-size:10px; color:var(--text-main);"><b>Послуга:</b> ${b.service}</div>
+            <div style="font-size:10px; color:var(--text-muted);">📞 ${b.phone} | ✉️ ${b.email}</div>
+            <div style="display:flex; gap:6px; margin-top:4px;">
+                <a href="https://t.me/${phoneClean}" target="_blank" class="social-btn">💬 Telegram</a>
+            </div>
+        `;
+        container.appendChild(item);
+    });
+}
+
+async function toggleBlockSelectedDate() {
+    let password = prompt("Введіть PIN-код майстра (1988):");
+    if (!password) return;
+
+    let isBlocked = serverBlockedDays.includes(selectedCalendarDateStr);
+    let endpoint = isBlocked ? '/api/unblock-day' : '/api/block-day';
+
+    let res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: selectedCalendarDateStr, password: password })
+    });
+    let result = await res.json();
+    if (res.ok && result.success) {
+        serverBlockedDays = result.blockedDays;
+        alert(isBlocked ? "День розблоковано!" : "День заблоковано як вихідний!");
+        initCalendar();
+    } else {
+        alert(result.error || "Помилка");
+    }
+}
+
+// Витрати та статистика
+function getStoredExpenses() { return JSON.parse(localStorage.getItem('illiana_expenses') || '[]'); }
+function saveExpensesToStorage(exp) { localStorage.setItem('illiana_expenses', JSON.stringify(exp)); }
+function loadExpensesFromStorage() { renderExpensesList(); }
+
+function addExpense() {
+    let name = document.getElementById('expenseNameInput').value.trim();
+    let amount = parseFloat(document.getElementById('expenseAmountInput').value);
+    if (!name || isNaN(amount)) return alert("Введіть дані витрат!");
+    let expenses = getStoredExpenses();
+    expenses.push({ id: 'exp_' + Date.now(), monthStr: document.getElementById('statsMonthInput').value, name, amount });
+    saveExpensesToStorage(expenses);
+    renderExpensesList();
+    updateDashboardStats();
+}
+
+function deleteExpense(id) {
+    saveExpensesToStorage(getStoredExpenses().filter(e => e.id !== id));
+    renderExpensesList();
+    updateDashboardStats();
+}
+
+function renderExpensesList() {
+    const container = document.getElementById('expensesListContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    let targetMonth = document.getElementById('statsMonthInput').value;
+    getStoredExpenses().filter(e => e.monthStr === targetMonth).forEach(e => {
+        container.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:10px; background:var(--card-bg); padding:4px 8px; border-radius:6px;"><span>${e.name} — <b>${e.amount} ₴</b></span><button onclick="deleteExpense('${e.id}')" style="background:none; border:none; color:var(--accent); cursor:pointer;">✕</button></div>`;
+    });
+}
+
+function updateDashboardStats() {
+    let targetMonth = document.getElementById('statsMonthInput').value;
+    let totalIncome = 0;
+    serverBookingsList.forEach(b => {
+        if (b.date.startsWith(targetMonth)) {
+            let match = b.service.match(/—\s*(\d+)\s*₴/);
+            if (match) totalIncome += parseInt(match[1]);
+        }
+    });
+    let totalExp = getStoredExpenses().filter(e => e.monthStr === targetMonth).reduce((s, e) => s + e.amount, 0);
+    document.getElementById('statCompleted').innerText = `${totalIncome} ₴`;
+    document.getElementById('statExpenses').innerText = `${totalExp} ₴`;
+    document.getElementById('statNetProfit').innerText = `${totalIncome - totalExp} ₴`;
+}
+
+function exportToExcel() {
+    let ws = XLSX.utils.json_to_sheet(serverBookingsList);
+    let wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Записи");
+    XLSX.writeFile(wb, "bookings.xlsx");
+}
+
+function updateStudioBackground() {
+    let url = prompt("Введіть силку на фон:");
+    if (url) { localStorage.setItem('illiana_custom_bg', url); document.getElementById('bgImageElement').src = url; }
+}
+function resetStudioBackground() { localStorage.removeItem('illiana_custom_bg'); document.getElementById('bgImageElement').src = "https://i.ibb.co/M5stSykh/photo-2026-09-30-14-50-24.jpg"; }
+function openLightbox(url) { document.getElementById('lightboxImage').src = url; document.getElementById('imageLightboxModal').style.display = 'flex'; }
+function closeLightbox() { document.getElementById('imageLightboxModal').style.display = 'none'; }
