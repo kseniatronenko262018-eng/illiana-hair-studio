@@ -247,11 +247,7 @@ option { background: #23201e; color: #f5f2ed; }
     transition: transform 0.2s ease;
 }
 
-.service-card-mini:hover {
-    transform: translateY(-2px);
-}
-
-.service-card-mini.selected {
+.service-card-mini:hover, .service-card-mini.selected {
     transform: translateY(-2px);
 }
 
@@ -370,7 +366,6 @@ option { background: #23201e; color: #f5f2ed; }
 }
 #photoUploadSection.visible { display: flex; }
 
-/* Акуратні рядки для полів форми (дата/ім'я, телефон/email) */
 .form-row {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
@@ -383,7 +378,7 @@ option { background: #23201e; color: #f5f2ed; }
     }
 }
 
-/* Суворо зафіксована сітка часу на 4 колонки */
+/* Виправлення сітки слотів часу під одну кнопку без перенаправлень тексту */
 .time-grid { 
     display: grid !important; 
     grid-template-columns: repeat(4, 1fr) !important; 
@@ -393,16 +388,33 @@ option { background: #23201e; color: #f5f2ed; }
 .time-cell {
     background: var(--card-bg);
     border: 1px solid var(--border);
-    padding: 10px 4px;
+    padding: 8px 4px;
     text-align: center;
     border-radius: 8px;
-    font-size: 11px;
-    font-weight: 700;
     cursor: pointer;
     color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 38px;
 }
+
+.time-cell .time-main {
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.time-cell .time-sub {
+    font-size: 8px;
+    font-weight: 600;
+    line-height: 1.1;
+    opacity: 0.8;
+}
+
 .time-cell.selected { background: var(--accent); color: var(--accent-invert); border-color: var(--accent); }
-.time-cell.booked { opacity: 0.4; pointer-events: none; background: rgba(184,50,50,0.15); border-color: var(--accent); font-size: 9px; }
+.time-cell.booked { opacity: 0.5; pointer-events: none; background: rgba(184,50,50,0.15); border-color: var(--accent); }
 
 .btn-main {
     width: 100%;
