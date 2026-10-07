@@ -255,7 +255,6 @@ option { background: #23201e; color: #f5f2ed; }
     transform: translateY(-2px);
 }
 
-/* ФОТО БЕЗ БЛУРУ (повністю чисті та чіткі) */
 .service-card-mini img {
     width: 100% !important;
     height: 190px !important;
@@ -371,70 +370,25 @@ option { background: #23201e; color: #f5f2ed; }
 }
 #photoUploadSection.visible { display: flex; }
 
-.notice-badge {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    padding: 12px;
-    border-radius: 10px;
-    font-size: 11px;
-    color: var(--text-muted);
-    line-height: 1.5;
-}
-.notice-badge b { color: var(--text-main); }
-
-.enhanced-notice {
-    background: rgba(184, 50, 50, 0.06);
-    border: 1px solid rgba(184, 50, 50, 0.35);
-    border-radius: 10px;
-    padding: 12px 14px;
-    margin-top: 8px;
-}
-.notice-title {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--accent);
-    margin-bottom: 6px;
-}
-.notice-list {
-    margin-left: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-.notice-list li {
-    font-size: 10px;
-    line-height: 1.5;
-    color: var(--text-main);
-}
-
-.policy-highlight-card {
-    background: rgba(184, 50, 50, 0.08);
-    border: 1px solid var(--accent);
-    padding: 14px;
-    border-radius: 10px;
-    font-size: 11px;
-    color: var(--text-main);
-    line-height: 1.6;
-}
-.policy-highlight-card b { color: var(--accent); }
-.policy-highlight-card a { color: var(--text-main); font-weight: 700; text-decoration: underline; cursor: pointer; }
-
-/* Виправлення сітки форм на мобільних, щоб поля не наїжджали одне на одне */
-.form-row, div[style*="grid-template-columns"] {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 8px !important;
+/* Виправлення тільки для рядків форми, щоб не чіпати сітку часу */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
 }
 
 @media (max-width: 360px) {
-    .form-row, div[style*="grid-template-columns"] {
-        grid-template-columns: 1fr !important; /* На дуже вузьких екранах переносимо в один стовпчик */
+    .form-row {
+        grid-template-columns: 1fr;
     }
 }
 
-.time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.time-grid { 
+    display: grid; 
+    grid-template-columns: repeat(4, 1fr) !important; 
+    gap: 6px; 
+}
+
 .time-cell {
     background: var(--card-bg);
     border: 1px solid var(--border);
@@ -609,4 +563,26 @@ option { background: #23201e; color: #f5f2ed; }
     border-radius: 6px;
     border: 1px solid var(--border);
     cursor: pointer;
+}
+
+/* Стилі для карток архіву робіт, щоб вони виглядали якісно як на головній */
+#paneWorks .section-work-card, #paneWorks div[style*="grid-template-columns"] > div {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+#paneWorks div[style*="grid-template-columns"] > div:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent) !important;
+}
+
+#paneWorks img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 0 !important;
 }
