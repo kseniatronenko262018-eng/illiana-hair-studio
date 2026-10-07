@@ -378,43 +378,51 @@ option { background: #23201e; color: #f5f2ed; }
     }
 }
 
-/* Виправлення сітки слотів часу під одну кнопку без перенаправлень тексту */
+/* Горизонтальна рулетка вибору часу, що гортається вбік */
 .time-grid { 
-    display: grid !important; 
-    grid-template-columns: repeat(4, 1fr) !important; 
-    gap: 6px !important; 
+    display: flex !important; 
+    flex-direction: row !important;
+    gap: 8px !important; 
+    overflow-x: auto !important;
+    padding-bottom: 8px !important;
+    scrollbar-width: thin;
+}
+
+.time-grid::-webkit-scrollbar {
+    height: 4px;
+}
+.time-grid::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
 }
 
 .time-cell {
+    flex: 0 0 72px;
+    height: 40px;
     background: var(--card-bg);
     border: 1px solid var(--border);
-    padding: 8px 4px;
     text-align: center;
     border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
     cursor: pointer;
     color: var(--text-main);
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
-    min-height: 38px;
+    justify-content: center;
 }
 
-.time-cell .time-main {
-    font-size: 11px;
-    font-weight: 700;
-    line-height: 1.2;
+.time-cell.selected { 
+    background: var(--accent); 
+    color: var(--accent-invert); 
+    border-color: var(--accent); 
 }
-
-.time-cell .time-sub {
-    font-size: 8px;
-    font-weight: 600;
-    line-height: 1.1;
-    opacity: 0.8;
+.time-cell.booked { 
+    opacity: 0.4; 
+    pointer-events: none; 
+    background: rgba(184,50,50,0.15); 
+    border-color: var(--accent); 
 }
-
-.time-cell.selected { background: var(--accent); color: var(--accent-invert); border-color: var(--accent); }
-.time-cell.booked { opacity: 0.5; pointer-events: none; background: rgba(184,50,50,0.15); border-color: var(--accent); }
 
 .btn-main {
     width: 100%;
