@@ -1,6 +1,6 @@
 ﻿// --- ГЛОБАЛЬНІ ЗМІННІ ТА СТАН ---
 let currentLang = 'ua';
-let currentTheme = 'dark';
+let currentTheme = 'light';
 let selectedMainCat = null;
 let selectedSubItem = null;
 let selectedServiceObj = null;
@@ -13,9 +13,72 @@ let selectedCalendarDateStr = new Date().toISOString().split('T')[0];
 const TELEGRAM_BOT_USERNAME = 'illianahair_bot';
 let serverBlockedDays = [];
 let serverBookingsList = [];
-let regularClientsList = []; // База постійних клієнтів
+let regularClientsList = [];
 
-// Автоматичне завантаження заблокованих днів, записів та постійних клієнтів з сервера
+// Словник для перекладу UA / EN
+const translations = {
+    ua: {
+        tab_book: "Запис",
+        tab_works: "Архів",
+        tab_loc: "Локація",
+        step1: "1. Оберіть категорію послуг",
+        cut_title: "Стрижка",
+        color_title: "Фарбування",
+        color_sub: "Підбір за станом",
+        step2: "2. Оберіть ваш поточний стан волосся:",
+        step3: "3. Доступні послуги та довжина:",
+        length_label: "Довжина волосся:",
+        len_shoulders: "До плечей",
+        len_blades: "Від плечей до лопаток",
+        len_below: "Нижче лопаток",
+        photo_current_label: "4. Завантажте фото вашого волосся:",
+        photo_ref_label: "5. Завантажте фото-референс або оберіть з портфоліо вище:",
+        selected_service_label: "Обрана послуга та час",
+        date_label: "Дата",
+        name_label: "Ім'я",
+        phone_label: "Телефон",
+        email_label: "Email (обов'язково)",
+        social_label: "Нік / соцмережа",
+        slots_label: "Доступні слоти часу (реальний час)",
+        slot_notice_init: "⚡ <b>Слот заброньовано на:</b> оберіть послугу та час.",
+        deposit_notice: "⚡ <b>Умова броні:</b> Завдаток <b>500 грн</b> підтверджує запис.",
+        pay_btn: "Сплатити завдаток 500 ₴ та забронювати",
+        modal_title: "Публічний договір оферти",
+        modal_btn: "Зрозуміло",
+        loc_info: "📍 <b>Локація:</b> м. Дніпро, вул. Володимира Вернадського, 356.<br><br>Приватний простір, мінімалізм та фокус на якості.<br><a href='https://maps.google.com/?q=Dnipro,+Volodymyra+Vernadskoho+356' target='_blank' class='map-btn'>Відкрити в Google Maps</a>"
+    },
+    en: {
+        tab_book: "Booking",
+        tab_works: "Archive",
+        tab_loc: "Location",
+        step1: "1. Select service category",
+        cut_title: "Haircut",
+        color_title: "Coloring",
+        color_sub: "Consultation based",
+        step2: "2. Select your current hair condition:",
+        step3: "3. Available services & length:",
+        length_label: "Hair length:",
+        len_shoulders: "Shoulder length",
+        len_blades: "Shoulder to blades",
+        len_below: "Below blades",
+        photo_current_label: "4. Upload a photo of your hair:",
+        photo_ref_label: "5. Upload a reference photo or pick from archive above:",
+        selected_service_label: "Selected service & time",
+        date_label: "Date",
+        name_label: "Name",
+        phone_label: "Phone",
+        email_label: "Email (required)",
+        social_label: "Social / Nickname",
+        slots_label: "Available time slots (real time)",
+        slot_notice_init: "⚡ <b>Slot status:</b> select service and time.",
+        deposit_notice: "⚡ <b>Deposit rule:</b> <b>500 UAH</b> deposit confirms booking.",
+        pay_btn: "Pay deposit 500 UAH & Book",
+        modal_title: "Public Offer Agreement",
+        modal_btn: "Understood",
+        loc_info: "📍 <b>Location:</b> Dnipro, Volodymyra Vernadskoho St, 356.<br><br>Private space, minimalism and focus on quality.<br><a href='https://maps.google.com/?q=Dnipro,+Volodymyra+Vernadskoho+356' target='_blank' class='map-btn'>Open in Google Maps</a>"
+    }
+};
+
 async function syncServerData() {
     try {
         let resBlocks = await fetch('/api/blocked-days');
@@ -27,7 +90,6 @@ async function syncServerData() {
         serverBookingsList = await resBooks.json() || [];
     } catch (e) { console.error("Помилка завантаження записів:", e); }
 
-    // Завантаження постійних клієнтів із локального сховища або сервера
     try {
         regularClientsList = JSON.parse(localStorage.getItem('illiana_regular_clients') || '[]');
     } catch (e) { regularClientsList = []; }
@@ -58,10 +120,26 @@ window.onload = async function() {
     if (bgImgEl && savedBg) bgImgEl.src = savedBg;
 };
 
+// Повноцінна функція перемикача мови UA/EN
 function toggleLang() {
     currentLang = currentLang === 'ua' ? 'en' : 'ua';
     const langBtn = document.getElementById('langToggle');
     if (langBtn) langBtn.innerText = currentLang.toUpperCase() + ' / ' + (currentLang === 'ua' ? 'EN' : 'UA');
+
+    // Оновлюємо тексти з атрибутами data-i18n та data-i18n-html
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        let key = el.getAttribute('data-i18n');
+        if (translations[currentLang][key]) {
+            el.innerText = translations[currentLang][key];
+        }
+    });
+
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+        let key = el.getAttribute('data-i18n-html');
+        if (translations[currentLang][key]) {
+            el.innerHTML = translations[currentLang][key];
+        }
+    });
 }
 
 function toggleTheme() {
@@ -91,7 +169,6 @@ function switchTab(tabName, el) {
     if (el) el.classList.add('active');
 }
 
-// Актуальний прайс та тривалість
 const subServicesData = {
     cut: [
         { id: 'cut_main', title: 'Стрижка (будь-яка)', price: 1000, duration: 90 }
@@ -112,8 +189,6 @@ const subServicesData = {
         ]
     }
 };
-
-const lengthCoefficients = { shoulders: 1.0, shoulder_blades: 1.25, below_blades: 1.5 };
 
 function selectMainCategory(cat) {
     selectedMainCat = cat;
@@ -145,7 +220,7 @@ function selectMainCategory(cat) {
         if (photoSec) photoSec.classList.add('visible');
         if (haircutExamples) haircutExamples.style.display = 'block';
     } else if (cat === 'color') {
-        if (cardColor) cardColor.classList.add('selected');
+        if (cardColor) cardCardColorSelected(cardColor); // helper
         renderColorSubmenu();
         if (subMenu) subMenu.classList.add('visible');
         if (photoSec) photoSec.classList.add('visible');
@@ -157,6 +232,8 @@ function selectMainCategory(cat) {
     }
     renderTimeSlots();
 }
+
+function cardCardColorSelected(el) { if (el) el.classList.add('selected'); }
 
 function selectHaircutReference(imgUrl, el) {
     selectedHaircutRefUrl = imgUrl;
@@ -230,11 +307,7 @@ function selectSpecificService(srvId) {
     renderTimeSlots();
 }
 
-function updateServiceDetails() {
-    if (!selectedServiceObj) return;
-    updateServiceInputText();
-}
-
+function updateServiceDetails() { updateServiceInputText(); }
 function updateServiceInputText() {
     if (!selectedServiceObj) return;
     let text = `${selectedServiceObj.title} — ${selectedServiceObj.price} ₴`;
@@ -242,7 +315,7 @@ function updateServiceInputText() {
     if (srvInput) srvInput.value = text;
 }
 
-// Генерація слотів: робота з 10:00 до 19:00 з кроком 30 хвилин
+// Виправлена генерація слотів: стрижка може починатися о 17:30 / 18:00 і тривати 1.5 год (до 19:30/19:00)
 function renderTimeSlots() {
     const grid = document.getElementById('timeSlotsGrid');
     if (!grid) return;
@@ -262,11 +335,12 @@ function renderTimeSlots() {
     }
 
     let workStartMinutes = 10 * 60; // 10:00
-    let workEndMinutes = 19 * 60;   // 19:00
-    let intervalMinutes = 30;       // Крок у 30 хвилин (10:00, 10:30, 11:00...)
+    // Дозволяємо студії працювати пізніше, якщо це коротка послуга (стрижка), або до 19:00 для фарбування
+    let workEndMinutes = (selectedMainCat === 'cut') ? (19 * 60 + 30) : (19 * 60); 
+    let intervalMinutes = 30;
 
     let slots = [];
-    for (let m = workStartMinutes; m < workEndMinutes; m += intervalMinutes) {
+    for (let m = workStartMinutes; m < (19 * 60); m += intervalMinutes) {
         if (m + serviceDuration <= workEndMinutes) {
             let hours = Math.floor(m / 60);
             let mins = m % 60;
@@ -328,7 +402,6 @@ function readFileAsBase64(fileInputId) {
     });
 }
 
-// Перевірка, чи є клієнт постійним (за телефоном або іменем)
 function checkIfRegularClient(name, phone) {
     let cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : '';
     let cleanName = name ? name.trim().toLowerCase() : '';
@@ -367,7 +440,6 @@ async function submitBooking() {
         return;
     }
 
-    // Перевірка на постійного клієнта
     let isRegular = checkIfRegularClient(name, phone);
     let depositPaid = false;
 
@@ -444,7 +516,6 @@ async function submitBooking() {
     location.reload();
 }
 
-// --- КАБІНЕТ МАЙСТРА ТА БАЗА ПОСТІЙНИХ КЛІЄНТІВ ---
 function forceBypassPin() {
     const loginBox = document.getElementById('masterLoginBox');
     const dashBox = document.getElementById('masterDashboard');
@@ -471,7 +542,6 @@ function logoutMaster() {
     if (pinInput) pinInput.value = '';
 }
 
-// Функції управління базою постійних клієнтів (імпорт з Excel та ручне додавання)
 function renderRegularClientsList() {
     let container = document.getElementById('regularClientsContainer');
     if (!container) return;
@@ -518,7 +588,6 @@ function deleteRegularClient(index) {
     renderRegularClientsList();
 }
 
-// Імпорт постійних клієнтів з Excel файлу
 function handleExcelImport(event) {
     let file = event.target.files[0];
     if (!file) return;
@@ -690,7 +759,6 @@ async function toggleBlockSelectedDate() {
     }
 }
 
-// Витрати та статистика
 function getStoredExpenses() { return JSON.parse(localStorage.getItem('illiana_expenses') || '[]'); }
 function saveExpensesToStorage(exp) { localStorage.setItem('illiana_expenses', JSON.stringify(exp)); }
 function loadExpensesFromStorage() { renderExpensesList(); }
