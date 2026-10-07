@@ -273,8 +273,8 @@ option { background: #23201e; color: #f5f2ed; }
 
 .service-card-mini[style*="grid-column: span 2"] img {
     height: 230px !important;
-    object-fit: contain !important; /* Фото комплексної послуги повністю вміщується */
-    background: #151312; /* Акуратний фон під пропорції фото */
+    object-fit: cover !important; /* Фото заповнює всю ширину і висоту без чорних смуг */
+    object-position: center 40% !important; /* Фокус на центральній частині кадру */
 }
 
 .service-card-mini .title {
