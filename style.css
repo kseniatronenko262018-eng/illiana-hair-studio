@@ -366,19 +366,21 @@ option { background: #23201e; color: #f5f2ed; }
 }
 #photoUploadSection.visible { display: flex; }
 
+/* АДАПТИВНІСТЬ ПОЛІВ: На мобільних вибудовуємо чітко в один стовпчик, щоб нічого не з'їжджало */
 .form-row {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
     gap: 8px !important;
 }
 
-@media (max-width: 360px) {
+@media (min-width: 480px) {
     .form-row {
-        grid-template-columns: 1fr !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
     }
 }
 
-/* Горизонтальна рулетка вибору часу, що гортається вбік */
+/* Горизонтальна рулетка часу, що гортається вбік */
 .time-grid { 
     display: flex !important; 
     flex-direction: row !important;
