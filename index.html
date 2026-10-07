@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=4.0">
+    <link rel="stylesheet" href="style.css?v=4.1">
 </head>
 <body>
 
@@ -48,7 +48,7 @@
                         <img src="PXL_20260528_101624993_exported_4255.jpg" alt="Стрижка">
                         <div>
                             <div class="title" data-i18n="cut_title">Стрижка</div>
-                            <div class="sub">1000 ₴ • 1.5 год</div>
+                            <div class="sub" data-i18n="cut_sub">1000 ₴ • 1.5 год</div>
                         </div>
                     </div>
                     <div class="service-card-mini" id="mainCardColor" onclick="selectMainCategory('color')">
@@ -169,7 +169,7 @@
 
                 <div>
                     <label class="field-label" data-i18n="slots_label">Доступні слоти часу (реальний час)</label>
-                    <div class="time-grid" id="timeSlotsGrid" style="display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important;"></div>
+                    <div class="time-grid" id="timeSlotsGrid"></div>
                 </div>
 
                 <div class="notice-badge" id="slotNotice" data-i18n-html="slot_notice_init">
@@ -244,7 +244,7 @@
         <img id="lightboxImage" src="" alt="Збільшене фото">
     </div>
 
-    <!-- Оновлена версія скрипта для уникнення кешування на мобільних -->
-    <script src="app.js?v=4.0"></script>
+    <!-- Оновлена версія скрипта -->
+    <script src="app.js?v=4.1"></script>
 </body>
 </html>
