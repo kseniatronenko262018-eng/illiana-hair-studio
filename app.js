@@ -184,6 +184,10 @@ function toggleLang() {
             el.setAttribute('placeholder', translations[currentLang][key]);
         }
     });
+
+    if (selectedMainCat === 'color') {
+        renderColorSubmenu();
+    }
 }
 
 function toggleTheme() {
@@ -288,17 +292,23 @@ function selectHaircutReference(imgUrl, el) {
 function renderColorSubmenu() {
     const container = document.getElementById('submenuItems');
     if (!container) return;
+    
+    let rootsTitle = currentLang === 'en' ? 'Roots (up to 2 cm)' : 'Корінь (до 2 см)';
+    let primaryTitle = currentLang === 'en' ? 'Primary coloring (blonde/vivid)' : 'Первинне фарбування (блонд/яскраве)';
+    let primarySub = currentLang === 'en' ? 'By length' : 'За довжиною';
+    let tonedTitle = currentLang === 'en' ? 'Toning / Single tone' : 'Тонування / Однотон';
+
     container.innerHTML = `
         <div class="sub-service-card" onclick="selectColorState('roots')">
-            <div><div class="s-title">Корінь (до 2 см)</div><div class="s-sub">2500 ₴ • 2.5 год</div></div>
+            <div><div class="s-title">${rootsTitle}</div><div class="s-sub">2500 ₴ • 2.5 hrs</div></div>
             <div>➔</div>
         </div>
         <div class="sub-service-card" onclick="selectColorState('primary')">
-            <div><div class="s-title">Первинне фарбування (блонд/яскраве)</div><div class="s-sub">За довжиною</div></div>
+            <div><div class="s-title">${primaryTitle}</div><div class="s-sub">${primarySub}</div></div>
             <div>➔</div>
         </div>
         <div class="sub-service-card" onclick="selectColorState('toned')">
-            <div><div class="s-title">Тонування / Однотон</div><div class="s-sub">За довжиною</div></div>
+            <div><div class="s-title">${tonedTitle}</div><div class="s-sub">${primarySub}</div></div>
             <div>➔</div>
         </div>
     `;
@@ -328,7 +338,7 @@ function selectColorState(stateKey) {
     subServicesData.color[stateKey].forEach((srv, idx) => {
         listContainer.innerHTML += `
             <div class="sub-service-card ${idx===0?'selected':''}" onclick="selectSpecificService('${srv.id}')" id="srvCard_${srv.id}">
-                <div><div class="s-title">${srv.title}</div><div class="s-sub">${srv.price} ₴ • ${srv.duration / 60} год</div></div>
+                <div><div class="s-title">${srv.title}</div><div class="s-sub">${srv.price} ₴ • ${srv.duration / 60} hrs</div></div>
                 <div>✓</div>
             </div>
         `;
@@ -357,7 +367,7 @@ function updateServiceInputText() {
     if (srvInput) srvInput.value = text;
 }
 
-// Рендеринг вільних слотів із захистом від перетину та блокуванням зайнятих годин
+// Рендеринг вільних слотів часу у вигляді рулетки з урахуванням тривалості та ліміту 19:00
 function renderTimeSlots() {
     const grid = document.getElementById('timeSlotsGrid');
     if (!grid) return;
@@ -367,7 +377,7 @@ function renderTimeSlots() {
     let dateVal = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
 
     if (serverBlockedDays.includes(dateVal)) {
-        grid.innerHTML = `<div style="font-size:11px; color:var(--accent); grid-column:span 4; text-align:center;">Цей день заблоковано майстром (вихідний).</div>`;
+        grid.innerHTML = `<div style="font-size:11px; color:var(--accent); text-align:center; padding: 10px;">${currentLang === 'en' ? 'This day is blocked by the master (day off).' : 'Цей день заблоковано майстром (вихідний).'}</div>`;
         return;
     }
 
@@ -377,12 +387,13 @@ function renderTimeSlots() {
     }
 
     let workStartMinutes = 10 * 60; // 10:00
-    let workEndMinutes = 19 * 60;   // 19:00
+    let workEndMinutes = 19 * 60;   // 19:00 (останній час початку)
     let intervalMinutes = 30;
 
     let slots = [];
     for (let m = workStartMinutes; m <= workEndMinutes; m += intervalMinutes) {
-        if (m + serviceDuration <= (19 * 60 + 30)) {
+        // Перевіряємо щоб послуга завершувалась в розумний час (наприклад, до 22:00, але для стрижки 19:00+1.5г = 20:30 це ок)
+        if (m + serviceDuration <= 22 * 60) {
             let hours = Math.floor(m / 60);
             let mins = m % 60;
             let timeStr = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
@@ -407,10 +418,7 @@ function renderTimeSlots() {
             let bDuration = 90; 
             if (b.service && b.service.includes('3 год')) bDuration = 180;
             if (b.service && b.service.includes('2.5 год')) bDuration = 150;
-            if (b.service && b.service.includes('6 год')) bDuration = 360;
-            if (b.service && b.service.includes('7 год')) bDuration = 420;
             let bEndMin = bStartMin + bDuration;
-
             return (slot.minutes < bEndMin) && (slot.endMinutes > bStartMin);
         });
 
@@ -419,14 +427,11 @@ function renderTimeSlots() {
         let div = document.createElement('div');
         div.className = 'time-cell';
 
-        if (isBooked) {
+        if (isBooked || isTooSoonToday) {
             div.className += ' booked';
-            div.innerHTML = `<span class="time-main">${slot.timeStr}</span><span class="time-sub">(${currentLang === 'en' ? 'Busy' : 'Зайнято'})</span>`;
-        } else if (isTooSoonToday) {
-            div.className += ' booked';
-            div.innerHTML = `<span class="time-main">${slot.timeStr}</span><span class="time-sub">(< 3h)</span>`;
+            div.innerText = slot.timeStr;
         } else {
-            div.innerHTML = `<span class="time-main">${slot.timeStr}</span>`;
+            div.innerText = slot.timeStr;
             div.onclick = () => selectTime(slot.timeStr, div);
         }
         grid.appendChild(div);
