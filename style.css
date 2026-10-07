@@ -370,23 +370,24 @@ option { background: #23201e; color: #f5f2ed; }
 }
 #photoUploadSection.visible { display: flex; }
 
-/* Виправлення тільки для рядків форми, щоб не чіпати сітку часу */
+/* Акуратні рядки для полів форми (дата/ім'я, телефон/email) */
 .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
 }
 
 @media (max-width: 360px) {
     .form-row {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
     }
 }
 
+/* Суворо зафіксована сітка часу на 4 колонки */
 .time-grid { 
-    display: grid; 
+    display: grid !important; 
     grid-template-columns: repeat(4, 1fr) !important; 
-    gap: 6px; 
+    gap: 6px !important; 
 }
 
 .time-cell {
@@ -565,8 +566,13 @@ option { background: #23201e; color: #f5f2ed; }
     cursor: pointer;
 }
 
-/* Стилі для карток архіву робіт, щоб вони виглядали якісно як на головній */
-#paneWorks .section-work-card, #paneWorks div[style*="grid-template-columns"] > div {
+#paneWorks div[style*="grid-template-columns"] {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+}
+
+#paneWorks div[style*="grid-template-columns"] > div {
     background: var(--card-bg) !important;
     border: 1px solid var(--border) !important;
     border-radius: 12px !important;
