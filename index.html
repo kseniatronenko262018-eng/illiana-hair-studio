@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=3.0">
+    <link rel="stylesheet" href="style.css?v=4.0">
 </head>
 <body>
 
@@ -169,7 +169,6 @@
 
                 <div>
                     <label class="field-label" data-i18n="slots_label">Доступні слоти часу (реальний час)</label>
-                    <!-- Жорстко фіксуємо 4 колонки прямо в HTML, щоб сітка ніколи не псувалася -->
                     <div class="time-grid" id="timeSlotsGrid" style="display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important;"></div>
                 </div>
 
@@ -245,6 +244,7 @@
         <img id="lightboxImage" src="" alt="Збільшене фото">
     </div>
 
-    <script src="app.js"></script>
+    <!-- Оновлена версія скрипта для уникнення кешування на мобільних -->
+    <script src="app.js?v=4.0"></script>
 </body>
 </html>
