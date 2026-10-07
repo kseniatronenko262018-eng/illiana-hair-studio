@@ -367,7 +367,6 @@ function updateServiceInputText() {
     if (srvInput) srvInput.value = text;
 }
 
-// Рендеринг вільних слотів часу у вигляді рулетки з урахуванням тривалості та ліміту 19:00
 function renderTimeSlots() {
     const grid = document.getElementById('timeSlotsGrid');
     if (!grid) return;
@@ -377,7 +376,7 @@ function renderTimeSlots() {
     let dateVal = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
 
     if (serverBlockedDays.includes(dateVal)) {
-        grid.innerHTML = `<div style="font-size:11px; color:var(--accent); text-align:center; padding: 10px;">${currentLang === 'en' ? 'This day is blocked by the master (day off).' : 'Цей день заблоковано майстром (вихідний).'}</div>`;
+        grid.innerHTML = `<div style="font-size:10px; color:var(--accent); text-align:center; padding: 10px;">${currentLang === 'en' ? 'This day is blocked by the master (day off).' : 'Цей день заблоковано майстром (вихідний).'}</div>`;
         return;
     }
 
@@ -386,13 +385,12 @@ function renderTimeSlots() {
         serviceDuration = selectedServiceObj.duration;
     }
 
-    let workStartMinutes = 10 * 60; // 10:00
-    let workEndMinutes = 19 * 60;   // 19:00 (останній час початку)
+    let workStartMinutes = 10 * 60; 
+    let workEndMinutes = 19 * 60;   
     let intervalMinutes = 30;
 
     let slots = [];
     for (let m = workStartMinutes; m <= workEndMinutes; m += intervalMinutes) {
-        // Перевіряємо щоб послуга завершувалась в розумний час (наприклад, до 22:00, але для стрижки 19:00+1.5г = 20:30 це ок)
         if (m + serviceDuration <= 22 * 60) {
             let hours = Math.floor(m / 60);
             let mins = m % 60;
@@ -446,6 +444,7 @@ function selectTime(time, el) {
     const dateInput = document.getElementById('clientDate');
     let dateVal = dateInput ? dateInput.value : '';
     const slotNotice = document.getElementById('slotNotice');
+    // Зменшений текст повідомлення про обраний час
     if (slotNotice) slotNotice.innerHTML = `⚡ <b>${currentLang === 'en' ? 'Selected time:' : 'Обрано час:'}</b> ${dateVal} о ${time}`;
 }
 
@@ -610,15 +609,15 @@ function renderRegularClientsList() {
     container.innerHTML = '';
 
     if (regularClientsList.length === 0) {
-        container.innerHTML = `<div style="font-size:11px; color:var(--text-muted);">База постійних клієнтів порожня. Імпортуйте Excel або додайте клієнтів нижче.</div>`;
+        container.innerHTML = `<div style="font-size:10px; color:var(--text-muted);">База постійних клієнтів порожня. Імпортуйте Excel або додайте клієнтів нижче.</div>`;
         return;
     }
 
     regularClientsList.forEach((client, idx) => {
         container.innerHTML += `
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; background:var(--card-bg); padding:6px 10px; border-radius:6px; margin-bottom:4px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; background:var(--card-bg); padding:5px 8px; border-radius:6px; margin-bottom:4px;">
                 <span><b>${client.name}</b> — 📞 ${client.phone}</span>
-                <button onclick="deleteRegularClient(${idx})" style="background:none; border:none; color:var(--accent); cursor:pointer;">✕ Видалити</button>
+                <button onclick="deleteRegularClient(${idx})" style="background:none; border:none; color:var(--accent); cursor:pointer; font-size:10px;">✕ Видалити</button>
             </div>
         `;
     });
