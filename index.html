@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="ua" data-theme="dark">
+<html lang="ua" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -140,7 +140,7 @@
                     <input type="text" id="selectedServiceInput" class="input-box" readonly value="Спочатку оберіть категорію вище" style="font-weight:700;">
                 </div>
 
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div class="form-row">
                     <div>
                         <label class="field-label" data-i18n="date_label">Дата</label>
                         <input type="date" id="clientDate" class="input-box" onchange="renderTimeSlots()">
@@ -151,7 +151,7 @@
                     </div>
                 </div>
 
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div class="form-row">
                     <div>
                         <label class="field-label" data-i18n="phone_label">Телефон</label>
                         <input type="tel" id="clientPhone" class="input-box" placeholder="+380...">
@@ -177,7 +177,7 @@
                 </div>
 
                 <div class="notice-badge" data-i18n="deposit_notice">
-                    ⚡ <b>Умова броні:</b> Завдаток <b>500 грн</b> підтверджує запис[cite: 1, 5].
+                    ⚡ <b>Умова броні:</b> Завдаток <b>500 грн</b> підтверджує запис.
                 </div>
 
                 <div class="policy-highlight-card">
