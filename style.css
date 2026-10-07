@@ -255,6 +255,7 @@ option { background: #23201e; color: #f5f2ed; }
     transform: translateY(-2px);
 }
 
+/* ЗАХОПЛЮЄМО ВСІ ФОТОГРАФІЇ КАРТОК ПОСЛУГ ТА ДОДАЄМО ЗАБЛЮРЕННЯ (БЛУР) */
 .service-card-mini img {
     width: 100% !important;
     height: 190px !important;
@@ -264,17 +265,20 @@ option { background: #23201e; color: #f5f2ed; }
     pointer-events: none;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
     border: 1px solid var(--border);
-    transition: border-color 0.2s ease;
+    filter: blur(1.5px) brightness(0.95); /* Легкий блур приблизно 15% */
+    transition: filter 0.3s ease, border-color 0.2s ease;
 }
 
+/* При наведенні або виборі фото стає повністю чітким */
 .service-card-mini:hover img, .service-card-mini.selected img {
     border-color: var(--accent);
+    filter: blur(0px) brightness(1); 
 }
 
 .service-card-mini[style*="grid-column: span 2"] img {
     height: 230px !important;
-    object-fit: cover !important; /* Фото заповнює всю ширину і висоту без чорних смуг */
-    object-position: center 40% !important; /* Фокус на центральній частині кадру */
+    object-fit: cover !important;
+    object-position: center 40% !important;
 }
 
 .service-card-mini .title {
