@@ -232,7 +232,6 @@ option { background: #23201e; color: #f5f2ed; }
     gap: 10px;
 }
 
-/* МІНІМАЛІСТИЧНИЙ СТИЛЬ КАРТОК (БЕЗ РАМОК ТА ФОНУ) */
 .service-card-mini {
     background: transparent;
     border: none;
@@ -260,12 +259,14 @@ option { background: #23201e; color: #f5f2ed; }
     width: 100% !important;
     height: 190px !important;
     object-fit: cover !important;
-    object-position: center top !important;
+    object-position: center center !important;
+    transform: scale(1.35); /* Збільшення фото всередині контейнера */
+    transform-origin: center center;
     border-radius: 10px;
     pointer-events: none;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
     border: 1px solid var(--border);
-    transition: border-color 0.2s ease;
+    transition: border-color 0.2s ease, transform 0.2s ease;
 }
 
 .service-card-mini:hover img, .service-card-mini.selected img {
@@ -274,6 +275,7 @@ option { background: #23201e; color: #f5f2ed; }
 
 .service-card-mini[style*="grid-column: span 2"] img {
     height: 230px !important;
+    transform: none; /* Комплексна послуга залишається без змін */
 }
 
 .service-card-mini .title {
