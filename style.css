@@ -255,7 +255,7 @@ option { background: #23201e; color: #f5f2ed; }
     transform: translateY(-2px);
 }
 
-/* ЗАХОПЛЮЄМО ВСІ ФОТОГРАФІЇ КАРТОК ПОСЛУГ ТА ДОДАЄМО ЗАБЛЮРЕННЯ (БЛУР) */
+/* ФОТО БЕЗ БЛУРУ (повністю чисті та чіткі) */
 .service-card-mini img {
     width: 100% !important;
     height: 190px !important;
@@ -265,20 +265,19 @@ option { background: #23201e; color: #f5f2ed; }
     pointer-events: none;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
     border: 1px solid var(--border);
-    filter: blur(1.5px) brightness(0.95); /* Легкий блур приблизно 15% */
-    transition: filter 0.3s ease, border-color 0.2s ease;
+    filter: none !important;
+    transition: border-color 0.2s ease;
 }
 
-/* При наведенні або виборі фото стає повністю чітким */
 .service-card-mini:hover img, .service-card-mini.selected img {
     border-color: var(--accent);
-    filter: blur(0px) brightness(1); 
 }
 
 .service-card-mini[style*="grid-column: span 2"] img {
     height: 230px !important;
     object-fit: cover !important;
     object-position: center 40% !important;
+    filter: none !important;
 }
 
 .service-card-mini .title {
@@ -421,6 +420,19 @@ option { background: #23201e; color: #f5f2ed; }
 }
 .policy-highlight-card b { color: var(--accent); }
 .policy-highlight-card a { color: var(--text-main); font-weight: 700; text-decoration: underline; cursor: pointer; }
+
+/* Виправлення сітки форм на мобільних, щоб поля не наїжджали одне на одне */
+.form-row, div[style*="grid-template-columns"] {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+}
+
+@media (max-width: 360px) {
+    .form-row, div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important; /* На дуже вузьких екранах переносимо в один стовпчик */
+    }
+}
 
 .time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
 .time-cell {
