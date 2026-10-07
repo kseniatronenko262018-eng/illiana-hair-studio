@@ -25,6 +25,7 @@ const translations = {
         profile_bio: "не відрощуй волосся — відрощуй індивідуальність",
         step1: "1. Оберіть категорію послуг",
         cut_title: "Стрижка",
+        cut_sub: "1000 ₴ • 1.5 год",
         color_title: "Фарбування",
         color_sub: "Підбір за станом",
         complex_title: "Стрижка + Фарбування коріння",
@@ -73,6 +74,7 @@ const translations = {
         profile_bio: "don't grow your hair — grow your individuality",
         step1: "1. Select service category",
         cut_title: "Haircut",
+        cut_sub: "1000 UAH • 1.5 hrs",
         color_title: "Coloring",
         color_sub: "Consultation based",
         complex_title: "Haircut + Root Coloring",
@@ -399,11 +401,9 @@ function renderTimeSlots() {
     }
 
     slots.forEach(slot => {
-        // Перевіряємо чи поточний слот перетинається з будь-яким уже заброньованим часом
         let isBooked = dayBookings.some(b => {
             let [bHour, bMin] = b.time.split(':').map(Number);
             let bStartMin = bHour * 60 + bMin;
-            // Приблизна тривалість заброньованої послуги (якщо не вказана, беремо 90 хв)
             let bDuration = 90; 
             if (b.service && b.service.includes('3 год')) bDuration = 180;
             if (b.service && b.service.includes('2.5 год')) bDuration = 150;
@@ -411,7 +411,6 @@ function renderTimeSlots() {
             if (b.service && b.service.includes('7 год')) bDuration = 420;
             let bEndMin = bStartMin + bDuration;
 
-            // Перевірка накладання інтервалів [slot.minutes, slot.endMinutes] та [bStartMin, bEndMin]
             return (slot.minutes < bEndMin) && (slot.endMinutes > bStartMin);
         });
 
@@ -422,12 +421,12 @@ function renderTimeSlots() {
 
         if (isBooked) {
             div.className += ' booked';
-            div.innerText = `${slot.timeStr}\n(Зайнято)`;
+            div.innerHTML = `<span class="time-main">${slot.timeStr}</span><span class="time-sub">(${currentLang === 'en' ? 'Busy' : 'Зайнято'})</span>`;
         } else if (isTooSoonToday) {
             div.className += ' booked';
-            div.innerText = `${slot.timeStr}\n(< 3 год)`;
+            div.innerHTML = `<span class="time-main">${slot.timeStr}</span><span class="time-sub">(< 3h)</span>`;
         } else {
-            div.innerText = slot.timeStr;
+            div.innerHTML = `<span class="time-main">${slot.timeStr}</span>`;
             div.onclick = () => selectTime(slot.timeStr, div);
         }
         grid.appendChild(div);
@@ -442,7 +441,7 @@ function selectTime(time, el) {
     const dateInput = document.getElementById('clientDate');
     let dateVal = dateInput ? dateInput.value : '';
     const slotNotice = document.getElementById('slotNotice');
-    if (slotNotice) slotNotice.innerHTML = `⚡ <b>Обрано час:</b> ${dateVal} о ${time}`;
+    if (slotNotice) slotNotice.innerHTML = `⚡ <b>${currentLang === 'en' ? 'Selected time:' : 'Обрано час:'}</b> ${dateVal} о ${time}`;
 }
 
 function readFileAsBase64(fileInputId) {
@@ -485,12 +484,12 @@ async function submitBooking() {
     let date = dateEl ? dateEl.value : '';
 
     if (!name || !phone || !email || !selectedTimeSlot || !selectedServiceObj) {
-        alert("Будь ласка, заповніть ім'я, телефон, email, оберіть послугу та вільний час!");
+        alert(currentLang === 'en' ? "Please fill in name, phone, email, select a service and a time slot!" : "Будь ласка, заповніть ім'я, телефон, email, оберіть послугу та вільний час!");
         return;
     }
 
     if (serverBlockedDays.includes(date)) {
-        alert("На жаль, цей день є вихідним у майстра.");
+        alert(currentLang === 'en' ? "Sorry, this day is a day off for the master." : "На жаль, цей день є вихідним у майстра.");
         return;
     }
 
@@ -498,17 +497,17 @@ async function submitBooking() {
     let depositPaid = false;
 
     if (isRegular) {
-        let confirmRegular = confirm(`✨ Вітаємо, ${name}!\n\nМи розпізнали вас як постійного клієнта. Для вас завдаток 500 ₴ скасовано!\n\nНатисніть "OK", щоб завершити бронювання.`);
-        if (!confirmRegular) { alert("Бронювання скасовано."); return; }
+        let confirmRegular = confirm(currentLang === 'en' ? `✨ Welcome, ${name}!\n\nYou are recognized as a regular client. The 500 UAH deposit is waived!\n\nClick "OK" to complete your booking.` : `✨ Вітаємо, ${name}!\n\nМи розпізнали вас як постійного клієнта. Для вас завдаток 500 ₴ скасовано!\n\nНатисніть "OK", щоб завершити бронювання.`);
+        if (!confirmRegular) { alert(currentLang === 'en' ? "Booking cancelled." : "Бронювання скасовано."); return; }
         depositPaid = true;
     } else {
         let payAction = confirm(
-            `✨ Увага, ${name}!\n\n` +
-            `Для нових клієнтів обов'язковий завдаток 500 ₴ (ФОП Явір Ілліяна Володимирівна).\n\n` +
-            `Натисніть "OK", щоб перейти до оплати через еквайринг Monobank.`
+            currentLang === 'en' ? 
+            `✨ Attention, ${name}!\n\nA 500 UAH deposit is required for new clients.\n\nClick "OK" to proceed to payment via Monobank.` :
+            `✨ Увага, ${name}!\n\nДля нових клієнтів обов'язковий завдаток 500 ₴ (ФОП Явір Ілліяна Володимирівна).\n\nНатисніть "OK", щоб перейти до оплати через еквайринг Monobank.`
         );
         
-        if (!payAction) { alert("Бронювання скасовано."); return; }
+        if (!payAction) { alert(currentLang === 'en' ? "Booking cancelled." : "Бронювання скасовано."); return; }
 
         try {
             let response = await fetch("/api/create-invoice", {
@@ -523,8 +522,8 @@ async function submitBooking() {
             window.open("https://send.monobank.ua/", '_blank');
         }
 
-        let confirmPaid = confirm(`💳 Після здійснення оплати 500 ₴ поверніться сюди.\n\nЧи успішно ви сплатили завдаток?\nНатисніть "OK", щоб завершити запис.`);
-        if (!confirmPaid) { alert("Запис не збережено."); return; }
+        let confirmPaid = confirm(currentLang === 'en' ? `💳 After payment, return here.\n\nDid you successfully pay the deposit?\nClick "OK" to finish booking.` : `💳 Після здійснення оплати 500 ₴ поверніться сюди.\n\nЧи успішно ви сплатили завдаток?\nНатисніть "OK", щоб завершити запис.`);
+        if (!confirmPaid) { alert(currentLang === 'en' ? "Booking not saved." : "Запис не збережено."); return; }
         depositPaid = true;
     }
 
@@ -561,7 +560,11 @@ async function submitBooking() {
 
     let botUsername = typeof TELEGRAM_BOT_USERNAME !== 'undefined' ? TELEGRAM_BOT_USERNAME : 'illianahair_bot';
     let botLink = `https://t.me/${botUsername}?start=booking_${newBooking.id}`;
-    let successMessage = `Дякуємо, ${name}! Запис на ${date} о ${selectedTimeSlot} успішно збережено!\n\n` +
+    let successMessage = currentLang === 'en' ?
+        `Thank you, ${name}! Booking for ${date} at ${selectedTimeSlot} is saved!\n\n` +
+        (isRegular ? `🌟 You logged in as a regular client (no deposit).\n\n` : `✅ Deposit of 500 UAH paid and confirmed.\n\n`) +
+        `📱 You will now be redirected to our Telegram bot for confirmation and reminders.` :
+        `Дякуємо, ${name}! Запис на ${date} о ${selectedTimeSlot} успішно збережено!\n\n` +
         (isRegular ? `🌟 Ви увійшли як постійний клієнт (без завдатку).\n\n` : `✅ Завдаток 500 ₴ сплачено та підтверджено.\n\n`) +
         `📱 Зараз ви будете перенаправлені в наш Telegram бот для фіксації та нагадувань.`;
     
