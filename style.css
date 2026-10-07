@@ -232,12 +232,12 @@ option { background: #23201e; color: #f5f2ed; }
     gap: 10px;
 }
 
+/* МІНІМАЛІСТИЧНИЙ СТИЛЬ КАРТОК (БЕЗ РАМОК ТА ФОНУ) */
 .service-card-mini {
-    background: var(--card-bg);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--border);
+    background: transparent;
+    border: none;
     border-radius: 12px;
-    padding: 12px;
+    padding: 4px;
     cursor: pointer;
     pointer-events: auto;
     display: flex;
@@ -245,11 +245,15 @@ option { background: #23201e; color: #f5f2ed; }
     justify-content: space-between;
     gap: 8px;
     text-align: left;
+    transition: transform 0.2s ease;
 }
 
-.service-card-mini:hover, .service-card-mini.selected {
-    border-color: var(--accent);
-    background: var(--card-hover);
+.service-card-mini:hover {
+    transform: translateY(-2px);
+}
+
+.service-card-mini.selected {
+    transform: translateY(-2px);
 }
 
 .service-card-mini img {
@@ -257,8 +261,15 @@ option { background: #23201e; color: #f5f2ed; }
     height: 190px !important;
     object-fit: cover !important;
     object-position: center top !important;
-    border-radius: 8px;
+    border-radius: 10px;
     pointer-events: none;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border);
+    transition: border-color 0.2s ease;
+}
+
+.service-card-mini:hover img, .service-card-mini.selected img {
+    border-color: var(--accent);
 }
 
 .service-card-mini[style*="grid-column: span 2"] img {
