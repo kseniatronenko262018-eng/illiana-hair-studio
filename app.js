@@ -15,67 +15,103 @@ let serverBlockedDays = [];
 let serverBookingsList = [];
 let regularClientsList = [];
 
-// Словник для перекладу UA / EN
+// Повний словник для перекладу UA / EN (включає абсолютно всі елементи сайту)
 const translations = {
     ua: {
         tab_book: "Запис",
         tab_works: "Архів",
         tab_loc: "Локація",
+        profile_sub: "квір хейр стиліст • перукар дніпро",
+        profile_bio: "не відрощуй волосся — відрощуй індивідуальність",
         step1: "1. Оберіть категорію послуг",
         cut_title: "Стрижка",
         color_title: "Фарбування",
         color_sub: "Підбір за станом",
+        complex_title: "Стрижка + Фарбування коріння",
+        complex_sub: "3000 ₴ • 3 год (до 2 см)",
+        haircut_ref_title: "✨ Оберіть приклад стрижки (натисніть, щоб обрати як референс):",
+        choose_btn: "Обрати",
+        ref_selected_notice: "✓ Обрано фото-референс із портфоліо!",
         step2: "2. Оберіть ваш поточний стан волосся:",
         step3: "3. Доступні послуги та довжина:",
         length_label: "Довжина волосся:",
         len_shoulders: "До плечей",
         len_blades: "Від плечей до лопаток",
         len_below: "Нижче лопаток",
+        rules_title: "📌 Важливі примітки та правила майстра:",
+        rule_1: "Якщо ваше коріння більше 2 см, послуга фарбування вважається первинною відповідно до довжини відрослого волосся.",
+        rule_2: "Я не роблю блонд у техніці (AirTouch, балаяж і т. д.).",
+        rule_3: "Я не роблю вихід із чорного або рудого.",
+        rule_4: "Я не фарбую волосся після біозавивки, ботоксу, кератину.",
+        rule_5: "Якщо не знайшли підходящого варіанту — напишіть мені в дірект для консультації.",
         photo_current_label: "4. Завантажте фото вашого волосся:",
         photo_ref_label: "5. Завантажте фото-референс або оберіть з портфоліо вище:",
         selected_service_label: "Обрана послуга та час",
+        select_service_placeholder: "Спочатку оберіть категорію вище",
         date_label: "Дата",
         name_label: "Ім'я",
+        name_placeholder: "Як звертатись",
         phone_label: "Телефон",
         email_label: "Email (обов'язково)",
         social_label: "Нік / соцмережа",
         slots_label: "Доступні слоти часу (реальний час)",
         slot_notice_init: "⚡ <b>Слот заброньовано на:</b> оберіть послугу та час.",
         deposit_notice: "⚡ <b>Умова броні:</b> Завдаток <b>500 грн</b> підтверджує запис.",
+        policy_text: "⚠️ <b>Правила скасування:</b> Зміна або скасування можливі не пізніш ніж за 48 годин.<br>📄 Оформлюючи запис, ви погоджуєтесь із умовами <a onclick=\"openOffer()\">Публічного договору оферти</a>.",
         pay_btn: "Сплатити завдаток 500 ₴ та забронювати",
         modal_title: "Публічний договір оферти",
+        modal_text: "<b>1. Загальні положення</b><br>Умови надання послуг.<br><br><b>2. Передоплата</b><br>Завдаток 500 грн.<br><br><b>3. Скасування</b><br>Менш ніж за 48 годин — без повернення.",
         modal_btn: "Зрозуміло",
-        loc_info: "📍 <b>Локація:</b> м. Дніпро, вул. Володимира Вернадського, 356.<br><br>Приватний простір, мінімалізм та фокус на якості.<br><a href='https://maps.google.com/?q=Dnipro,+Volodymyra+Vernadskoho+356' target='_blank' class='map-btn'>Відкрити в Google Maps</a>"
+        loc_info: "📍 <b>Локація:</b> м. Дніпро, вул. Володимира Вернадського, 356.<br><br>Приватний простір, мінімалізм та фокус на якості.",
+        map_btn: "Відкрити в Google Maps"
     },
     en: {
         tab_book: "Booking",
         tab_works: "Archive",
         tab_loc: "Location",
+        profile_sub: "queer hair stylist • dnipro hairdresser",
+        profile_bio: "don't grow your hair — grow your individuality",
         step1: "1. Select service category",
         cut_title: "Haircut",
         color_title: "Coloring",
         color_sub: "Consultation based",
+        complex_title: "Haircut + Root Coloring",
+        complex_sub: "3000 UAH • 3 hrs (up to 2 cm)",
+        haircut_ref_title: "✨ Select a haircut example (click to choose as reference):",
+        choose_btn: "Select",
+        ref_selected_notice: "✓ Reference photo selected from portfolio!",
         step2: "2. Select your current hair condition:",
         step3: "3. Available services & length:",
         length_label: "Hair length:",
         len_shoulders: "Shoulder length",
         len_blades: "Shoulder to blades",
         len_below: "Below blades",
+        rules_title: "📌 Important notes & master's rules:",
+        rule_1: "If your roots are more than 2 cm, coloring is considered primary based on regrown length.",
+        rule_2: "I do not do blonding techniques (AirTouch, balayage, etc.).",
+        rule_3: "I do not transition clients out of black or red hair.",
+        rule_4: "I do not dye hair after bio-perm, botox, or keratin treatments.",
+        rule_5: "If you didn't find a suitable option — message me on direct for consultation.",
         photo_current_label: "4. Upload a photo of your hair:",
         photo_ref_label: "5. Upload a reference photo or pick from archive above:",
         selected_service_label: "Selected service & time",
+        select_service_placeholder: "First select a category above",
         date_label: "Date",
         name_label: "Name",
+        name_placeholder: "How to address you",
         phone_label: "Phone",
         email_label: "Email (required)",
         social_label: "Social / Nickname",
         slots_label: "Available time slots (real time)",
         slot_notice_init: "⚡ <b>Slot status:</b> select service and time.",
         deposit_notice: "⚡ <b>Deposit rule:</b> <b>500 UAH</b> deposit confirms booking.",
+        policy_text: "⚠️ <b>Cancellation policy:</b> Changes or cancellations are allowed up to 48 hours in advance.<br>📄 By booking, you agree to the terms of the <a onclick=\"openOffer()\">Public Offer Agreement</a>.",
         pay_btn: "Pay deposit 500 UAH & Book",
         modal_title: "Public Offer Agreement",
+        modal_text: "<b>1. General provisions</b><br>Terms of service.<br><br><b>2. Prepayment</b><br>Deposit 500 UAH.<br><br><b>3. Cancellation</b><br>Less than 48 hours — non-refundable.",
         modal_btn: "Understood",
-        loc_info: "📍 <b>Location:</b> Dnipro, Volodymyra Vernadskoho St, 356.<br><br>Private space, minimalism and focus on quality.<br><a href='https://maps.google.com/?q=Dnipro,+Volodymyra+Vernadskoho+356' target='_blank' class='map-btn'>Open in Google Maps</a>"
+        loc_info: "📍 <b>Location:</b> Dnipro, Volodymyra Vernadskoho St, 356.<br><br>Private space, minimalism and focus on quality.",
+        map_btn: "Open in Google Maps"
     }
 };
 
@@ -120,13 +156,12 @@ window.onload = async function() {
     if (bgImgEl && savedBg) bgImgEl.src = savedBg;
 };
 
-// Повноцінна функція перемикача мови UA/EN
+// Повноцінна функція перемикача мови UA/EN для всіх елементів
 function toggleLang() {
     currentLang = currentLang === 'ua' ? 'en' : 'ua';
     const langBtn = document.getElementById('langToggle');
     if (langBtn) langBtn.innerText = currentLang.toUpperCase() + ' / ' + (currentLang === 'ua' ? 'EN' : 'UA');
 
-    // Оновлюємо тексти з атрибутами data-i18n та data-i18n-html
     document.querySelectorAll('[data-i18n]').forEach(el => {
         let key = el.getAttribute('data-i18n');
         if (translations[currentLang][key]) {
@@ -138,6 +173,13 @@ function toggleLang() {
         let key = el.getAttribute('data-i18n-html');
         if (translations[currentLang][key]) {
             el.innerHTML = translations[currentLang][key];
+        }
+    });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        let key = el.getAttribute('data-i18n-placeholder');
+        if (translations[currentLang][key]) {
+            el.setAttribute('placeholder', translations[currentLang][key]);
         }
     });
 }
@@ -220,7 +262,7 @@ function selectMainCategory(cat) {
         if (photoSec) photoSec.classList.add('visible');
         if (haircutExamples) haircutExamples.style.display = 'block';
     } else if (cat === 'color') {
-        if (cardColor) cardCardColorSelected(cardColor); // helper
+        if (cardColor) cardColor.classList.add('selected');
         renderColorSubmenu();
         if (subMenu) subMenu.classList.add('visible');
         if (photoSec) photoSec.classList.add('visible');
@@ -232,8 +274,6 @@ function selectMainCategory(cat) {
     }
     renderTimeSlots();
 }
-
-function cardCardColorSelected(el) { if (el) el.classList.add('selected'); }
 
 function selectHaircutReference(imgUrl, el) {
     selectedHaircutRefUrl = imgUrl;
@@ -315,7 +355,7 @@ function updateServiceInputText() {
     if (srvInput) srvInput.value = text;
 }
 
-// Виправлена генерація слотів: стрижка може починатися о 17:30 / 18:00 і тривати 1.5 год (до 19:30/19:00)
+// Рендеринг вільних слотів із захистом від перетину та блокуванням зайнятих годин
 function renderTimeSlots() {
     const grid = document.getElementById('timeSlotsGrid');
     if (!grid) return;
@@ -335,17 +375,16 @@ function renderTimeSlots() {
     }
 
     let workStartMinutes = 10 * 60; // 10:00
-    // Дозволяємо студії працювати пізніше, якщо це коротка послуга (стрижка), або до 19:00 для фарбування
-    let workEndMinutes = (selectedMainCat === 'cut') ? (19 * 60 + 30) : (19 * 60); 
+    let workEndMinutes = 19 * 60;   // 19:00
     let intervalMinutes = 30;
 
     let slots = [];
-    for (let m = workStartMinutes; m < (19 * 60); m += intervalMinutes) {
-        if (m + serviceDuration <= workEndMinutes) {
+    for (let m = workStartMinutes; m <= workEndMinutes; m += intervalMinutes) {
+        if (m + serviceDuration <= (19 * 60 + 30)) {
             let hours = Math.floor(m / 60);
             let mins = m % 60;
             let timeStr = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
-            slots.push({ minutes: m, timeStr: timeStr });
+            slots.push({ minutes: m, timeStr: timeStr, endMinutes: m + serviceDuration });
         }
     }
 
@@ -356,11 +395,26 @@ function renderTimeSlots() {
     let dayBookings = serverBookingsList.filter(b => b.date === dateVal);
 
     if (slots.length === 0) {
-        slots = [{ minutes: 600, timeStr: "10:00" }];
+        slots = [{ minutes: 600, timeStr: "10:00", endMinutes: 600 + serviceDuration }];
     }
 
     slots.forEach(slot => {
-        let isBooked = dayBookings.some(b => b.time === slot.timeStr);
+        // Перевіряємо чи поточний слот перетинається з будь-яким уже заброньованим часом
+        let isBooked = dayBookings.some(b => {
+            let [bHour, bMin] = b.time.split(':').map(Number);
+            let bStartMin = bHour * 60 + bMin;
+            // Приблизна тривалість заброньованої послуги (якщо не вказана, беремо 90 хв)
+            let bDuration = 90; 
+            if (b.service && b.service.includes('3 год')) bDuration = 180;
+            if (b.service && b.service.includes('2.5 год')) bDuration = 150;
+            if (b.service && b.service.includes('6 год')) bDuration = 360;
+            if (b.service && b.service.includes('7 год')) bDuration = 420;
+            let bEndMin = bStartMin + bDuration;
+
+            // Перевірка накладання інтервалів [slot.minutes, slot.endMinutes] та [bStartMin, bEndMin]
+            return (slot.minutes < bEndMin) && (slot.endMinutes > bStartMin);
+        });
+
         let isTooSoonToday = (dateVal === todayStr) && (slot.minutes < currentTotalMinutes + 180);
 
         let div = document.createElement('div');
