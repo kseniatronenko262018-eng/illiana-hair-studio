@@ -71,8 +71,8 @@
 <body>
 
     <div class="master-bg">
-        <!-- Використання вашої нової фонової картини -->
-        <img src="PXL_20260322_183655575.MP.jpg" alt="Master Background">
+        <!-- Використання фонової картинки згідно з наданим зображенням -->
+        <img src="PXL_20260322_183655575.MP.jpg" alt="Master Background">[cite: 2]
     </div>
 
     <!-- Виїзне меню у вигляді списку (Додаток-стайл) -->
@@ -84,7 +84,7 @@
         <div class="drawer-item active" onclick="switchMasterSection('secCalendar', this)">📅 Календар та записи</div>
         <div class="drawer-item" onclick="switchMasterSection('secFinances', this)">💰 Доходи та витрати</div>
         <div class="drawer-item" onclick="switchMasterSection('secClients', this)">👥 База клієнтів</div>
-        <div class="drawer-item" onclick="switchMasterSection('secWorks', this)">✨ Додати роботу на сайт</div>
+        <div class="drawer-item" onclick="switchMasterSection('secWorks', this)">✨ Завантажити приклади робіт</div>
         <div class="drawer-item" onclick="logoutMaster()" style="margin-top: auto; border-color: var(--accent); color: var(--accent);">🚪 Вийти з CRM</div>
     </div>
 
@@ -189,9 +189,9 @@
                 <div id="regularClientsContainer" style="display: flex; flex-direction: column; gap: 4px; max-height: 180px; overflow-y: auto;"></div>
             </div>
 
-            <!-- РОЗДІЛ 4: ДОДАТИ РОБОТУ НА САЙТ -->
+            <!-- РОЗДІЛ 4: ЗАВАНТАЖИТИ ПРИКЛАДИ РОБІТ -->
             <div id="secWorks" class="master-section form-card" style="display: none;">
-                <h3 style="font-size: 13px; font-family:'Syne',sans-serif; text-transform:uppercase;">Додати роботу в галерею сайту</h3>
+                <h3 style="font-size: 13px; font-family:'Syne',sans-serif; text-transform:uppercase;">Завантажити приклади робіт</h3>
                 <div>
                     <label class="field-label">Назва / опис роботи:</label>
                     <input type="text" id="newWorkTitleInput" class="input-box" placeholder="Наприклад: Стрижка / Тонування">
