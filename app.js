@@ -536,7 +536,7 @@ function renderCalendar() {
             if (isBlocked) cls += ' day-blocked';
             if (hasBooking) cls += ' active-booking';
             if (isSelected) cls += ' selected-day';
-            gridHtml += `<div class="${cls}" onclick="selectCalendarDate('${dStr}')"><span>${d}</span>${hasBooking ? '<div class="dot"></div>' : ''}</div>`;
+            gridHtml += `<div class="${cls}" onclick="selectCalendarDate('${dStr}')"><span>${d}</span>${hasBooking ? '<div class="dot" style="width:5px; height:5px; background:var(--accent); border-radius:50%; margin: 2px auto 0;"></div>' : ''}</div>`;
         }
         gridHtml += '</div>';
         container.innerHTML = gridHtml;
@@ -558,7 +558,7 @@ function renderCalendar() {
             if (isBlocked) cls += ' day-blocked';
             if (hasBooking) cls += ' active-booking';
             if (isSelected) cls += ' selected-day';
-            gridHtml += `<div class="${cls}" onclick="selectCalendarDate('${dStr}')"><span style="font-size:8px;">${dayName}</span><span style="font-size:11px;">${dayDate.getDate()}</span>${hasBooking ? '<div class="dot"></div>' : ''}</div>`;
+            gridHtml += `<div class="${cls}" onclick="selectCalendarDate('${dStr}')"><span style="font-size:8px;">${dayName}</span><span style="font-size:11px;">${dayDate.getDate()}</span>${hasBooking ? '<div class="dot" style="width:4px; height:4px; background:var(--accent); border-radius:50%; margin: 1px auto 0;"></div>' : ''}</div>`;
         });
         gridHtml += '</div>';
         container.innerHTML = gridHtml;
@@ -596,15 +596,20 @@ function renderDayBookings(dateStr) {
     container.innerHTML = '';
     let filtered = serverBookingsList.filter(b => b.date === dateStr);
     if (filtered.length === 0) {
-        container.innerHTML = `<div style="font-size:10px; color:var(--text-muted);">Немає записів.</div>`;
+        container.innerHTML = `<div style="font-size:10px; color:var(--text-muted);">Немає записів на цю дату.</div>`;
         return;
     }
     filtered.forEach(b => {
+        let hairImgHtml = b.hairPhoto ? `<div style="margin-top:4px;"><a href="${b.hairPhoto}" target="_blank" style="color:var(--accent); font-size:9px;">📸 Переглянути фото волосся</a></div>` : '';
+        let refImgHtml = b.refPhoto ? `<div style="margin-top:2px;"><a href="${b.refPhoto}" target="_blank" style="color:var(--accent); font-size:9px;">🎨 Переглянути референс</a></div>` : '';
+        
         container.innerHTML += `
-            <div class="booking-item">
-                <div><b>⏰ ${b.time}</b> — ${b.name} (${b.phone})</div>
-                <div style="font-size:9px; color:var(--accent);">Послуга: ${b.service}</div>
-                <div style="font-size:9px;">Соцмережі: ${b.social || '—'}</div>
+            <div class="booking-item" style="background:var(--card-hover); padding:8px; border-radius:8px; border:1px solid var(--border); margin-bottom:6px;">
+                <div><b>⏰ ${b.time}</b> — ${b.name} (<a href="tel:${b.phone}" style="color:var(--accent);">${b.phone}</a>)</div>
+                <div style="font-size:9px; color:var(--text-main); margin-top:2px;"><b>Послуга:</b> ${b.service}</div>
+                <div style="font-size:9px; color:var(--text-muted);"><b>Email:</b> ${b.email || '—'} | <b>Соцмережі:</b> ${b.social || '—'}</div>
+                ${hairImgHtml}
+                ${refImgHtml}
             </div>
         `;
     });
@@ -694,80 +699,4 @@ function importClientsFromExcel(event) {
             let json = XLSX.utils.sheet_to_json(worksheet);
             
             regularClientsList = json.map(c => ({
-                name: c.name || c.Ім_я || 'Клієнт',
-                phone: c.phone || c.Телефон || '',
-                social: c.social || c.Соцмережі || '—'
-            }));
-            localStorage.setItem('illiana_regular_clients', JSON.stringify(regularClientsList));
-            renderRegularClientsList();
-            alert("✨ Базу клієнтів успішно імпортовано!");
-        } catch (err) {
-            alert("Помилка читання файлу Excel.");
-        }
-    };
-    reader.readAsArrayBuffer(file);
-}
-
-function exportFinancesToPDF() {
-    let income = document.getElementById('statCompleted')?.innerText || '0 ₴';
-    let expenses = document.getElementById('statExpenses')?.innerText || '0 ₴';
-    let profit = document.getElementById('statNetProfit')?.innerText || '0 ₴';
-    
-    let win = window.open('', '_blank');
-    win.document.write(`
-        <html>
-        <head>
-            <title>Фінансовий звіт - Явір Ілляна</title>
-            <style>
-                body { font-family: Arial, sans-serif; padding: 20px; color: #111; }
-                h2 { border-bottom: 2px solid #b83232; padding-bottom: 5px; color: #b83232; }
-                .stat { font-size: 16px; margin: 12px 0; }
-            </style>
-        </head>
-        <body>
-            <h2>Фінансовий звіт студії Явір Ілляна</h2>
-            <div class="stat"><b>Загальні доходи:</b> ${income}</div>
-            <div class="stat"><b>Загальні витрати:</b> ${expenses}</div>
-            <div class="stat"><b>Чистий прибуток:</b> ${profit}</div>
-            <br><p style="color: #666; font-size: 12px;">Дата формування звіту: ${new Date().toLocaleDateString()}</p>
-        </body>
-        </html>
-    `);
-    win.document.close();
-    win.print();
-}
-
-function addRegularClientManual() {
-    let name = document.getElementById('regClientName')?.value.trim();
-    let phone = document.getElementById('regClientPhone')?.value.trim();
-    let social = document.getElementById('regClientSocial')?.value.trim();
-    if (!name || !phone) { alert("Введіть ім'я та телефон клієнта!"); return; }
-    
-    regularClientsList.push({ name, phone, social: social || '—' });
-    localStorage.setItem('illiana_regular_clients', JSON.stringify(regularClientsList));
-    document.getElementById('regClientName').value = '';
-    document.getElementById('regClientPhone').value = '';
-    document.getElementById('regClientSocial').value = '';
-    renderRegularClientsList();
-    alert("Клієнта додано!");
-}
-
-function renderRegularClientsList() {
-    let container = document.getElementById('regularClientsContainer');
-    if (!container) return;
-    container.innerHTML = '';
-    regularClientsList.forEach((c, idx) => {
-        container.innerHTML += `
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:9px; background:var(--card-bg); padding:6px; border-radius:6px; border:1px solid var(--border);">
-                <div><b>${c.name}</b> (${c.phone}) <br><span style="color:var(--accent);">Соцмережі: ${c.social || '—'}</span></div>
-                <button class="danger-btn" onclick="deleteRegularClient(${idx})">✕</button>
-            </div>
-        `;
-    });
-}
-
-function deleteRegularClient(idx) {
-    regularClientsList.splice(idx, 1);
-    localStorage.setItem('illiana_regular_clients', JSON.stringify(regularClientsList));
-    renderRegularClientsList();
-}
+                name: c
