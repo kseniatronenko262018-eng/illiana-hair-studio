@@ -67,7 +67,6 @@ body {
     z-index: 1;
 }
 
-/* АДАПТИВНІСТЬ ДЛЯ КАБІНЕТУ МАЙСТРА */
 .master-body {
     max-width: 440px !important;
     width: 100% !important;
@@ -234,6 +233,11 @@ body {
 .input-box:focus { border-color: var(--accent); }
 select.input-box { appearance: none; cursor: pointer; }
 option { background: #23201e; color: #f5f2ed; }
+
+/* ФІКС КОМПАКТНОГО ПОЛЯ ДАТИ (щоб не було занадто великим) */
+#clientDate {
+    max-width: 160px !important;
+}
 
 .services-grid {
     display: grid;
