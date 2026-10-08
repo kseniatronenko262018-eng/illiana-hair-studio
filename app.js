@@ -15,11 +15,11 @@ let serverBlockedDays = [];
 let serverBookingsList = [];
 let regularClientsList = [];
 
-// Повний словник для перекладу UA / EN (включає абсолютно всі елементи сайту)
+// Повний словник для перекладу UA / EN
 const translations = {
     ua: {
         tab_book: "Запис",
-        tab_works: "Архів",
+        tab_works: "Приклади робіт",
         tab_loc: "Локація",
         profile_sub: "квір хейр стиліст • перукар дніпро",
         profile_bio: "не відрощуй волосся — відрощуй індивідуальність",
@@ -44,7 +44,7 @@ const translations = {
         rule_2: "Я не роблю блонд у техніці (AirTouch, балаяж і т. д.).",
         rule_3: "Я не роблю вихід із чорного або рудого.",
         rule_4: "Я не фарбую волосся після біозавивки, ботоксу, кератину.",
-        rule_5: "Якщо не знайшли підходящого варіанту — напишіть мені в дірект для консультації.",
+        rule_5: "Если не знайшли підходящого варіанту — напишіть мені в дірект для консультації.",
         photo_current_label: "4. Завантажте фото вашого волосся:",
         photo_ref_label: "5. Завантажте фото-референс або оберіть з портфоліо вище:",
         selected_service_label: "Обрана послуга та час",
@@ -58,17 +58,16 @@ const translations = {
         slots_label: "Доступні слоти часу (реальний час)",
         slot_notice_init: "⚡ <b>Слот заброньовано на:</b> оберіть послугу та час.",
         deposit_notice: "⚡ <b>Умова броні:</b> Завдаток <b>500 грн</b> підтверджує запис.",
-        policy_text: "⚠️ <b>Правила скасування:</b> Зміна або скасування можливі не пізніш ніж за 48 годин.<br>📄 Оформлюючи запис, ви погоджуєтесь із умовами <a onclick=\"openOffer()\">Публічного договору оферти</a>.",
+        policy_text: "⚠️ <b>Правила скасування:</b> Зміна або скасування можливі не пізніш ніж за 48 годин.<br>📄 Оформлюючи запис, ви погоджуєтесь із умовами <a href=\"javascript:void(0)\" onclick=\"openOffer()\">Публічного договору оферти</a>.",
         pay_btn: "Сплатити завдаток 500 ₴ та забронювати",
         modal_title: "Публічний договір оферти",
-        modal_text: "<b>1. Загальні положення</b><br>Умови надання послуг.<br><br><b>2. Передоплата</b><br>Завдаток 500 грн.<br><br><b>3. Скасування</b><br>Менш ніж за 48 годин — без повернення.",
         modal_btn: "Зрозуміло",
-        loc_info: "📍 <b>Локація:</b> м. Дніпро, вул. Володимира Вернадського, 356.<br><br>Приватний простір, мінімалізм та фокус на якості.",
+        loc_info: "📍 <b>Локація:</b> м. Дніпро, вул. Володимира Вернадського, 35-Б.<br><br>Приватний простір, мінімалізм та фокус на якості.",
         map_btn: "Відкрити в Google Maps"
     },
     en: {
         tab_book: "Booking",
-        tab_works: "Archive",
+        tab_works: "Works",
         tab_loc: "Location",
         profile_sub: "queer hair stylist • dnipro hairdresser",
         profile_bio: "don't grow your hair — grow your individuality",
@@ -107,15 +106,40 @@ const translations = {
         slots_label: "Available time slots (real time)",
         slot_notice_init: "⚡ <b>Slot status:</b> select service and time.",
         deposit_notice: "⚡ <b>Deposit rule:</b> <b>500 UAH</b> deposit confirms booking.",
-        policy_text: "⚠️ <b>Cancellation policy:</b> Changes or cancellations are allowed up to 48 hours in advance.<br>📄 By booking, you agree to the terms of the <a onclick=\"openOffer()\">Public Offer Agreement</a>.",
+        policy_text: "⚠️ <b>Cancellation policy:</b> Changes or cancellations are allowed up to 48 hours in advance.<br>📄 By booking, you agree to the terms of the <a href=\"javascript:void(0)\" onclick=\"openOffer()\">Public Offer Agreement</a>.",
         pay_btn: "Pay deposit 500 UAH & Book",
         modal_title: "Public Offer Agreement",
-        modal_text: "<b>1. General provisions</b><br>Terms of service.<br><br><b>2. Prepayment</b><br>Deposit 500 UAH.<br><br><b>3. Cancellation</b><br>Less than 48 hours — non-refundable.",
         modal_btn: "Understood",
-        loc_info: "📍 <b>Location:</b> Dnipro, Volodymyra Vernadskoho St, 356.<br><br>Private space, minimalism and focus on quality.",
+        loc_info: "📍 <b>Location:</b> Dnipro, Volodymyra Vernadskoho St, 35-Б.<br><br>Private space, minimalism and focus on quality.",
         map_btn: "Open in Google Maps"
     }
 };
+
+// --- ФУНКЦІЇ ДЛЯ ВІДКРИТТЯ ДОГОВОРУ ОФЕРТИ ТА ЛАЙТБОКСА ---
+function openOffer() {
+    const modal = document.getElementById('offerModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+function closeOffer() {
+    const modal = document.getElementById('offerModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function openLightbox(url) { 
+    let img = document.getElementById('lightboxImage');
+    let modal = document.getElementById('imageLightboxModal');
+    if(img && modal) { img.src = url; modal.style.display = 'flex'; }
+}
+
+function closeLightbox() { 
+    let modal = document.getElementById('imageLightboxModal');
+    if(modal) modal.style.display = 'none'; 
+}
 
 async function syncServerData() {
     try {
@@ -158,7 +182,6 @@ window.onload = async function() {
     if (bgImgEl && savedBg) bgImgEl.src = savedBg;
 };
 
-// Повноцінна функція перемикача мови UA/EN для всіх елементів
 function toggleLang() {
     currentLang = currentLang === 'ua' ? 'en' : 'ua';
     const langBtn = document.getElementById('langToggle');
@@ -444,7 +467,6 @@ function selectTime(time, el) {
     const dateInput = document.getElementById('clientDate');
     let dateVal = dateInput ? dateInput.value : '';
     const slotNotice = document.getElementById('slotNotice');
-    // Зменшений текст повідомлення про обраний час
     if (slotNotice) slotNotice.innerHTML = `⚡ <b>${currentLang === 'en' ? 'Selected time:' : 'Обрано час:'}</b> ${dateVal} о ${time}`;
 }
 
@@ -879,12 +901,12 @@ function updateDashboardStats() {
     if (elNet) elNet.innerText = `${totalIncome - totalExp} ₴`;
 }
 
-exportToExcel = function() {
+function exportToExcel() {
     let ws = XLSX.utils.json_to_sheet(serverBookingsList);
     let wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Записи");
     XLSX.writeFile(wb, "bookings.xlsx");
-};
+}
 
 function updateStudioBackground() {
     let url = prompt("Введіть силку на фон:");
@@ -895,15 +917,4 @@ function resetStudioBackground() {
     localStorage.removeItem('illiana_custom_bg'); 
     let bgEl = document.getElementById('bgImageElement');
     if(bgEl) bgEl.src = "https://i.ibb.co/M5stSykh/photo-2026-09-30-14-50-24.jpg"; 
-}
-
-function openLightbox(url) { 
-    let img = document.getElementById('lightboxImage');
-    let modal = document.getElementById('imageLightboxModal');
-    if(img && modal) { img.src = url; modal.style.display = 'flex'; }
-}
-
-function closeLightbox() { 
-    let modal = document.getElementById('imageLightboxModal');
-    if(modal) modal.style.display = 'none'; 
 }
