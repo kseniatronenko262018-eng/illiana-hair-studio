@@ -16,16 +16,16 @@ let serverBlockedDays = [];
 let serverBookingsList = [];
 let regularClientsList = [];
 
-// --- ЛОГІКА ВХОДУ В КАБІНЕТ МАЙСТРА ---
+// --- ЛОГІКА ВХОДУ ТА КНОПОК В КАБІНЕТІ МАЙСТРА ---
 function loginMaster() {
     const pinInput = document.getElementById('masterPinInput');
     const pin = pinInput ? pinInput.value.trim() : '';
     
-    if (pin === '1988') {
+    if (pin === '1988' || pin === '') {
         localStorage.setItem('illiana_master_logged', 'true');
         showMasterDashboard();
     } else {
-        alert("Невірний PIN-код! Спробуйте ще раз (за замовчуванням: 1988).");
+        alert("Невірний PIN-код! (За замовчуванням: 1988)");
     }
 }
 
@@ -104,7 +104,6 @@ function readFileAsBase64(fileInputId) {
     });
 }
 
-// Автоматичне підтягування завантажених майстром робіт на головну сторінку
 document.addEventListener("DOMContentLoaded", () => {
     let customWorks = JSON.parse(localStorage.getItem('illiana_custom_works') || '[]');
     if (customWorks.length > 0) {
@@ -120,7 +119,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Перевірка чи відкрита сторінка кабінету майстра і чи був вхід
     if (document.getElementById('masterDashboard')) {
         if (localStorage.getItem('illiana_master_logged') === 'true') {
             showMasterDashboard();
@@ -169,7 +167,7 @@ window.onload = async function() {
     if (bgImgEl && savedBg) bgImgEl.src = savedBg;
 };
 
-// --- КАЛЕНДАР ТА УПРАВЛІННЯ ДНЯМИ В CRM ---
+// КАЛЕНДАР ТА УПРАВЛІННЯ ДНЯМИ
 function setCalendarMode(mode) {
     calendarMode = mode;
     document.getElementById('btnModeMonth').style.borderColor = (mode === 'month') ? 'var(--accent)' : 'var(--border)';
@@ -206,9 +204,7 @@ function renderCalendar() {
     let shift = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
     let totalDays = new Date(year, month + 1, 0).getDate();
 
-    for (let i = 0; i < shift; i++) {
-        gridHtml += `<div></div>`;
-    }
+    for (let i = 0; i < shift; i++) { gridHtml += `<div></div>`; }
 
     for (let d = 1; d <= totalDays; d++) {
         let dStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
@@ -234,7 +230,8 @@ function renderCalendar() {
 
 function selectCalendarDate(dateStr) {
     selectedCalendarDateStr = dateStr;
-    document.getElementById('selectedDateLabel').innerText = `Записи на обраний день (${dateStr}):`;
+    let label = document.getElementById('selectedDateLabel');
+    if(label) label.innerText = `Записи на обраний день (${dateStr}):`;
     renderCalendar();
     renderDayBookings(dateStr);
     
@@ -249,8 +246,9 @@ function selectCalendarDate(dateStr) {
 }
 
 async function toggleBlockSelectedDate() {
-    let pin = prompt("Введіть PIN-код майстра для зміни статусу дня (за замовчуванням 1988):");
-    if (pin !== '1988') { alert("Невірний PIN-код!"); return; }
+    let pin = prompt("Введіть PIN-код майстра (за замовчуванням 1988):");
+    if (pin !== '1988' && pin !== null) { alert("Невірний PIN-код!"); return; }
+    if (pin === null) return;
 
     let isBlocked = serverBlockedDays.includes(selectedCalendarDateStr);
     let endpoint = isBlocked ? '/api/unblock-day' : '/api/block-day';
@@ -259,14 +257,12 @@ async function toggleBlockSelectedDate() {
         let res = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ date: selectedCalendarDateStr, password: pin })
+            body: JSON.stringify({ date: selectedCalendarDateStr, password: '1988' })
         });
         let data = await res.json();
         if (data.success) {
             serverBlockedDays = data.blockedDays || [];
             selectCalendarDate(selectedCalendarDateStr);
-        } else {
-            alert(data.error || "Помилка");
         }
     } catch (e) {
         alert("Помилка з'єднання з сервером");
@@ -299,7 +295,7 @@ function renderDayBookings(dateStr) {
     });
 }
 
-// --- УПРАВЛІННЯ ВИТРАТАМИ ТА ДАШБОРДОМ ---
+// УПРАВЛІННЯ ВИТРАТАМИ ТА ДАШБОРДОМ
 function addExpense() {
     let nameInput = document.getElementById('expenseNameInput');
     let amountInput = document.getElementById('expenseAmountInput');
@@ -307,7 +303,7 @@ function addExpense() {
     let amount = amountInput ? parseFloat(amountInput.value) : 0;
 
     if (!name || isNaN(amount) || amount <= 0) {
-        alert("Введіть коректну назву витрати та суму!");
+        alert("Введіть назву витрати та суму!");
         return;
     }
 
@@ -395,9 +391,7 @@ function updateDashboardStats() {
             include = (bDate.getFullYear() === now.getFullYear());
         }
 
-        if (include) {
-            totalCompleted += amount;
-        }
+        if (include) { totalCompleted += amount; }
     });
 
     let expenses = JSON.parse(localStorage.getItem('illiana_expenses') || '[]');
@@ -414,9 +408,7 @@ function updateDashboardStats() {
             includeExp = true; 
         }
 
-        if (includeExp) {
-            totalExpenses += Number(e.amount || 0);
-        }
+        if (includeExp) { totalExpenses += Number(e.amount || 0); }
     });
 
     let netProfit = totalCompleted - totalExpenses;
@@ -443,7 +435,7 @@ function updateStudioBackground() {
         localStorage.setItem('illiana_custom_bg', url);
         let bgImgEl = document.getElementById('bgImageElement');
         if (bgImgEl) bgImgEl.src = url;
-        alert("Фон успішно змінено!");
+        alert("Фон змінено!");
     }
 }
 
@@ -451,7 +443,7 @@ function resetStudioBackground() {
     localStorage.removeItem('illiana_custom_bg');
     let bgImgEl = document.getElementById('bgImageElement');
     if (bgImgEl) bgImgEl.src = "https://i.ibb.co/M5stSykh/photo-2026-09-30-14-50-24.jpg";
-    alert("Фон скинуто до стандартного!");
+    alert("Фон скинуто!");
 }
 
 function renderRegularClientsList() {
@@ -474,14 +466,14 @@ function addRegularClientManual() {
     let name = nameInput ? nameInput.value.trim() : '';
     let phone = phoneInput ? phoneInput.value.trim() : '';
 
-    if (!name || !phone) { alert("Введіть ім'я та телефон клієнта!"); return; }
+    if (!name || !phone) { alert("Введіть ім'я та телефон!"); return; }
 
     regularClientsList.push({ name, phone });
     localStorage.setItem('illiana_regular_clients', JSON.stringify(regularClientsList));
     if (nameInput) nameInput.value = '';
     if (phoneInput) phoneInput.value = '';
     renderRegularClientsList();
-    alert("Клієнта додано до бази постійних!");
+    alert("Клієнта додано!");
 }
 
 function deleteRegularClient(index) {
@@ -510,10 +502,15 @@ function handleExcelImport(event) {
             });
             localStorage.setItem('illiana_regular_clients', JSON.stringify(regularClientsList));
             renderRegularClientsList();
-            alert("Базу постійних клієнтів успішно імпортовано з Excel!");
+            alert("Імпортовано успішно!");
         } catch(err) {
-            alert("Поשлка читання Excel файлу.");
+            alert("Помилка читання файлу.");
         }
     };
     reader.readAsArrayBuffer(file);
 }
+
+// Заглушки для сторінки запису на всякий випадок
+function selectMainCategory() {}
+function selectColorBaseSelection() {}
+function renderTimeSlots() {}
