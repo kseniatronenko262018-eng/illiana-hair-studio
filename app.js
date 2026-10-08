@@ -248,7 +248,10 @@ window.onload = async function() {
 
     const today = new Date().toISOString().split('T')[0];
     const dateInput = document.getElementById('clientDate');
-    if (dateInput) dateInput.value = today;
+    if (dateInput) {
+        dateInput.min = today;
+        dateInput.value = today;
+    }
 
     const statsMonth = document.getElementById('statsMonthInput');
     if (statsMonth) {
@@ -334,7 +337,6 @@ function selectMainCategory(cat) {
     } else if (cat === 'color') {
         document.getElementById('mainCardColor')?.classList.add('selected');
         renderColorBaseSelection();
-        subMenu?.classList.add('visible');
         photoSec?.classList.add('visible');
     } else if (cat === 'complex') {
         document.getElementById('mainCardComplex')?.classList.add('selected');
@@ -349,7 +351,8 @@ function selectHaircutReference(imgUrl, el) {
     selectedHaircutRefUrl = imgUrl;
     document.querySelectorAll('.haircut-carousel-item').forEach(i => i.classList.remove('selected'));
     if (el) el.classList.add('selected');
-    document.getElementById('selectedRefNotice').style.display = 'block';
+    let notice = document.getElementById('selectedRefNotice');
+    if (notice) notice.style.display = 'block';
 }
 
 function renderColorBaseSelection() {
@@ -369,10 +372,8 @@ function renderColorBaseSelection() {
             <div>➔</div>
         </div>
     `;
-    subMenu?.classList.add('visible');
+    document.getElementById('categorySubmenu')?.classList.add('visible');
 }
-
-const subMenu = document.getElementById('categorySubmenu');
 
 function selectBaseCondition(baseKey) {
     selectedBaseCondition = baseKey;
@@ -415,7 +416,8 @@ function updateAvailableServicesList() {
 }
 
 function selectSpecificServiceColor(srvId) {
-    let services = coloringPrices[selectedBaseCondition][document.getElementById('hairLengthSelect').value];
+    let lengthKey = document.getElementById('hairLengthSelect')?.value || 'shoulders';
+    let services = coloringPrices[selectedBaseCondition][lengthKey];
     services.forEach(s => { if (s.id === srvId) selectedServiceObj = s; });
 
     document.querySelectorAll('#specificServicesList .sub-service-card').forEach(c => c.classList.remove('selected'));
@@ -432,13 +434,26 @@ function updateServiceInputText() {
     if (srvInput) srvInput.value = text;
 }
 
-// Рендеринг слотів часу
+// Рендеринг слотів часу (суворе правило: сьогодні можна тільки якщо до початку є мінімум 3 години)
 function renderTimeSlots() {
     const grid = document.getElementById('timeSlotsGrid');
     if (!grid) return;
     grid.innerHTML = '';
 
     let dateVal = document.getElementById('clientDate')?.value || new Date().toISOString().split('T')[0];
+    let now = new Date();
+    
+    let year = now.getFullYear();
+    let month = String(now.getMonth() + 1).padStart(2, '0');
+    let day = String(now.getDate()).padStart(2, '0');
+    let todayStr = `${year}-${month}-${day}`;
+
+    let isToday = (dateVal === todayStr);
+    
+    if (dateVal < todayStr) {
+        grid.innerHTML = `<div style="font-size:10px; color:var(--accent); text-align:center; padding: 10px;">Неможливо обрати дату в минулому.</div>`;
+        return;
+    }
 
     if (serverBlockedDays.includes(dateVal)) {
         grid.innerHTML = `<div style="font-size:10px; color:var(--accent); text-align:center; padding: 10px;">Цей день заблоковано майстром (вихідний).</div>`;
@@ -446,13 +461,17 @@ function renderTimeSlots() {
     }
 
     let serviceDuration = selectedServiceObj?.duration || 90;
-    let workStartMinutes = 10 * 60;
+    let workStartMinutes = 10 * 60; // 10:00
+    let workEndMinutes = 20 * 60;   // 20:00
     let intervalMinutes = 30;
     let slots = [];
-    let isPureHaircut = selectedMainCat === 'cut';
-    let maxStartMinutes = isPureHaircut ? (19 * 60) : (20 * 60 - serviceDuration);
+
+    let currentTotalMinutes = now.getHours() * 60 + now.getMinutes() + 180; // поточний час + 3 години
+    let maxStartMinutes = workEndMinutes - serviceDuration;
 
     for (let m = workStartMinutes; m <= maxStartMinutes; m += intervalMinutes) {
+        if (isToday && m < currentTotalMinutes) continue;
+
         let hours = Math.floor(m / 60);
         let mins = m % 60;
         let timeStr = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
@@ -462,7 +481,8 @@ function renderTimeSlots() {
     let dayBookings = serverBookingsList.filter(b => b.date === dateVal);
 
     if (slots.length === 0) {
-        slots = [{ minutes: 600, timeStr: "10:00", endMinutes: 600 + serviceDuration }];
+        grid.innerHTML = `<div style="font-size:10px; color:var(--accent); text-align:center; padding: 10px;">${isToday ? 'На сьогодні запис закритий (потрібно мінімум за 3 години до початку).' : 'На цей день немає вільних слотів.'}</div>`;
+        return;
     }
 
     slots.forEach(slot => {
@@ -493,10 +513,54 @@ function selectTime(time, el) {
     el.classList.add('selected');
     selectedTimeSlot = time;
     let dateVal = document.getElementById('clientDate')?.value || '';
-    document.getElementById('slotNotice').innerHTML = `⚡ <b>Обрано час:</b> ${dateVal} о ${time}`;
+    let notice = document.getElementById('slotNotice');
+    if (notice) notice.innerHTML = `⚡ <b>Обрано час:</b> ${dateVal} о ${time}`;
 }
 
-// Функції кабінету майстра
+// Запис клієнта
+async function submitBooking() {
+    let name = document.getElementById('clientName')?.value.trim();
+    let phone = document.getElementById('clientPhone')?.value.trim();
+    let email = document.getElementById('clientEmail')?.value.trim();
+    let date = document.getElementById('clientDate')?.value;
+    let social = document.getElementById('clientSocial')?.value.trim();
+    let srvText = document.getElementById('selectedServiceInput')?.value;
+
+    if (!name || !phone || !email || !selectedTimeSlot || !selectedServiceObj) {
+        alert("Будь ласка, заповніть ім'я, телефон, email, оберіть послугу та вільний час!");
+        return;
+    }
+
+    let hairPhoto = await readFileAsBase64('clientHairPhoto');
+    let refPhoto = await readFileAsBase64('clientRefPhoto');
+    if (!refPhoto && selectedHaircutRefUrl) refPhoto = selectedHaircutRefUrl;
+
+    let newBooking = {
+        id: 'b_' + Date.now(),
+        name, phone, email, social,
+        date, time: selectedTimeSlot,
+        service: srvText,
+        hairPhoto, refPhoto,
+        depositPaid: true,
+        status: 'pending'
+    };
+
+    try {
+        await fetch('/api/bookings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newBooking)
+        });
+    } catch(e) {}
+
+    if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    
+    alert(`Дякуємо, ${name}! Запис на ${date} о ${selectedTimeSlot} успішно збережено!`);
+    window.open(`https://t.me/${TELEGRAM_BOT_USERNAME}?start=booking_${newBooking.id}`, '_blank');
+    location.reload();
+}
+
+// Кабінет майстра
 function loginMaster() {
     let p = document.getElementById('masterPinInput')?.value.trim();
     if (p === '1988' || p === '') {
@@ -529,7 +593,6 @@ function toggleMasterMenu() {
     document.getElementById('masterMenuDrawer')?.classList.toggle('open');
 }
 
-// Календар CRM
 function setCalendarMode(mode) {
     calendarMode = mode;
     document.getElementById('btnModeMonth').style.borderColor = (mode === 'month') ? 'var(--accent)' : 'var(--border)';
@@ -603,7 +666,7 @@ async function toggleBlockSelectedDate() {
             serverBlockedDays = data.blockedDays || [];
             selectCalendarDate(selectedCalendarDateStr);
         }
-    } catch (e) { alert("Помилка з'єднання"); }
+    } catch (e) {}
 }
 
 function renderDayBookings(dateStr) {
@@ -628,7 +691,6 @@ function renderDayBookings(dateStr) {
     });
 }
 
-// Витрати та дашборд
 function addExpense() {
     let name = document.getElementById('expenseNameInput')?.value.trim();
     let amount = parseFloat(document.getElementById('expenseAmountInput')?.value);
