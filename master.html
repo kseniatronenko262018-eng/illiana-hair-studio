@@ -18,8 +18,25 @@
         </div>
         <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5; margin-top: 6px;">Введіть PIN-код для доступу до CRM (за замовчуванням: <b>1988</b>).</p>
         <input type="password" id="masterPinInput" class="input-box" placeholder="PIN-код" style="margin-top: 8px;">
-        <button class="btn-main" onclick="loginMaster()" style="margin-top: 10px;">Увійти</button>
-        <button class="control-btn" onclick="forceBypassPin()" style="margin-top: 8px; width: 100%; padding: 10px; font-size: 10px;">⚡ Швидкий вхід (без PIN)</button>
+        
+        <button class="btn-main" onclick="
+            let p = document.getElementById('masterPinInput').value.trim();
+            if(p === '1988' || p === '') {
+                localStorage.setItem('illiana_master_logged', 'true');
+                document.getElementById('masterLoginBox').style.display = 'none';
+                document.getElementById('masterDashboard').style.display = 'flex';
+                if(typeof showMasterDashboard === 'function') showMasterDashboard();
+            } else {
+                alert('Невірний PIN-код!');
+            }
+        " style="margin-top: 10px;">Увійти</button>
+        
+        <button class="control-btn" onclick="
+            localStorage.setItem('illiana_master_logged', 'true');
+            document.getElementById('masterLoginBox').style.display = 'none';
+            document.getElementById('masterDashboard').style.display = 'flex';
+            if(typeof showMasterDashboard === 'function') showMasterDashboard();
+        " style="margin-top: 8px; width: 100%; padding: 10px; font-size: 10px;">⚡ Швидкий вхід (без PIN)</button>
     </div>
 
     <!-- Панель управління майстра -->
@@ -32,7 +49,6 @@
             </div>
         </div>
 
-        <!-- Перемикач періоду аналітики (Тиждень, Місяць, Рік) -->
         <div style="background: var(--card-hover); border: 1px solid var(--border); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; gap: 6px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <label class="field-label" style="margin: 0;">📊 Період дашборду:</label>
@@ -45,7 +61,6 @@
             <input type="month" id="statsMonthInput" class="input-box" style="width: 100%; padding: 6px; font-size: 10px;" onchange="onStatsMonthChange()">
         </div>
 
-        <!-- Дашборд фінансів -->
         <div style="background: rgba(184, 50, 50, 0.1); border: 1px solid var(--accent); padding: 10px; border-radius: 10px; font-size: 10px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; text-align: center;">
             <div><b>Дохід:</b><br><span id="statCompleted" style="color: #4caf50; font-size: 12px;">0 ₴</span></div>
             <div><b>Витрати:</b><br><span id="statExpenses" style="color: #ff9800; font-size: 12px;">0 ₴</span></div>
