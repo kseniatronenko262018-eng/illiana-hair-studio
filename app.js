@@ -427,18 +427,19 @@ function renderTimeSlots() {
         serviceDuration = selectedServiceObj.duration;
     }
 
-    let workStartMinutes = 10 * 60; 
-    let workEndMinutes = 19 * 60;   
+    let workStartMinutes = 10 * 60; // 10:00
     let intervalMinutes = 30;
-
     let slots = [];
-    for (let m = workStartMinutes; m <= workEndMinutes; m += intervalMinutes) {
-        if (m + serviceDuration <= 22 * 60) {
-            let hours = Math.floor(m / 60);
-            let mins = m % 60;
-            let timeStr = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
-            slots.push({ minutes: m, timeStr: timeStr, endMinutes: m + serviceDuration });
-        }
+
+    // Перевіряємо, чи це звичайна стрижка (щоб дозволити початок о 19:00 із завершенням о 20:30)
+    let isPureHaircut = selectedMainCat === 'cut';
+    let maxStartMinutes = isPureHaircut ? (19 * 60) : (20 * 60 - serviceDuration);
+
+    for (let m = workStartMinutes; m <= maxStartMinutes; m += intervalMinutes) {
+        let hours = Math.floor(m / 60);
+        let mins = m % 60;
+        let timeStr = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+        slots.push({ minutes: m, timeStr: timeStr, endMinutes: m + serviceDuration });
     }
 
     let now = new Date();
