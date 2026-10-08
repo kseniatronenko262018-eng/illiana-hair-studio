@@ -542,8 +542,8 @@ option { background: #23201e; color: #f5f2ed; }
     overflow-y: auto;
 }
 .modal-body {
-    max-width: 380px;
-    margin: 40px auto;
+    max-width: 420px;
+    margin: 30px auto;
     background: var(--card-bg);
     border: 1px solid var(--border);
     padding: 22px;
@@ -552,7 +552,7 @@ option { background: #23201e; color: #f5f2ed; }
 .modal-body h3 { font-size: 14px; color: var(--text-main); margin-bottom: 8px; text-align: center; text-transform: uppercase; font-family: 'Syne', sans-serif; }
 .modal-body p { font-size: 9px; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px; }
 
-/* ЛАЙТБОКС: чітке зображення без пікселізації в оригінальній якості */
+/* ЛАЙТБОКС */
 #imageLightboxModal {
     display: none;
     position: fixed;
