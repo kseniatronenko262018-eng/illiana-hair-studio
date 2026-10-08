@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=5.1">
+    <link rel="stylesheet" href="style.css?v=5.2">
 </head>
 <body>
 
@@ -182,7 +182,7 @@
 
                 <div class="policy-highlight-card">
                     ⚠️ <b>Правила скасування:</b> Зміна або скасування можливі не пізніш ніж за 48 годин.<br>
-                    📄 Оформлюючи запис, ви погоджуєтесь із умовами <a href="javascript:void(0)" onclick="openOffer()" style="color: var(--accent); text-decoration: underline; font-weight: 700; cursor: pointer;">Публічного договору оферти</a>.
+                    📄 Оформлюючи запис, ви погоджуєтесь із умовами <a href="#" onclick="event.preventDefault(); event.stopPropagation(); openOffer(); return false;" style="color: var(--accent); text-decoration: underline; font-weight: 700; cursor: pointer; pointer-events: auto;">Публічного договору оферти</a>.
                 </div>
 
                 <button class="btn-main" onclick="submitBooking()">Сплатити завдаток 500 ₴ та забронювати</button>
@@ -239,7 +239,7 @@
         </div>
     </div>
 
-    <!-- Modal Offer (Спливаюче вікно договору оферти) -->
+    <!-- Modal Offer -->
     <div id="offerModal">
         <div class="modal-body">
             <h3>Публічний договір оферти</h3>
@@ -280,6 +280,6 @@
         <img id="lightboxImage" src="" alt="Збільшене фото">
     </div>
 
-    <script src="app.js?v=5.1"></script>
+    <script src="app.js?v=5.2"></script>
 </body>
 </html>
