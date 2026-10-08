@@ -440,7 +440,9 @@ async function submitBooking() {
 
     let hairPhoto = await readFileAsBase64('clientHairPhoto');
     let refPhoto = await readFileAsBase64('clientRefPhoto');
-    if (!refPhoto && selectedHaircutRefUrl) refPhoto = selectedHaircutRefUrl;
+    if (!refPhoto && selectedHaircutRefUrl) {
+        refPhoto = selectedHaircutRefUrl;
+    }
 
     let newBooking = {
         id: 'b_' + Date.now(),
@@ -699,4 +701,80 @@ function importClientsFromExcel(event) {
             let json = XLSX.utils.sheet_to_json(worksheet);
             
             regularClientsList = json.map(c => ({
-                name: c
+                name: c.name || c.Ім_я || 'Клієнт',
+                phone: c.phone || c.Телефон || '',
+                social: c.social || c.Соцмережі || '—'
+            }));
+            localStorage.setItem('illiana_regular_clients', JSON.stringify(regularClientsList));
+            renderRegularClientsList();
+            alert("✨ Базу клієнтів успішно імпортовано!");
+        } catch (err) {
+            alert("Помилка читання файлу Excel.");
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function exportFinancesToPDF() {
+    let income = document.getElementById('statCompleted')?.innerText || '0 ₴';
+    let expenses = document.getElementById('statExpenses')?.innerText || '0 ₴';
+    let profit = document.getElementById('statNetProfit')?.innerText || '0 ₴';
+    
+    let win = window.open('', '_blank');
+    win.document.write(`
+        <html>
+        <head>
+            <title>Фінансовий звіт - Явір Ілляна</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; color: #111; }
+                h2 { border-bottom: 2px solid #b83232; padding-bottom: 5px; color: #b83232; }
+                .stat { font-size: 16px; margin: 12px 0; }
+            </style>
+        </head>
+        <body>
+            <h2>Фінансовий звіт студії Явір Ілляна</h2>
+            <div class="stat"><b>Загальні доходи:</b> ${income}</div>
+            <div class="stat"><b>Загальні витрати:</b> ${expenses}</div>
+            <div class="stat"><b>Чистий прибуток:</b> ${profit}</div>
+            <br><p style="color: #666; font-size: 12px;">Дата формування звіту: ${new Date().toLocaleDateString()}</p>
+        </body>
+        </html>
+    `);
+    win.document.close();
+    win.print();
+}
+
+function addRegularClientManual() {
+    let name = document.getElementById('regClientName')?.value.trim();
+    let phone = document.getElementById('regClientPhone')?.value.trim();
+    let social = document.getElementById('regClientSocial')?.value.trim();
+    if (!name || !phone) { alert("Введіть ім'я та телефон клієнта!"); return; }
+    
+    regularClientsList.push({ name, phone, social: social || '—' });
+    localStorage.setItem('illiana_regular_clients', JSON.stringify(regularClientsList));
+    document.getElementById('regClientName').value = '';
+    document.getElementById('regClientPhone').value = '';
+    document.getElementById('regClientSocial').value = '';
+    renderRegularClientsList();
+    alert("Клієнта додано!");
+}
+
+function renderRegularClientsList() {
+    let container = document.getElementById('regularClientsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    regularClientsList.forEach((c, idx) => {
+        container.innerHTML += `
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:9px; background:var(--card-bg); padding:6px; border-radius:6px; border:1px solid var(--border);">
+                <div><b>${c.name}</b> (${c.phone}) <br><span style="color:var(--accent);">Соцмережі: ${c.social || '—'}</span></div>
+                <button class="danger-btn" onclick="deleteRegularClient(${idx})">✕</button>
+            </div>
+        `;
+    });
+}
+
+function deleteRegularClient(idx) {
+    regularClientsList.splice(idx, 1);
+    localStorage.setItem('illiana_regular_clients', JSON.stringify(regularClientsList));
+    renderRegularClientsList();
+}
