@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=5.2">
+    <link rel="stylesheet" href="style.css?v=5.3">
 </head>
 <body>
 
@@ -180,9 +180,9 @@
                     ⚡ <b>Умова броні:</b> Завдаток <b>500 грн</b> підтверджує запис.
                 </div>
 
-                <div class="policy-highlight-card">
+                <div class="policy-highlight-card" data-i18n-html="policy_text">
                     ⚠️ <b>Правила скасування:</b> Зміна або скасування можливі не пізніш ніж за 48 годин.<br>
-                    📄 Оформлюючи запис, ви погоджуєтесь із умовами <a href="#" onclick="event.preventDefault(); event.stopPropagation(); openOffer(); return false;" style="color: var(--accent); text-decoration: underline; font-weight: 700; cursor: pointer; pointer-events: auto;">Публічного договору оферти</a>.
+                    📄 Оформлюючи запис, ви погоджуєтесь із умовами <a href="javascript:void(0)" onclick="openOffer()">Публічного договору оферти</a>.
                 </div>
 
                 <button class="btn-main" onclick="submitBooking()">Сплатити завдаток 500 ₴ та забронювати</button>
@@ -280,6 +280,6 @@
         <img id="lightboxImage" src="" alt="Збільшене фото">
     </div>
 
-    <script src="app.js?v=5.2"></script>
+    <script src="app.js?v=5.3"></script>
 </body>
 </html>
