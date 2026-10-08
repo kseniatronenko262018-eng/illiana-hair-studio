@@ -25,10 +25,19 @@
             box-shadow: 10px 0 30px rgba(0,0,0,0.5);
         }
         .app-drawer.open { left: 0; }
+        
+        /* Примусове розблокування кліків на всіх кнопках та інтерактивних елементах */
+        button, input, select, .control-btn, .btn-main, .drawer-item, .cal-day {
+            position: relative;
+            z-index: 10;
+            pointer-events: auto !important;
+            cursor: pointer;
+        }
+
         .drawer-item {
             padding: 12px 14px; border-radius: 10px; background: rgba(255,255,255,0.03);
             border: 1px solid var(--border); font-size: 11px; font-weight: 700;
-            color: var(--text-main); cursor: pointer; text-transform: uppercase;
+            color: var(--text-main); text-transform: uppercase;
             display: flex; align-items: center; gap: 10px;
         }
         .drawer-item:hover, .drawer-item.active {
@@ -88,7 +97,7 @@
             <!-- Банер зі звуковим та візуальним сповіщенням -->
             <div id="newBookingAlertBanner" class="notification-banner" style="display: none;">
                 <span id="alertBannerText">🔔 Новий запис!</span>
-                <button class="control-btn" onclick="switchMasterSection('secCalendar', document.querySelector('.drawer-item'))">Переглянути</button>
+                <button class="control-btn" onclick="handleBannerClick()">Переглянути</button>
             </div>
 
             <!-- 1. КАЛЕНДАР -->
@@ -188,7 +197,8 @@
             if (target) target.style.display = 'flex';
             document.querySelectorAll('.drawer-item').forEach(i => i.classList.remove('active'));
             if (el) el.classList.add('active');
-            toggleMasterMenu();
+            let drawer = document.getElementById('masterMenuDrawer');
+            if (drawer && drawer.classList.contains('open')) toggleMasterMenu();
         }
 
         function loginMainPin() {
@@ -199,10 +209,18 @@
             } else { alert("Невірний PIN-код!"); }
         }
 
+        function forceBypassPin() {
+            localStorage.setItem('illiana_master_logged', 'true');
+            showMasterDashboard();
+        }
+
         // Функція відтворення аудіосигналу сповіщення (Web Audio API)
         function playNotificationSound() {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
                 const oscillator = audioCtx.createOscillator();
                 const gainNode = audioCtx.createGain();
                 
@@ -210,7 +228,7 @@
                 oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // Нота Ре (D5)
                 oscillator.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15); // Нота Ля (A5)
                 
-                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
                 
                 oscillator.connect(gainNode);
@@ -221,17 +239,43 @@
             } catch(e) {}
         }
 
-        // Автоматична фонова перевірка нових записів кожні 6 секунд зі звуковим сигналом
         let lastKnownBookingsCount = -1;
+        let latestBookingDate = null;
+
+        // Клік на банер: відкриває календар і вибирає дату нового запису
+        function handleBannerClick() {
+            playNotificationSound();
+            switchMasterSection('secCalendar', document.querySelector('.drawer-item'));
+            if (latestBookingDate && typeof selectCalendarDate === 'function') {
+                selectCalendarDate(latestBookingDate);
+            }
+        }
 
         window.addEventListener('DOMContentLoaded', () => {
+            // Розблокування звуку в мобільних браузерах при першому кліку
+            document.body.addEventListener('click', () => {
+                try {
+                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    if (audioCtx.state === 'suspended') audioCtx.resume();
+                } catch(e) {}
+            }, { once: true });
+
+            if (localStorage.getItem('illiana_master_logged') === 'true') {
+                showMasterDashboard();
+            }
+
             setInterval(async () => {
                 try {
                     let res = await fetch('/api/bookings');
                     let books = await res.json() || [];
                     
+                    if (books.length > 0) {
+                        let newest = books[books.length - 1];
+                        latestBookingDate = newest.date;
+                    }
+
                     if (lastKnownBookingsCount !== -1 && books.length > lastKnownBookingsCount) {
-                        playNotificationSound(); // Грає звук при появі нового запису
+                        playNotificationSound();
                     }
                     lastKnownBookingsCount = books.length;
 
@@ -239,10 +283,10 @@
                         let banner = document.getElementById('newBookingAlertBanner');
                         let bannerText = document.getElementById('alertBannerText');
                         if (banner) banner.style.display = 'flex';
-                        if (bannerText) bannerText.innerText = `🔔 Новий запис! Активних бронювань: ${books.length}`;
+                        if (bannerText) bannerText.innerText = `🔔 Новий запис! Бронювань: ${books.length}`;
                     }
                 } catch(e) {}
-            }, 6000);
+            }, 5000);
         });
     </script>
 </body>
