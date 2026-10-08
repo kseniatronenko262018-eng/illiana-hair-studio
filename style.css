@@ -234,7 +234,7 @@ body {
 select.input-box { appearance: none; cursor: pointer; }
 option { background: #23201e; color: #f5f2ed; }
 
-/* ФІКС КОМПАКТНОГО ПОЛЯ ДАТИ (щоб не було занадто великим) */
+/* ФІКС КОМПАКТНОГО ПОЛЯ ДАТИ */
 #clientDate {
     max-width: 160px !important;
 }
@@ -488,4 +488,29 @@ option { background: #23201e; color: #f5f2ed; }
     border-radius: 6px;
     border: 1px solid var(--border);
     cursor: pointer;
+}
+
+/* --- ЕФЕКТ ПРУЖИНКИ ТА ПІДСВІТКИ ПРИ НАТИСКАННІ --- */
+button:active, 
+.control-btn:active, 
+.nav-chip:active, 
+.service-card-mini:active, 
+.sub-service-card:active, 
+.time-cell:active, 
+.cal-day:active, 
+.haircut-carousel-item:active, 
+.works-carousel-item:active, 
+.btn-main:active {
+    transform: scale(0.96);
+    filter: brightness(1.15);
+    transition: transform 0.1s ease, filter 0.1s ease;
+}
+
+.control-btn, .nav-chip, .service-card-mini, .sub-service-card, .time-cell, .cal-day, .btn-main {
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.control-btn:hover, .nav-chip:hover, .sub-service-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 10px rgba(184, 50, 50, 0.2);
 }
