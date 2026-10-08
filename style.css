@@ -325,7 +325,7 @@ option { background: #23201e; color: #f5f2ed; }
     box-shadow: 0 0 10px rgba(184, 50, 50, 0.4);
 }
 
-/* Карусель для архіву робіт */
+/* Карусель для прикладів робіт */
 .works-carousel {
     display: flex;
     gap: 10px;
@@ -572,8 +572,8 @@ option { background: #23201e; color: #f5f2ed; }
 #lightboxImage {
     width: auto !important;
     height: auto !important;
-    max-width: 92vw !important;
-    max-height: 90vh !important;
+    max-width: 95vw !important;
+    max-height: 92vh !important;
     object-fit: contain !important;
     border-radius: 6px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.9);
