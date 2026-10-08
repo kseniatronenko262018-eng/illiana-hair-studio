@@ -21,46 +21,7 @@ const translations = {
         tab_works: "Приклади робіт",
         tab_loc: "Локація",
         profile_sub: "квір хейр стиліст • перукар дніпро",
-        profile_bio: "не відрощуй волосся — відрощуй індивідуальність",
-        step1: "1. Оберіть категорію послуг",
-        cut_title: "Стрижка",
-        cut_sub: "1000 ₴ • 1.5 год",
-        color_title: "Фарбування",
-        color_sub: "Підбір за станом",
-        complex_title: "Стрижка + Фарбування коріння",
-        complex_sub: "3000 ₴ • 3 год (до 2 см)",
-        haircut_ref_title: "✨ Оберіть приклад стрижки (натисніть, щоб обрати як референс):",
-        choose_btn: "Обрати",
-        ref_selected_notice: "✓ Обрано фото-референс із портфоліо!",
-        step2: "2. Оберіть ваш поточний стан волосся:",
-        step3: "3. Доступні послуги та довжина:",
-        length_label: "Довжина волосся:",
-        len_shoulders: "До плечей",
-        len_blades: "Від плечей до лопаток",
-        len_below: "Нижче лопаток",
-        rules_title: "📌 Важливі примітки та правила майстра:",
-        rule_1: "Якщо ваше коріння більше 2 см, послуга фарбування вважається первинною.",
-        rule_2: "Я не роблю блонд у техніці (AirTouch, балаяж і т. д.).",
-        rule_3: "Я не роблю вихід із чорного або рудого.",
-        rule_4: "Я не фарбую волосся після біозавивки, ботоксу, кератину.",
-        photo_current_label: "4. Завантажте фото вашого волосся:",
-        photo_ref_label: "5. Завантажте фото-референс:",
-        selected_service_label: "Обрана послуга та час",
-        select_service_placeholder: "Спочатку оберіть категорію вище",
-        date_label: "Дата",
-        name_label: "Ім'я",
-        name_placeholder: "Як звертатись",
-        phone_label: "Телефон",
-        email_label: "Email (обов'язково)",
-        social_label: "Нік / соцмережа",
-        slots_label: "Доступні слоти часу",
-        slot_notice_init: "⚡ <b>Слот заброньовано на:</b> оберіть послугу та час.",
-        deposit_notice: "⚡ <b>Умова броні:</b> Завдаток <b>500 грн</b> підтверджує запис.",
-        pay_btn: "Сплатити завдаток 500 ₴ та забронювати",
-        modal_title: "Публічний договір оферти",
-        modal_btn: "Зрозуміло",
-        loc_info: "📍 <b>Локація:</b> м. Дніпро, вул. Володимира Вернадського, 35-Б.<br><br>Приватний простір, мінімалізм та фокус на якості.",
-        map_btn: "Відкрити в Google Maps"
+        profile_bio: "не відрощуй волосся — відрощуй індивідуальність"
     }
 };
 
@@ -130,7 +91,7 @@ async function readFileAsBase64(fileInputId) {
     });
 }
 
-// Завантаження робіт у галерею з кабінету майстра
+// Виправлене завантаження робіт з кабінету на сайт
 async function uploadWorkToMainSite() {
     let titleInput = document.getElementById('newWorkTitleInput');
     let title = titleInput ? titleInput.value.trim() : 'Нова робота';
@@ -148,12 +109,12 @@ async function uploadWorkToMainSite() {
         customWorks.push({ title: title, url: fileBase64, date: new Date().toISOString() });
         localStorage.setItem('illiana_custom_works', JSON.stringify(customWorks));
 
-        alert("✨ Робота успішно додана та збережена в галереї!");
+        alert("✨ Робота успішно завантажена на сайт!");
         if (titleInput) titleInput.value = '';
         fileInput.value = '';
     };
     reader.onerror = function() {
-        alert("Помилка читання файлу зображення.");
+        alert("Помилка читання файлу.");
     };
     reader.readAsDataURL(fileInput.files[0]);
 }
@@ -175,9 +136,7 @@ window.onload = async function() {
 
     let today = new Date().toISOString().split('T')[0];
     let dateInput = document.getElementById('clientDate');
-    if (dateInput) {
-        dateInput.value = today;
-    }
+    if (dateInput) { dateInput.value = today; }
 
     renderTimeSlots();
     loadExpensesFromStorage();
@@ -290,16 +249,12 @@ function selectBaseCondition(baseKey) {
     updateAvailableServicesList();
 }
 
-function updateServiceDetails() {
-    updateAvailableServicesList();
-}
+function updateServiceDetails() { updateAvailableServicesList(); }
 
 function updateAvailableServicesList() {
     if (!selectedBaseCondition) return;
-
     let lengthSelect = document.getElementById('hairLengthSelect');
     let lengthKey = lengthSelect ? lengthSelect.value : 'shoulders';
-
     let services = coloringPrices[selectedBaseCondition][lengthKey];
     let listContainer = document.getElementById('specificServicesList');
     if (!listContainer) return;
@@ -316,7 +271,6 @@ function updateAvailableServicesList() {
             </div>
         `;
     });
-
     updateServiceInputText();
     renderTimeSlots();
 }
@@ -328,7 +282,6 @@ function selectSpecificServiceColor(srvId) {
 
     document.querySelectorAll('#specificServicesList .sub-service-card').forEach(c => c.classList.remove('selected'));
     document.getElementById(`srvCard_${srvId}`)?.classList.add('selected');
-
     updateServiceInputText();
     renderTimeSlots();
 }
@@ -347,12 +300,7 @@ function renderTimeSlots() {
 
     let dateVal = document.getElementById('clientDate')?.value || new Date().toISOString().split('T')[0];
     let now = new Date();
-    
-    let year = now.getFullYear();
-    let month = String(now.getMonth() + 1).padStart(2, '0');
-    let day = String(now.getDate()).padStart(2, '0');
-    let todayStr = `${year}-${month}-${day}`;
-
+    let todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     let isToday = (dateVal === todayStr);
     
     if (dateVal < todayStr) {
@@ -370,13 +318,11 @@ function renderTimeSlots() {
     let workEndMinutes = 20 * 60;
     let intervalMinutes = 30;
     let slots = [];
-
     let currentTotalMinutes = now.getHours() * 60 + now.getMinutes() + 180;
     let maxStartMinutes = workEndMinutes - serviceDuration;
 
     for (let m = workStartMinutes; m <= maxStartMinutes; m += intervalMinutes) {
         if (isToday && m < currentTotalMinutes) continue;
-
         let hours = Math.floor(m / 60);
         let mins = m % 60;
         let timeStr = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
@@ -384,9 +330,8 @@ function renderTimeSlots() {
     }
 
     let dayBookings = serverBookingsList.filter(b => b.date === dateVal);
-
     if (slots.length === 0) {
-        grid.innerHTML = `<div style="font-size:10px; color:var(--text-muted); text-align:center; padding: 10px;">На цей день немає вільних слотів для запису.</div>`;
+        grid.innerHTML = `<div style="font-size:10px; color:var(--text-muted); text-align:center; padding: 10px;">На цей день немає вільних слотів.</div>`;
         return;
     }
 
@@ -394,10 +339,8 @@ function renderTimeSlots() {
         let isBooked = dayBookings.some(b => {
             let [bHour, bMin] = b.time.split(':').map(Number);
             let bStartMin = bHour * 60 + bMin;
-            let bDuration = 90; 
-            if (b.service && b.service.includes('3 год')) bDuration = 180;
-            let bEndMin = bStartMin + bDuration;
-            return (slot.minutes < bEndMin) && (slot.endMinutes > bStartMin);
+            let bDuration = (b.service && b.service.includes('3 год')) ? 180 : 90;
+            return (slot.minutes < (bStartMin + bDuration)) && (slot.endMinutes > bStartMin);
         });
 
         let div = document.createElement('div');
@@ -417,9 +360,8 @@ function selectTime(time, el) {
     document.querySelectorAll('.time-cell').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
     selectedTimeSlot = time;
-    let dateVal = document.getElementById('clientDate')?.value || '';
     let notice = document.getElementById('slotNotice');
-    if (notice) notice.innerHTML = `⚡ <b>Обрано час:</b> ${dateVal} о ${time}`;
+    if (notice) notice.innerHTML = `⚡ <b>Обрано час:</b> о ${time}`;
 }
 
 async function submitBooking() {
@@ -431,7 +373,7 @@ async function submitBooking() {
     let srvText = document.getElementById('selectedServiceInput')?.value;
 
     if (!name || !phone || !email || !selectedTimeSlot || !selectedServiceObj) {
-        alert("Будь ласка, заповніть ім'я, телефон, email, оберіть послугу та вільний час!");
+        alert("Заповніть обов'язкові поля та оберіть час!");
         return;
     }
 
@@ -443,10 +385,8 @@ async function submitBooking() {
         id: 'b_' + Date.now(),
         name, phone, email, social,
         date, time: selectedTimeSlot,
-        service: srvText,
-        hairPhoto, refPhoto,
-        depositPaid: true,
-        status: 'pending'
+        service: srvText, hairPhoto, refPhoto,
+        depositPaid: true, status: 'pending'
     };
 
     try {
@@ -458,8 +398,7 @@ async function submitBooking() {
     } catch(e) {}
 
     if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-    
-    alert(`Дякуємо, ${name}! Запис на ${date} о ${selectedTimeSlot} успішно збережено!`);
+    alert(`Дякуємо, ${name}! Запис успішно збережено.`);
     window.open(`https://t.me/${TELEGRAM_BOT_USERNAME}?start=booking_${newBooking.id}`, '_blank');
     location.reload();
 }
@@ -483,10 +422,8 @@ function logoutMaster() {
 }
 
 function showMasterDashboard() {
-    let loginBox = document.getElementById('masterLoginBox');
-    let dash = document.getElementById('masterDashboard');
-    if (loginBox) loginBox.style.display = 'none';
-    if (dash) dash.style.display = 'flex';
+    document.getElementById('masterLoginBox').style.display = 'none';
+    document.getElementById('masterDashboard').style.display = 'flex';
     loadExpensesFromStorage();
     updateDashboardStats();
     renderCalendar();
@@ -500,27 +437,12 @@ function toggleMasterMenu() {
 
 function setCalendarMode(mode) {
     calendarMode = mode;
-    let btnMonth = document.getElementById('btnModeMonth');
-    let btnWeek = document.getElementById('btnModeWeek');
-    
-    if (btnMonth && btnWeek) {
-        if (mode === 'month') {
-            btnMonth.style.borderColor = 'var(--accent)';
-            btnWeek.style.borderColor = 'var(--border)';
-        } else {
-            btnWeek.style.borderColor = 'var(--accent)';
-            btnMonth.style.borderColor = 'var(--border)';
-        }
-    }
     renderCalendar();
 }
 
 function changePeriod(direction) {
-    if (calendarMode === 'month') {
-        calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + direction);
-    } else {
-        calendarCurrentDate.setDate(calendarCurrentDate.getDate() + (direction * 7));
-    }
+    if (calendarMode === 'month') calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + direction);
+    else calendarCurrentDate.setDate(calendarCurrentDate.getDate() + (direction * 7));
     renderCalendar();
 }
 
@@ -536,16 +458,13 @@ function renderCalendar() {
     
     if (calendarMode === 'month') {
         if (titleEl) titleEl.innerText = `${monthNames[month]} ${year}`;
-        
         let gridHtml = '<div class="cal-grid">';
         ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'].forEach(d => { gridHtml += `<div class="cal-header-day">${d}</div>`; });
-
         let firstDayIndex = new Date(year, month, 1).getDay();
         let shift = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
         let totalDays = new Date(year, month + 1, 0).getDate();
 
         for (let i = 0; i < shift; i++) { gridHtml += `<div></div>`; }
-
         for (let d = 1; d <= totalDays; d++) {
             let dStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
             let isBlocked = serverBlockedDays.includes(dStr);
@@ -556,16 +475,13 @@ function renderCalendar() {
             if (isBlocked) cls += ' day-blocked';
             if (hasBooking) cls += ' active-booking';
             if (isSelected) cls += ' selected-day';
-
             gridHtml += `<div class="${cls}" onclick="selectCalendarDate('${dStr}')"><span>${d}</span>${hasBooking ? '<div class="dot"></div>' : ''}</div>`;
         }
         gridHtml += '</div>';
         container.innerHTML = gridHtml;
     } else {
-        // Режим тижня
-        if (titleEl) titleEl.innerText = `Тиждень від ${calendarCurrentDate.toLocaleDateString()}`;
+        if (titleEl) titleEl.innerText = `Тиждень`;
         let gridHtml = '<div class="cal-grid" style="grid-template-columns: repeat(7, 1fr);">';
-        
         let curr = new Date(calendarCurrentDate);
         let firstDayOfWeek = curr.getDate() - curr.getDay() + (curr.getDay() === 0 ? -6 : 1);
         let weekDaysArr = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
@@ -581,7 +497,6 @@ function renderCalendar() {
             if (isBlocked) cls += ' day-blocked';
             if (hasBooking) cls += ' active-booking';
             if (isSelected) cls += ' selected-day';
-
             gridHtml += `<div class="${cls}" onclick="selectCalendarDate('${dStr}')"><span style="font-size:8px;">${dayName}</span><span style="font-size:11px;">${dayDate.getDate()}</span>${hasBooking ? '<div class="dot"></div>' : ''}</div>`;
         });
         gridHtml += '</div>';
@@ -592,12 +507,9 @@ function renderCalendar() {
 function selectCalendarDate(dateStr) {
     selectedCalendarDateStr = dateStr;
     let label = document.getElementById('selectedDateLabel');
-    if (label) label.innerText = `Записи на обраний день (${dateStr}):`;
+    if (label) label.innerText = `Записи на ${dateStr}:`;
     renderCalendar();
     renderDayBookings(dateStr);
-    
-    let btn = document.getElementById('blockDayBtn');
-    if (btn) btn.innerText = serverBlockedDays.includes(dateStr) ? `🔓 Розблокувати день (${dateStr})` : `🔒 Заблокувати день (${dateStr}) вихідний`;
 }
 
 async function toggleBlockSelectedDate() {
@@ -621,19 +533,17 @@ function renderDayBookings(dateStr) {
     let container = document.getElementById('dayBookingsContainer');
     if (!container) return;
     container.innerHTML = '';
-
     let filtered = serverBookingsList.filter(b => b.date === dateStr);
     if (filtered.length === 0) {
-        container.innerHTML = `<div style="font-size:10px; color:var(--text-muted);">На цей день немає записів.</div>`;
+        container.innerHTML = `<div style="font-size:10px; color:var(--text-muted);">Немає записів.</div>`;
         return;
     }
-
     filtered.forEach(b => {
         container.innerHTML += `
             <div class="booking-item">
                 <div><b>⏰ ${b.time}</b> — ${b.name} (${b.phone})</div>
                 <div style="font-size:9px; color:var(--accent);">Послуга: ${b.service}</div>
-                <div style="font-size:9px;">Email: ${b.email} | Соцмережі: ${b.social || 'не вказано'}</div>
+                <div style="font-size:9px;">Соцмережі: ${b.social || '—'}</div>
             </div>
         `;
     });
@@ -642,12 +552,11 @@ function renderDayBookings(dateStr) {
 function addExpense() {
     let name = document.getElementById('expenseNameInput')?.value.trim();
     let amount = parseFloat(document.getElementById('expenseAmountInput')?.value);
-    if (!name || isNaN(amount) || amount <= 0) { alert("Введіть назву та суму!"); return; }
+    if (!name || isNaN(amount) || amount <= 0) { alert("Введіть назву та суму витрати!"); return; }
 
     let expenses = JSON.parse(localStorage.getItem('illiana_expenses') || '[]');
     expenses.push({ id: 'e_' + Date.now(), name, amount, date: new Date().toISOString() });
     localStorage.setItem('illiana_expenses', JSON.stringify(expenses));
-    
     document.getElementById('expenseNameInput').value = '';
     document.getElementById('expenseAmountInput').value = '';
     loadExpensesFromStorage();
@@ -672,37 +581,24 @@ function deleteExpense(idx) {
     updateDashboardStats();
 }
 
-function onStatsMonthChange() { updateDashboardStats(); }
-
 function updateDashboardStats() {
-    let period = document.getElementById('dashboardPeriodSelect')?.value || 'month';
-    let selectedMonthStr = document.getElementById('statsMonthInput')?.value || '';
-    let now = new Date();
     let totalCompleted = 0;
-
     serverBookingsList.forEach(b => {
-        if (!b.date) return;
-        let bDate = new Date(b.date);
         let amount = 500;
         if (b.service && b.service.includes('₴')) {
             let parts = b.service.split('—');
             if (parts.length > 1) { let p = parseInt(parts[1].replace(/[^0-9]/g, '')); if (!isNaN(p)) amount = p; }
         }
-        let include = (period === 'month') ? ((selectedMonthStr ? b.date.substring(0, 7) === selectedMonthStr : bDate.getMonth() === now.getMonth())) : true;
-        if (include) totalCompleted += amount;
+        totalCompleted += amount;
     });
 
     let expenses = JSON.parse(localStorage.getItem('illiana_expenses') || '[]');
     let totalExpenses = 0;
     expenses.forEach(e => { totalExpenses += Number(e.amount || 0); });
 
-    let compEl = document.getElementById('statCompleted');
-    let expEl = document.getElementById('statExpenses');
-    let netEl = document.getElementById('statNetProfit');
-
-    if (compEl) compEl.innerText = totalCompleted + ' ₴';
-    if (expEl) expEl.innerText = totalExpenses + ' ₴';
-    if (netEl) netEl.innerText = (totalCompleted - totalExpenses) + ' ₴';
+    document.getElementById('statCompleted').innerText = totalCompleted + ' ₴';
+    document.getElementById('statExpenses').innerText = totalExpenses + ' ₴';
+    document.getElementById('statNetProfit').innerText = (totalCompleted - totalExpenses) + ' ₴';
 }
 
 function exportToExcel() {
@@ -712,17 +608,83 @@ function exportToExcel() {
     XLSX.writeFile(wb, "Illiana_Studio_Bookings.xlsx");
 }
 
+// Функції експорту та імпорту бази клієнтів через Excel
+function exportClientsToExcel() {
+    if (regularClientsList.length === 0) { alert("База клієнтів порожня!"); return; }
+    let ws = XLSX.utils.json_to_sheet(regularClientsList);
+    let wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Клієнти");
+    XLSX.writeFile(wb, "Illiana_Clients_Base.xlsx");
+}
+
+function importClientsFromExcel(event) {
+    let file = event.target.files[0];
+    if (!file) return;
+    let reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            let data = new Uint8Array(e.target.result);
+            let workbook = XLSX.read(data, { type: 'array' });
+            let firstSheetName = workbook.SheetNames[0];
+            let worksheet = workbook.Sheets[firstSheetName];
+            let json = XLSX.utils.sheet_to_json(worksheet);
+            
+            regularClientsList = json.map(c => ({
+                name: c.name || c.Ім_я || 'Клієнт',
+                phone: c.phone || c.Телефон || '',
+                social: c.social || c.Соцмережі || '—'
+            }));
+            localStorage.setItem('illiana_regular_clients', JSON.stringify(regularClientsList));
+            renderRegularClientsList();
+            alert("✨ Базу клієнтів успішно імпортовано!");
+        } catch (err) {
+            alert("Помилка читання файлу Excel.");
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// Експорт фінансової аналітики у форматі PDF (використовує друк сторінки у PDF)
+function exportFinancesToPDF() {
+    let income = document.getElementById('statCompleted').innerText;
+    let expenses = document.getElementById('statExpenses').innerText;
+    let profit = document.getElementById('statNetProfit').innerText;
+    
+    let win = window.open('', '_blank');
+    win.document.write(`
+        <html>
+        <head>
+            <title>Фінансовий звіт - Явір Ілляна</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; color: #111; }
+                h2 { border-bottom: 2px solid #b83232; padding-bottom: 5px; color: #b83232; }
+                .stat { font-size: 16px; margin: 10px 0; }
+            </style>
+        </head>
+        <body>
+            <h2>Фінансовий звіт студії Явір Ілляна</h2>
+            <div class="stat"><b>Загальні доходи:</b> ${income}</div>
+            <div class="stat"><b>Загальні витрати:</b> ${expenses}</div>
+            <div class="stat"><b>Чистий прибуток:</b> ${profit}</div>
+            <br><p>Дата звіту: ${new Date().toLocaleDateString()}</p>
+        </body>
+        </html>
+    `);
+    win.document.close();
+    win.print();
+}
+
 function addRegularClientManual() {
     let name = document.getElementById('regClientName')?.value.trim();
     let phone = document.getElementById('regClientPhone')?.value.trim();
-    if (!name || !phone) { alert("Введіть ім'я та телефон!"); return; }
+    let social = document.getElementById('regClientSocial')?.value.trim();
+    if (!name || !phone) { alert("Введіть ім'я та телефон клієнта!"); return; }
     
-    regularClientsList.push({ name, phone });
+    regularClientsList.push({ name, phone, social: social || '—' });
     localStorage.setItem('illiana_regular_clients', JSON.stringify(regularClientsList));
-    let nameInp = document.getElementById('regClientName');
-    let phoneInp = document.getElementById('regClientPhone');
-    if (nameInp) nameInp.value = '';
-    if (phoneInp) phoneInp.value = '';
+    document.getElementById('regClientName').value = '';
+    document.getElementById('regClientPhone').value = '';
+    document.getElementById('regClientSocial').value = '';
     renderRegularClientsList();
     alert("Клієнта додано!");
 }
@@ -732,7 +694,12 @@ function renderRegularClientsList() {
     if (!container) return;
     container.innerHTML = '';
     regularClientsList.forEach((c, idx) => {
-        container.innerHTML += `<div style="display:flex; justify-content:space-between; font-size:9px; background:var(--card-bg); padding:4px; border-radius:4px;"><span>${c.name} (${c.phone})</span><button class="danger-btn" onclick="deleteRegularClient(${idx})">✕</button></div>`;
+        container.innerHTML += `
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:9px; background:var(--card-bg); padding:6px; border-radius:6px; border:1px solid var(--border);">
+                <div><b>${c.name}</b> (${c.phone}) <br><span style="color:var(--accent);">Соцмережі: ${c.social || '—'}</span></div>
+                <button class="danger-btn" onclick="deleteRegularClient(${idx})">✕</button>
+            </div>
+        `;
     });
 }
 
