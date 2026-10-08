@@ -3,200 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Кабінет майстра | Явір Ілліяна</title>
+    <title>Кабінет майстра | Явір Ілляна</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
-        .master-container {
-            width: 100%;
-            max-width: 420px;
-            margin: 0 auto;
+        /* Стилізації спеціально для кабінету майстра */
+        .master-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .master-bg img {
+            width: 100%; height: 100%; object-fit: cover;
+            filter: blur(2px) brightness(0.65) contrast(1.1);
+        }
+        .app-drawer {
+            position: fixed;
+            top: 0; left: -280px; width: 260px; height: 100vh;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border-right: 1px solid var(--border);
+            z-index: 9999;
+            transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             flex-direction: column;
+            padding: 20px 14px;
+            gap: 12px;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+        }
+        .app-drawer.open { left: 0; }
+        .drawer-item {
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-main);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
             gap: 10px;
         }
-        .master-header {
+        .drawer-item:hover, .drawer-item.active {
+            background: var(--accent);
+            color: var(--accent-invert);
+            border-color: var(--accent);
+        }
+        .notification-banner {
+            background: rgba(184, 50, 50, 0.25);
+            border: 1px solid var(--accent);
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 10px;
+            color: var(--text-main);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            padding: 12px 16px;
-            border-radius: 12px;
-            backdrop-filter: blur(12px);
-        }
-        .menu-drawer {
-            display: none;
-            flex-direction: column;
-            gap: 10px;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            padding: 14px;
-            border-radius: 12px;
-            backdrop-filter: blur(14px);
-        }
-        .menu-drawer.open {
-            display: flex;
+            margin-bottom: 8px;
         }
     </style>
 </head>
-<body style="padding: 10px; min-height: 100vh;">
+<body>
 
-    <div class="master-container">
+    <div class="master-bg">
+        <!-- Використання вашої нової фонової картини -->
+        <img src="PXL_20260322_183655575.MP.jpg" alt="Master Background">
+    </div>
 
-        <!-- Екран входу за PIN-кодом -->
-        <div class="form-card" id="masterLoginBox" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <label class="field-label" style="margin: 0; font-size: 14px;">🔒 Кабінет майстра (вхід)</label>
-                <a href="/" class="control-btn" style="text-decoration: none;">← На сайт</a>
-            </div>
-            <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5; margin-top: 6px;">Введіть PIN-код для доступу до CRM (за замовчуванням: <b>1988</b>).</p>
-            <input type="password" id="masterPinInput" class="input-box" placeholder="PIN-код" style="margin-top: 8px;">
-            
-            <button class="btn-main" onclick="
-                let p = document.getElementById('masterPinInput').value.trim();
-                if(p === '1988' || p === '') {
-                    localStorage.setItem('illiana_master_logged', 'true');
-                    document.getElementById('masterLoginBox').style.display = 'none';
-                    document.getElementById('masterDashboard').style.display = 'flex';
-                    if(typeof showMasterDashboard === 'function') showMasterDashboard();
-                } else {
-                    alert('Невірний PIN-код!');
-                }
-            " style="margin-top: 10px;">Увійти</button>
-            
-            <button class="control-btn" onclick="
-                localStorage.setItem('illiana_master_logged', 'true');
-                document.getElementById('masterLoginBox').style.display = 'none';
-                document.getElementById('masterDashboard').style.display = 'flex';
-                if(typeof showMasterDashboard === 'function') showMasterDashboard();
-            " style="margin-top: 8px; width: 100%; padding: 10px; font-size: 10px;">⚡ Швидкий вхід (без PIN)</button>
+    <!-- Виїзне меню у вигляді списку (Додаток-стайл) -->
+    <div id="masterMenuDrawer" class="app-drawer">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h3 style="font-family:'Syne',sans-serif; font-size:14px; color:var(--text-main);">МЕНЮ МАЙСТРА</h3>
+            <button class="control-btn" onclick="toggleMasterMenu()">✕</button>
+        </div>
+        <div class="drawer-item active" onclick="switchMasterSection('secCalendar', this)">📅 Календар та записи</div>
+        <div class="drawer-item" onclick="switchMasterSection('secFinances', this)">💰 Доходи та витрати</div>
+        <div class="drawer-item" onclick="switchMasterSection('secClients', this)">👥 База клієнтів</div>
+        <div class="drawer-item" onclick="switchMasterSection('secWorks', this)">✨ Додати роботу на сайт</div>
+        <div class="drawer-item" onclick="logoutMaster()" style="margin-top: auto; border-color: var(--accent); color: var(--accent);">🚪 Вийти з CRM</div>
+    </div>
+
+    <div class="mobile-container master-body">
+        
+        <!-- Верхня панель навігації кабінету -->
+        <div class="utility-bar">
+            <button class="control-btn" onclick="toggleMasterMenu()">☰ Меню</button>
+            <span>CRM // ЯВІР ІЛЛЯНА</span>
+            <button class="control-btn" onclick="toggleTheme()">☀️/🌙</button>
         </div>
 
-        <!-- Головний екран кабінету майстра -->
-        <div id="masterDashboard" style="display: none; flex-direction: column; gap: 10px;">
-            
-            <div class="master-header">
-                <button class="control-btn" onclick="toggleMasterMenu()" style="background: var(--accent); color: var(--accent-invert); border-color: var(--accent);">☰ Меню управління</button>
-                <div style="display: flex; gap: 6px;">
-                    <a href="/" class="control-btn" style="text-decoration: none; display: flex; align-items: center;">Сайт</a>
-                    <button class="control-btn" onclick="logoutMaster()">Вийти</button>
-                </div>
+        <!-- Екран авторизації (PIN) -->
+        <div id="masterLoginBox" class="form-card" style="text-align: center; margin-top: 40px;">
+            <h2 style="font-family:'Syne',sans-serif; font-size: 18px; margin-bottom: 10px;">КАБІНЕТ МАЙСТРА</h2>
+            <p style="font-size: 10px; color: var(--text-muted); margin-bottom: 14px;">Введіть PIN-код для доступу до управління</p>
+            <input type="password" id="masterPinInput" class="input-box" placeholder="PIN (за замовчуванням 1988)" style="text-align: center; margin-bottom: 10px;">
+            <button class="btn-main" onclick="loginMainPin()">Увійти</button>
+            <button class="control-btn" onclick="forceBypassPin()" style="margin-top: 8px; width: 100%;">Швидкий вхід</button>
+        </div>
+
+        <!-- Головна панель управління (CRM) -->
+        <div id="masterDashboard" style="display: none; flex-direction: column; gap: 12px;">
+
+            <!-- Сповіщення про нові записи -->
+            <div id="newBookingAlertBanner" class="notification-banner" style="display: none;">
+                <span>🔔 Є нові записи або активні броні!</span>
+                <button class="control-btn" onclick="switchMasterSection('secCalendar', document.querySelector('.drawer-item'))">Переглянути</button>
             </div>
 
-            <!-- Висувне меню (налаштування, витрати, клієнти, дашборд) -->
-            <div class="menu-drawer" id="masterMenuDrawer">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 6px;">
-                    <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-main);">⚙️ Налаштування та аналітика</span>
-                    <button class="control-btn" onclick="toggleMasterMenu()" style="padding: 2px 6px; font-size: 8px;">✕</button>
+            <!-- РОЗДІЛ 1: КАЛЕНДАР ТА ЗАПИСИ -->
+            <div id="secCalendar" class="master-section form-card">
+                <div class="calendar-controls">
+                    <button class="control-btn" onclick="changePeriod(-1)">◀</button>
+                    <h3 id="calendarTitle" style="font-size: 12px; font-family:'Syne',sans-serif;">Місяць</h3>
+                    <button class="control-btn" onclick="changePeriod(1)">▶</button>
                 </div>
-
-                <div style="background: var(--card-hover); border: 1px solid var(--border); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; gap: 6px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <label class="field-label" style="margin: 0;">📊 Період дашборду:</label>
-                        <select id="dashboardPeriodSelect" class="input-box" style="width: auto; padding: 4px 8px; font-size: 10px;" onchange="updateDashboardStats()">
-                            <option value="week">Цей тиждень</option>
-                            <option value="month" selected>Цей місяць</option>
-                            <option value="year">Цей рік</option>
-                        </select>
-                    </div>
-                    <input type="month" id="statsMonthInput" class="input-box" style="width: 100%; padding: 6px; font-size: 10px;" onchange="onStatsMonthChange()">
-                </div>
-
-                <div style="background: rgba(184, 50, 50, 0.1); border: 1px solid var(--accent); padding: 10px; border-radius: 10px; font-size: 10px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; text-align: center;">
-                    <div><b>Дохід:</b><br><span id="statCompleted" style="color: #4caf50; font-size: 12px;">0 ₴</span></div>
-                    <div><b>Витрати:</b><br><span id="statExpenses" style="color: #ff9800; font-size: 12px;">0 ₴</span></div>
-                    <div style="grid-column: span 2; border-top: 1px solid var(--border); padding-top: 4px; margin-top: 2px;">
-                        <b>💰 Чистий прибуток:</b><br><span id="statNetProfit" style="color: var(--accent); font-size: 13px; font-weight: 800;">0 ₴</span>
-                    </div>
-                </div>
-
-                <div style="background: var(--card-hover); border: 1px solid var(--border); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; gap: 6px;">
-                    <label class="field-label" style="margin: 0;">🖼️ Додати роботу на головну:</label>
-                    <input type="text" id="newWorkTitleInput" class="input-box" placeholder="Назва послуги" style="padding: 6px; font-size: 10px;">
-                    <input type="file" id="newWorkImageFile" class="input-box" accept="image/*" style="padding: 4px; font-size: 9px;">
-                    <button class="control-btn" onclick="uploadWorkToMainSite()" style="background: var(--accent); color: var(--accent-invert); padding: 6px; font-size: 9px;">🚀 Завантажити на сайт</button>
-                </div>
-
-                <div style="background: var(--card-hover); border: 1px solid var(--border); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; gap: 6px;">
-                    <label class="field-label" style="margin: 0;">👥 Постійні клієнти (без завдатку):</label>
-                    <label class="control-btn" style="padding: 6px; font-size: 9px; text-align: center; cursor: pointer; background: var(--card-bg);">
-                        📁 Імпорт бази з Excel <input type="file" id="excelClientsFile" accept=".xlsx, .xls" style="display: none;" onchange="handleExcelImport(event)">
-                    </label>
-                    <div style="display: flex; gap: 4px;">
-                        <input type="text" id="regClientName" class="input-box" placeholder="Ім'я" style="padding: 6px; font-size: 10px; flex: 1;">
-                        <input type="text" id="regClientPhone" class="input-box" placeholder="Телефон" style="padding: 6px; font-size: 10px; flex: 1;">
-                        <button class="control-btn" onclick="addRegularClientManual()" style="background: var(--accent); color: var(--accent-invert); padding: 6px 12px; font-size: 10px;">Додати</button>
-                    </div>
-                    <div id="regularClientsContainer" style="display: flex; flex-direction: column; gap: 3px; max-height: 90px; overflow-y: auto;"></div>
-                </div>
-
-                <div style="background: var(--card-hover); border: 1px solid var(--border); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; gap: 6px;">
-                    <label class="field-label" style="margin: 0;">📉 Облік витрат:</label>
-                    <input type="text" id="expenseNameInput" class="input-box" placeholder="Назва (напр. Оренда)" style="padding: 6px; font-size: 10px;">
-                    <div style="display: flex; gap: 4px;">
-                        <input type="number" id="expenseAmountInput" class="input-box" placeholder="Сума ₴" style="padding: 6px; font-size: 10px; flex: 1;">
-                        <button class="control-btn" onclick="addExpense()" style="background: var(--accent); color: var(--accent-invert); padding: 6px 10px; font-size: 9px;">Додати</button>
-                    </div>
-                    <div id="expensesListContainer" style="display: flex; flex-direction: column; gap: 3px; max-height: 90px; overflow-y: auto;"></div>
-                </div>
-
-                <button class="control-btn" onclick="exportToExcel()" style="width: 100%; padding: 6px; font-size: 9px;">📥 Скачати базу записів (.xlsx)</button>
-            </div>
-
-            <!-- Головний екран: Календар записів -->
-            <div class="form-card">
-                <label class="field-label" style="margin: 0;">📅 Календар та записи клієнтів</label>
-                <button class="control-btn" id="blockDayBtn" onclick="toggleBlockSelectedDate()" style="width: 100%; padding: 8px; font-size: 9px; background: rgba(255,255,255,0.05); margin-top: 4px;">🔒 Заблокувати обраний день (вихідний)</button>
-
-                <div style="display: flex; gap: 6px; margin-top: 4px;">
-                    <button class="control-btn" id="btnModeMonth" onclick="setCalendarMode('month')" style="flex: 1; padding: 6px; border-color: var(--accent); font-size: 9px;">Місяць</button>
-                    <button class="control-btn" id="btnModeWeek" onclick="setCalendarMode('week')" style="flex: 1; padding: 6px; font-size: 9px;">Тиждень</button>
-                </div>
-
-                <div class="calendar-controls" style="margin-top: 6px;">
-                    <button class="control-btn" onclick="changePeriod(-1)" style="font-size: 9px; padding: 4px 8px;">◀ Назад</button>
-                    <span id="calendarTitle" style="font-size: 10px; font-weight: 700; color: var(--text-main);">Вересень 2026</span>
-                    <button class="control-btn" onclick="changePeriod(1)" style="font-size: 9px; padding: 4px 8px;">Вперед ▶</button>
+                
+                <div style="display: flex; gap: 4px; margin-bottom: 6px;">
+                    <button class="control-btn" id="btnModeMonth" onclick="setCalendarMode('month')" style="flex:1;">Місяць</button>
+                    <button class="control-btn" id="btnModeWeek" onclick="setCalendarMode('week')" style="flex:1;">Тиждень</button>
                 </div>
 
                 <div id="calendarGridContainer"></div>
 
-                <div style="margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px;">
-                    <label class="field-label" id="selectedDateLabel" style="font-size: 9px;">Записи на обраний день:</label>
-                    <div id="dayBookingsContainer" style="display: flex; flex-direction: column; gap: 6px;"></div>
+                <button class="control-btn" id="blockDayBtn" onclick="toggleBlockSelectedDate()" style="margin-top: 8px; width: 100%;">🔒 Заблокувати день (вихідний)</button>
+
+                <div style="margin-top: 10px;">
+                    <label class="field-label" id="selectedDateLabel">Записи на обраний день:</label>
+                    <div id="dayBookingsContainer" style="display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto;"></div>
                 </div>
+            </div>
+
+            <!-- РОЗДІЛ 2: ФІНАНСИ ТА ВИТРАТИ -->
+            <div id="secFinances" class="master-section form-card" style="display: none;">
+                <h3 style="font-size: 13px; font-family:'Syne',sans-serif; text-transform:uppercase;">Фінанси та аналітика</h3>
+                
+                <div style="display: flex; gap: 6px;">
+                    <select id="dashboardPeriodSelect" class="input-box" onchange="updateDashboardStats()">
+                        <option value="month">За місяць</option>
+                        <option value="all">За весь час</option>
+                    </select>
+                    <input type="month" id="statsMonthInput" class="input-box" onchange="onStatsMonthChange()">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; text-align: center;">
+                    <div style="background:var(--card-hover); padding:8px; border-radius:8px; border:1px solid var(--border);">
+                        <div style="font-size:8px; color:var(--text-muted);">ДОХОДИ</div>
+                        <div id="statCompleted" style="font-size:11px; font-weight:700; color:var(--text-main);">0 ₴</div>
+                    </div>
+                    <div style="background:var(--card-hover); padding:8px; border-radius:8px; border:1px solid var(--border);">
+                        <div style="font-size:8px; color:var(--text-muted);">ВИТРАТИ</div>
+                        <div id="statExpenses" style="font-size:11px; font-weight:700; color:var(--accent);">0 ₴</div>
+                    </div>
+                    <div style="background:var(--card-hover); padding:8px; border-radius:8px; border:1px solid var(--border);">
+                        <div style="font-size:8px; color:var(--text-muted);">ПРИБУТОК</div>
+                        <div id="statNetProfit" style="font-size:11px; font-weight:700; color:#4ade80;">0 ₴</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 8px;">
+                    <label class="field-label">Додати витрату:</label>
+                    <div style="display: flex; gap: 6px;">
+                        <input type="text" id="expenseNameInput" class="input-box" placeholder="Назва (напр. матеріали)">
+                        <input type="number" id="expenseAmountInput" class="input-box" placeholder="Сума ₴" style="max-width: 90px;">
+                        <button class="control-btn" onclick="addExpense()">+</button>
+                    </div>
+                    <div id="expensesListContainer" style="display: flex; flex-direction: column; gap: 4px; margin-top: 6px; max-height: 120px; overflow-y: auto;"></div>
+                </div>
+
+                <button class="control-btn" onclick="exportToExcel()" style="margin-top: 6px; width: 100%;">📥 Експортувати записи в Excel</button>
+            </div>
+
+            <!-- РОЗДІЛ 3: БАЗА КЛІЄНТІВ -->
+            <div id="secClients" class="master-section form-card" style="display: none;">
+                <h3 style="font-size: 13px; font-family:'Syne',sans-serif; text-transform:uppercase;">База клієнтів</h3>
+                <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                    <input type="text" id="regClientName" class="input-box" placeholder="Ім'я клієнта">
+                    <input type="tel" id="regClientPhone" class="input-box" placeholder="Телефон">
+                    <button class="control-btn" onclick="addRegularClientManual()">Додати</button>
+                </div>
+                <div id="regularClientsContainer" style="display: flex; flex-direction: column; gap: 4px; max-height: 180px; overflow-y: auto;"></div>
+            </div>
+
+            <!-- РОЗДІЛ 4: ДОДАТИ РОБОТУ НА САЙТ -->
+            <div id="secWorks" class="master-section form-card" style="display: none;">
+                <h3 style="font-size: 13px; font-family:'Syne',sans-serif; text-transform:uppercase;">Додати роботу в галерею сайту</h3>
+                <div>
+                    <label class="field-label">Назва / опис роботи:</label>
+                    <input type="text" id="newWorkTitleInput" class="input-box" placeholder="Наприклад: Стрижка / Тонування">
+                </div>
+                <div>
+                    <label class="field-label">Фотографія роботи:</label>
+                    <input type="file" id="newWorkImageFile" class="input-box" accept="image/*" style="padding: 6px;">
+                </div>
+                <button class="btn-main" onclick="uploadWorkToMainSite()">Завантажити на сайт</button>
             </div>
 
         </div>
 
     </div>
 
-    <!-- Lightbox -->
-    <div id="imageLightboxModal" onclick="closeLightbox()">
-        <img id="lightboxImage" src="" alt="Збільшене фото">
-    </div>
-
+    <!-- Підключення основного скрипту логіки -->
     <script src="app.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            if (localStorage.getItem('illiana_master_logged') === 'true') {
-                const loginBox = document.getElementById('masterLoginBox');
-                const dashboard = document.getElementById('masterDashboard');
-                if (loginBox) loginBox.style.display = 'none';
-                if (dashboard) dashboard.style.display = 'flex';
-                if (typeof showMasterDashboard === 'function') showMasterDashboard();
-            } else {
-                const loginBox = document.getElementById('masterLoginBox');
-                if (loginBox) loginBox.style.display = 'flex';
-            }
-        });
+        // Додаткові скрипти для управління перемиканням розділів через виїзне меню
+        function switchMasterSection(sectionId, el) {
+            document.querySelectorAll('.master-section').forEach(s => s.style.display = 'none');
+            let target = document.getElementById(sectionId);
+            if (target) target.style.display = 'flex';
 
-        function toggleMasterMenu() {
-            const drawer = document.getElementById('masterMenuDrawer');
-            if (drawer) drawer.classList.toggle('open');
+            document.querySelectorAll('.drawer-item').forEach(i => i.classList.remove('active'));
+            if (el) el.classList.add('active');
+
+            toggleMasterMenu(); // Закрити меню після вибору
         }
+
+        function loginMainPin() {
+            let p = document.getElementById('masterPinInput')?.value.trim();
+            if (p === '1988' || p === '') {
+                localStorage.setItem('illiana_master_logged', 'true');
+                showMasterDashboard();
+            } else { alert("Невірний PIN-код!"); }
+        }
+
+        // Перевірка наявності нових записів для банера сповіщень
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                let bookings = JSON.parse(localStorage.getItem('illiana_bookings') || '[]');
+                if (bookings.length > 0) {
+                    let banner = document.getElementById('newBookingAlertBanner');
+                    if (banner) banner.style.display = 'flex';
+                }
+            }, 500);
+        });
     </script>
 </body>
 </html>
