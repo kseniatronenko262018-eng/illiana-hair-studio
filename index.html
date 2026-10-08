@@ -281,5 +281,31 @@
     </div>
 
     <script src="app.js"></script>
+    <script>
+        // Автоматичне підвантаження доданих майстром робіт у галерею головної сторінки
+        window.addEventListener('DOMContentLoaded', () => {
+            let customWorks = JSON.parse(localStorage.getItem('illiana_custom_works') || '[]');
+            if (customWorks.length > 0) {
+                let worksPane = document.querySelector('#paneWorks .form-card');
+                if (worksPane) {
+                    let newSection = document.createElement('div');
+                    newSection.innerHTML = `<label class="field-label" style="text-align: center; margin-top: 10px;">✨ Додаткові роботи з CRM</label>`;
+                    let carousel = document.createElement('div');
+                    carousel.className = 'works-carousel';
+                    
+                    customWorks.forEach(work => {
+                        let item = document.createElement('div');
+                        item.className = 'works-carousel-item';
+                        item.onclick = () => openLightbox(work.url);
+                        item.innerHTML = `<img src="${work.url}" alt="${work.title || 'Робота'}">`;
+                        carousel.appendChild(item);
+                    });
+                    
+                    newSection.appendChild(carousel);
+                    worksPane.appendChild(newSection);
+                }
+            }
+        });
+    </script>
 </body>
 </html>
