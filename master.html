@@ -32,17 +32,34 @@
             </div>
         </div>
 
-        <div style="background: var(--card-hover); border: 1px solid var(--border); padding: 8px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
-            <label class="field-label" style="margin: 0;">📅 Період аналітики:</label>
-            <input type="month" id="statsMonthInput" class="input-box" style="width: auto; padding: 6px; font-size: 10px;" onchange="onStatsMonthChange()">
+        <!-- Перемикач періоду аналітики (Тиждень, Місяць, Рік) -->
+        <div style="background: var(--card-hover); border: 1px solid var(--border); padding: 8px; border-radius: 8px; display: flex; flex-direction: column; gap: 6px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label class="field-label" style="margin: 0;">📊 Період дашборду:</label>
+                <select id="dashboardPeriodSelect" class="input-box" style="width: auto; padding: 4px 8px; font-size: 10px;" onchange="updateDashboardStats()">
+                    <option value="week">Цей тиждень</option>
+                    <option value="month" selected>Цей місяць</option>
+                    <option value="year">Цей рік</option>
+                </select>
+            </div>
+            <input type="month" id="statsMonthInput" class="input-box" style="width: 100%; padding: 6px; font-size: 10px;" onchange="onStatsMonthChange()">
         </div>
 
+        <!-- Дашборд фінансів -->
         <div style="background: rgba(184, 50, 50, 0.1); border: 1px solid var(--accent); padding: 10px; border-radius: 10px; font-size: 10px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; text-align: center;">
             <div><b>Дохід:</b><br><span id="statCompleted" style="color: #4caf50; font-size: 12px;">0 ₴</span></div>
             <div><b>Витрати:</b><br><span id="statExpenses" style="color: #ff9800; font-size: 12px;">0 ₴</span></div>
             <div style="grid-column: span 2; border-top: 1px solid var(--border); padding-top: 4px; margin-top: 2px;">
                 <b>💰 Чистий прибуток:</b><br><span id="statNetProfit" style="color: var(--accent); font-size: 14px; font-weight: 800;">0 ₴</span>
             </div>
+        </div>
+
+        <!-- БЛОК ЗАВАНТАЖЕННЯ РОБІТ НА ГОЛОВНУ СТОРІНКУ -->
+        <div style="background: var(--card-hover); border: 1px solid var(--border); padding: 10px; border-radius: 10px; display: flex; flex-direction: column; gap: 8px;">
+            <label class="field-label" style="margin: 0;">🖼️ Додати приклад роботи на головну сторінку:</label>
+            <input type="text" id="newWorkTitleInput" class="input-box" placeholder="Назва послуги / опису (напр. Стрижка + укладка)" style="padding: 6px; font-size: 10px;">
+            <input type="file" id="newWorkImageFile" class="input-box" accept="image/*" style="padding: 6px; font-size: 10px;">
+            <button class="control-btn" onclick="uploadWorkToMainSite()" style="background: var(--accent); color: var(--accent-invert); padding: 8px; font-size: 10px;">🚀 Завантажити на головну сторінку</button>
         </div>
 
         <!-- БЛОК БАЗИ ПОСТІЙНИХ КЛІЄНТІВ -->
@@ -59,20 +76,6 @@
                 <button class="control-btn" onclick="addRegularClientManual()" style="background: var(--accent); color: var(--accent-invert); padding: 6px 10px; font-size: 10px;">Додати</button>
             </div>
             <div id="regularClientsContainer" style="display: flex; flex-direction: column; gap: 4px; max-height: 120px; overflow-y: auto;"></div>
-        </div>
-
-        <div style="background: var(--card-hover); border: 1px solid var(--border); padding: 10px; border-radius: 10px; display: flex; flex-direction: column; gap: 8px;">
-            <label class="field-label" style="margin: 0;">📉 Облік витрат (оренда, фарба тощо):</label>
-            <input type="text" id="expenseNameInput" class="input-box" placeholder="Назва (напр. Оренда / Закупівля фарби)" style="padding: 8px; font-size: 10px;">
-            <div style="display: flex; gap: 6px;">
-                <input type="number" id="expenseAmountInput" class="input-box" placeholder="Сума (₴)" style="padding: 8px; font-size: 10px; flex: 1;">
-                <button class="control-btn" onclick="addExpense()" style="background: var(--accent); color: var(--accent-invert); padding: 8px 14px; font-size: 10px;">Додати</button>
-            </div>
-            <div id="expensesListContainer" style="display: flex; flex-direction: column; gap: 4px; max-height: 100px; overflow-y: auto;"></div>
-        </div>
-
-        <div style="display: flex; gap: 6px;">
-            <button class="control-btn" onclick="exportToExcel()" style="flex: 1; padding: 8px; font-size: 9px;">📥 Скачати базу записів (.xlsx)</button>
         </div>
 
         <button class="control-btn" id="blockDayBtn" onclick="toggleBlockSelectedDate()" style="width: 100%; padding: 10px; font-size: 10px; background: rgba(255,255,255,0.05);">🔒 Заблокувати обраний день (вихідний)</button>
@@ -93,6 +96,21 @@
         <div style="margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px;">
             <label class="field-label" id="selectedDateLabel">Записи на обраний день:</label>
             <div id="dayBookingsContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
+        </div>
+
+        <!-- ОБЛІК ВИТРАТ ЗНИЗУ КАБІНЕТУ -->
+        <div style="background: var(--card-hover); border: 1px solid var(--border); padding: 10px; border-radius: 10px; display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+            <label class="field-label" style="margin: 0;">📉 Облік витрат (оренда, фарба тощо):</label>
+            <input type="text" id="expenseNameInput" class="input-box" placeholder="Назва (напр. Оренда / Закупівля фарби)" style="padding: 8px; font-size: 10px;">
+            <div style="display: flex; gap: 6px;">
+                <input type="number" id="expenseAmountInput" class="input-box" placeholder="Сума (₴)" style="padding: 8px; font-size: 10px; flex: 1;">
+                <button class="control-btn" onclick="addExpense()" style="background: var(--accent); color: var(--accent-invert); padding: 8px 14px; font-size: 10px;">Додати витрату</button>
+            </div>
+            <div id="expensesListContainer" style="display: flex; flex-direction: column; gap: 4px; max-height: 120px; overflow-y: auto;"></div>
+        </div>
+
+        <div style="display: flex; gap: 6px; margin-top: 10px;">
+            <button class="control-btn" onclick="exportToExcel()" style="flex: 1; padding: 8px; font-size: 9px;">📥 Скачати базу записів (.xlsx)</button>
         </div>
 
         <div style="background: var(--card-hover); border: 1px solid var(--border); padding: 8px; border-radius: 8px; margin-top: 4px;">
