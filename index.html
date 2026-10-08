@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=4.7">
+    <link rel="stylesheet" href="style.css?v=4.9">
 </head>
 <body>
 
@@ -35,7 +35,7 @@
 
         <div class="quick-nav" style="grid-template-columns: repeat(3, 1fr);">
             <div class="nav-chip active" onclick="switchTab('book', this)" data-i18n="tab_book">Запис</div>
-            <div class="nav-chip" onclick="switchTab('works', this)" data-i18n="tab_works">Архів</div>
+            <div class="nav-chip" onclick="switchTab('works', this)" data-i18n="tab_works">Приклади робіт</div>
             <div class="nav-chip" onclick="switchTab('loc', this)" data-i18n="tab_loc">Локація</div>
         </div>
 
@@ -70,27 +70,27 @@
                 <div id="haircutExamplesSection" style="margin-top: 10px; display: none;">
                     <label class="field-label" data-i18n="haircut_ref_title">✨ Оберіть приклад стрижки (натисніть, щоб обрати як референс):</label>
                     <div class="haircut-carousel">
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/yJDvZJkZ/images1-png.png', this)"><img src="https://i.postimg.cc/yJDvZJkZ/images1-png.png" alt="Робота 1"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/v1CXLQnw/images2-png.png', this)"><img src="https://i.postimg.cc/v1CXLQnw/images2-png.png" alt="Робота 2"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/BLDpmd54/images3-png.png', this)"><img src="https://i.postimg.cc/BLDpmd54/images3-png.png" alt="Робота 3"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/9RTbLvP0/images4-png.png', this)"><img src="https://i.postimg.cc/9RTbLvP0/images4-png.png" alt="Робота 4"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/8JW4Zqd7/images5-png.png', this)"><img src="https://i.postimg.cc/8JW4Zqd7/images5-png.png" alt="Робота 5"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/S28dgwLj/images6-png.png', this)"><img src="https://i.postimg.cc/S28dgwLj/images6-png.png" alt="Робота 6"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/7G79Kp12/images7-png.png', this)"><img src="https://i.postimg.cc/7G79Kp12/images7-png.png" alt="Робота 7"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/ph8CsgQz/images8-png.png', this)"><img src="https://i.postimg.cc/ph8CsgQz/images8-png.png" alt="Робота 8"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/Hc5z6f0b/images9-png.png', this)"><img src="https://i.postimg.cc/Hc5z6f0b/images9-png.png" alt="Робота 9"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/WDdXkDhJ/images10-png.png', this)"><img src="https://i.postimg.cc/WDdXkDhJ/images10-png.png" alt="Робота 10"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/f3VB93JY/images11-png.png', this)"><img src="https://i.postimg.cc/f3VB93JY/images11-png.png" alt="Робота 11"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/XZrQCZpd/images12-png.png', this)"><img src="https://i.postimg.cc/XZrQCZpd/images12-png.png" alt="Робота 12"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/QBF0TBH0/images13-png.png', this)"><img src="https://i.postimg.cc/QBF0TBH0/images13-png.png" alt="Робота 13"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/QBF0TBH4/images14-png.png', this)"><img src="https://i.postimg.cc/QBF0TBH4/images14-png.png" alt="Робота 14"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/5HDpqxCs/images15-png.png', this)"><img src="https://i.postimg.cc/5HDpqxCs/images15-png.png" alt="Робота 15"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/Z9XjFTdf/images16-png.png', this)"><img src="https://i.postimg.cc/Z9XjFTdf/images16-png.png" alt="Робота 16"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/f315jw92/images17-png.png', this)"><img src="https://i.postimg.cc/f315jw92/images17-png.png" alt="Робота 17"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/7CjXMx2W/images18-png.png', this)"><img src="https://i.postimg.cc/7CjXMx2W/images18-png.png" alt="Робота 18"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/mcKVNbH0/images19-png.png', this)"><img src="https://i.postimg.cc/mcKVNbH0/images19-png.png" alt="Робота 19"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/zL4pSJh5/images20-png.png', this)"><img src="https://i.postimg.cc/zL4pSJh5/images20-png.png" alt="Робота 20"><span data-i18n="choose_btn">Обрати</span></div>
-                        <div class="haircut-carousel-item" onclick="selectHaircutReference('https://i.postimg.cc/DJs6xtQV/images21-png.png', this)"><img src="https://i.postimg.cc/DJs6xtQV/images21-png.png" alt="Робота 21"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('1_20261005_205818_0000.png', this)"><img src="1_20261005_205818_0000.png" alt="Робота 1"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('2_20261005_205818_0001.png', this)"><img src="2_20261005_205818_0001.png" alt="Робота 2"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('3_20261005_205818_0002.png', this)"><img src="3_20261005_205818_0002.png" alt="Робота 3"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('4_20261005_205818_0003.png', this)"><img src="4_20261005_205818_0003.png" alt="Робота 4"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('5_20261005_205818_0004.png', this)"><img src="5_20261005_205818_0004.png" alt="Робота 5"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('6_20261005_205818_0005.png', this)"><img src="6_20261005_205818_0005.png" alt="Робота 6"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('7_20261005_205818_0006.png', this)"><img src="7_20261005_205818_0006.png" alt="Робота 7"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('8_20261005_205818_0007.png', this)"><img src="8_20261005_205818_0007.png" alt="Робота 8"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('9_20261005_205818_0008.png', this)"><img src="9_20261005_205818_0008.png" alt="Робота 9"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('10_20261005_205818_0009.png', this)"><img src="10_20261005_205818_0009.png" alt="Робота 10"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('11_20261005_205818_0010.png', this)"><img src="11_20261005_205818_0010.png" alt="Робота 11"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('12_20261005_205818_0011.png', this)"><img src="12_20261005_205818_0011.png" alt="Робота 12"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('13_20261005_205818_0012.png', this)"><img src="13_20261005_205818_0012.png" alt="Робота 13"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('14_20261005_205818_0013.png', this)"><img src="14_20261005_205818_0013.png" alt="Робота 14"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('15_20261005_205818_0014.png', this)"><img src="15_20261005_205818_0014.png" alt="Робота 15"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('16_20261005_205818_0015.png', this)"><img src="16_20261005_205818_0015.png" alt="Робота 16"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('17_20261005_205818_0016.png', this)"><img src="17_20261005_205818_0016.png" alt="Робота 17"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('18_20261005_205818_0017.png', this)"><img src="18_20261005_205818_0017.png" alt="Робота 18"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('19_20261005_205818_0018.png', this)"><img src="19_20261005_205818_0018.png" alt="Робота 19"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('20_20261005_205818_0019.png', this)"><img src="20_20261005_205818_0019.png" alt="Робота 20"><span data-i18n="choose_btn">Обрати</span></div>
+                        <div class="haircut-carousel-item" onclick="selectHaircutReference('21_20261005_205818_0020.png', this)"><img src="21_20261005_205818_0020.png" alt="Робота 21"><span data-i18n="choose_btn">Обрати</span></div>
                     </div>
                     <div id="selectedRefNotice" style="font-size: 10px; color: var(--accent); margin-top: 6px; font-weight: 700; display: none;" data-i18n="ref_selected_notice">
                         ✓ Обрано фото-референс із портфоліо!
@@ -189,42 +189,42 @@
             </div>
         </div>
 
-        <!-- TAB: WORKS -->
+        <!-- TAB: WORKS (Приклади робіт з локальними файлами) -->
         <div id="paneWorks" class="section-pane">
             <div class="form-card" style="gap: 16px;">
-                <label class="field-label" style="text-align: center;">✨ Портфоліо та приклади робіт (гортайте вбік)</label>
+                <label class="field-label" style="text-align: center;">✨ Приклади робіт (гортайте вбік)</label>
                 
                 <div class="works-carousel">
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/yJDvZJkZ/images1-png.png')"><img src="https://i.postimg.cc/yJDvZJkZ/images1-png.png" alt="Робота 1"></div>
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/v1CXLQnw/images2-png.png')"><img src="https://i.postimg.cc/v1CXLQnw/images2-png.png" alt="Робота 2"></div>
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/BLDpmd54/images3-png.png')"><img src="https://i.postimg.cc/BLDpmd54/images3-png.png" alt="Робота 3"></div>
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/9RTbLvP0/images4-png.png')"><img src="https://i.postimg.cc/9RTbLvP0/images4-png.png" alt="Робота 4"></div>
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/8JW4Zqd7/images5-png.png')"><img src="https://i.postimg.cc/8JW4Zqd7/images5-png.png" alt="Робота 5"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('1_20261005_205818_0000.png')"><img src="1_20261005_205818_0000.png" alt="Приклад 1"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('2_20261005_205818_0001.png')"><img src="2_20261005_205818_0001.png" alt="Приклад 2"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('3_20261005_205818_0002.png')"><img src="3_20261005_205818_0002.png" alt="Приклад 3"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('4_20261005_205818_0003.png')"><img src="4_20261005_205818_0003.png" alt="Приклад 4"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('5_20261005_205818_0004.png')"><img src="5_20261005_205818_0004.png" alt="Приклад 5"></div>
                 </div>
 
                 <div class="works-carousel">
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/S28dgwLj/images6-png.png')"><img src="https://i.postimg.cc/S28dgwLj/images6-png.png" alt="Робота 6"></div>
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/7G79Kp12/images7-png.png')"><img src="https://i.postimg.cc/7G79Kp12/images7-png.png" alt="Робота 7"></div>
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/ph8CsgQz/images8-png.png')"><img src="https://i.postimg.cc/ph8CsgQz/images8-png.png" alt="Робота 8"></div>
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/Hc5z6f0b/images9-png.png')"><img src="https://i.postimg.cc/Hc5z6f0b/images9-png.png" alt="Робота 9"></div>
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/WDdXkDhJ/images10-png.png')"><img src="https://i.postimg.cc/WDdXkDhJ/images10-png.png" alt="Робота 10"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('6_20261005_205818_0005.png')"><img src="6_20261005_205818_0005.png" alt="Приклад 6"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('7_20261005_205818_0006.png')"><img src="7_20261005_205818_0006.png" alt="Приклад 7"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('8_20261005_205818_0007.png')"><img src="8_20261005_205818_0007.png" alt="Приклад 8"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('9_20261005_205818_0008.png')"><img src="9_20261005_205818_0008.png" alt="Приклад 9"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('10_20261005_205818_0009.png')"><img src="10_20261005_205818_0009.png" alt="Приклад 10"></div>
                 </div>
 
                 <div class="works-carousel">
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/f3VB93JY/images11-png.png')"><img src="https://i.postimg.cc/f3VB93JY/images11-png.png" alt="Робота 11"></div>
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/XZrQCZpd/images12-png.png')"><img src="https://i.postimg.cc/XZrQCZpd/images12-png.png" alt="Робота 12"></div>
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/QBF0TBH0/images13-png.png')"><img src="https://i.postimg.cc/QBF0TBH0/images13-png.png" alt="Робота 13"></div>
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/QBF0TBH4/images14-png.png')"><img src="https://i.postimg.cc/QBF0TBH4/images14-png.png" alt="Робота 14"></div>
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/5HDpqxCs/images15-png.png')"><img src="https://i.postimg.cc/5HDpqxCs/images15-png.png" alt="Робота 15"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('11_20261005_205818_0010.png')"><img src="11_20261005_205818_0010.png" alt="Приклад 11"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('12_20261005_205818_0011.png')"><img src="12_20261005_205818_0011.png" alt="Приклад 12"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('13_20261005_205818_0012.png')"><img src="13_20261005_205818_0012.png" alt="Приклад 13"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('14_20261005_205818_0013.png')"><img src="14_20261005_205818_0013.png" alt="Приклад 14"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('15_20261005_205818_0014.png')"><img src="15_20261005_205818_0014.png" alt="Приклад 15"></div>
                 </div>
 
                 <div class="works-carousel">
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/Z9XjFTdf/images16-png.png')"><img src="https://i.postimg.cc/Z9XjFTdf/images16-png.png" alt="Робота 16"></div>
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/f315jw92/images17-png.png')"><img src="https://i.postimg.cc/f315jw92/images17-png.png" alt="Робота 17"></div>
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/7CjXMx2W/images18-png.png')"><img src="https://i.postimg.cc/7CjXMx2W/images18-png.png" alt="Робота 18"></div>
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/mcKVNbH0/images19-png.png')"><img src="https://i.postimg.cc/mcKVNbH0/images19-png.png" alt="Робота 19"></div>
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/zL4pSJh5/images20-png.png')"><img src="https://i.postimg.cc/zL4pSJh5/images20-png.png" alt="Робота 20"></div>
-                    <div class="works-carousel-item" onclick="openLightbox('https://i.postimg.cc/DJs6xtQV/images21-png.png')"><img src="https://i.postimg.cc/DJs6xtQV/images21-png.png" alt="Робота 21"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('16_20261005_205818_0015.png')"><img src="16_20261005_205818_0015.png" alt="Приклад 16"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('17_20261005_205818_0016.png')"><img src="17_20261005_205818_0016.png" alt="Приклад 17"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('18_20261005_205818_0017.png')"><img src="18_20261005_205818_0017.png" alt="Приклад 18"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('19_20261005_205818_0018.png')"><img src="19_20261005_205818_0018.png" alt="Приклад 19"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('20_20261005_205818_0019.png')"><img src="20_20261005_205818_0019.png" alt="Приклад 20"></div>
+                    <div class="works-carousel-item" onclick="openLightbox('21_20261005_205818_0020.png')"><img src="21_20261005_205818_0020.png" alt="Приклад 21"></div>
                 </div>
             </div>
         </div>
@@ -257,6 +257,6 @@
         <img id="lightboxImage" src="" alt="Збільшене фото">
     </div>
 
-    <script src="app.js?v=4.7"></script>
+    <script src="app.js?v=4.9"></script>
 </body>
 </html>
