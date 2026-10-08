@@ -26,7 +26,6 @@
         }
         .app-drawer.open { left: 0; }
         
-        /* Примусове розблокування кліків на всіх кнопках та інтерактивних елементах */
         button, input, select, .control-btn, .btn-main, .drawer-item, .cal-day {
             position: relative;
             z-index: 10;
@@ -189,6 +188,15 @@
 
     </div>
 
+    <!-- Модальне вікно для нового запису -->
+    <div id="bookingModalPopup" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:99999; justify-content:center; align-items:center; padding:20px;">
+        <div style="background:var(--card-bg); border:1px solid var(--accent); border-radius:14px; padding:18px; width:100%; max-width:340px; max-height:85vh; overflow-y:auto; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
+            <h3 style="font-family:'Syne',sans-serif; font-size:14px; color:var(--accent); margin-bottom:10px;">✨ Новий запис клієнта</h3>
+            <div id="modalBookingDetails" style="font-size:11px; line-height:1.6; color:var(--text-main); margin-bottom:14px;"></div>
+            <button class="btn-main" onclick="closeBookingModal()">Зрозуміло / Закрити</button>
+        </div>
+    </div>
+
     <script src="app.js"></script>
     <script>
         function switchMasterSection(sectionId, el) {
@@ -214,19 +222,16 @@
             showMasterDashboard();
         }
 
-        // Функція відтворення аудіосигналу сповіщення (Web Audio API)
         function playNotificationSound() {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
+                if (audioCtx.state === 'suspended') audioCtx.resume();
                 const oscillator = audioCtx.createOscillator();
                 const gainNode = audioCtx.createGain();
                 
                 oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // Нота Ре (D5)
-                oscillator.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15); // Нота Ля (A5)
+                oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+                oscillator.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15);
                 
                 gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
@@ -242,17 +247,49 @@
         let lastKnownBookingsCount = -1;
         let latestBookingDate = null;
 
-        // Клік на банер: відкриває календар і вибирає дату нового запису
-        function handleBannerClick() {
+        // Клік на банер: відкриває окреме модальне вікно з інформацією та перемикає календар
+        async function handleBannerClick() {
             playNotificationSound();
+            try {
+                let res = await fetch('/api/bookings');
+                let books = await res.json() || [];
+                if (books.length > 0) {
+                    let newest = books[books.length - 1];
+                    latestBookingDate = newest.date;
+                    
+                    let detailsEl = document.getElementById('modalBookingDetails');
+                    if (detailsEl) {
+                        let hairImg = newest.hairPhoto ? `<div style="margin-top:6px;"><a href="${newest.hairPhoto}" target="_blank" style="color:var(--accent); font-weight:700;">📸 Переглянути фото волосся</a></div>` : '';
+                        let refImg = newest.refPhoto ? `<div style="margin-top:4px;"><a href="${newest.refPhoto}" target="_blank" style="color:var(--accent); font-weight:700;">🎨 Переглянути референс</a></div>` : '';
+                        
+                        detailsEl.innerHTML = `
+                            <div><b>Ім'я:</b> ${newest.name}</div>
+                            <div><b>Телефон:</b> <a href="tel:${newest.phone}" style="color:var(--accent);">${newest.phone}</a></div>
+                            <div><b>Дата та час:</b> ${newest.date} о ${newest.time}</div>
+                            <div><b>Послуга:</b> ${newest.service}</div>
+                            <div><b>Email:</b> ${newest.email || '—'}</div>
+                            <div><b>Соцмережі:</b> ${newest.social || '—'}</div>
+                            ${hairImg}
+                            ${refImg}
+                        `;
+                    }
+                    let modal = document.getElementById('bookingModalPopup');
+                    if (modal) modal.style.display = 'flex';
+                }
+            } catch(e) {}
+
             switchMasterSection('secCalendar', document.querySelector('.drawer-item'));
             if (latestBookingDate && typeof selectCalendarDate === 'function') {
                 selectCalendarDate(latestBookingDate);
             }
         }
 
+        function closeBookingModal() {
+            let modal = document.getElementById('bookingModalPopup');
+            if (modal) modal.style.display = 'none';
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
-            // Розблокування звуку в мобільних браузерах при першому кліку
             document.body.addEventListener('click', () => {
                 try {
                     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -269,11 +306,6 @@
                     let res = await fetch('/api/bookings');
                     let books = await res.json() || [];
                     
-                    if (books.length > 0) {
-                        let newest = books[books.length - 1];
-                        latestBookingDate = newest.date;
-                    }
-
                     if (lastKnownBookingsCount !== -1 && books.length > lastKnownBookingsCount) {
                         playNotificationSound();
                     }
