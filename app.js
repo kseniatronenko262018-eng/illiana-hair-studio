@@ -21,7 +21,46 @@ const translations = {
         tab_works: "Приклади робіт",
         tab_loc: "Локація",
         profile_sub: "квір хейр стиліст • перукар дніпро",
-        profile_bio: "не відрощуй волосся — відрощуй індивідуальність"
+        profile_bio: "не відрощуй волосся — відрощуй індивідуальність",
+        step1: "1. Оберіть категорію послуг",
+        cut_title: "Стрижка",
+        cut_sub: "1000 ₴ • 1.5 год",
+        color_title: "Фарбування",
+        color_sub: "Підбір за станом",
+        complex_title: "Стрижка + Фарбування коріння",
+        complex_sub: "3000 ₴ • 3 год (до 2 см)",
+        haircut_ref_title: "✨ Оберіть приклад стрижки (натисніть, щоб обрати як референс):",
+        choose_btn: "Обрати",
+        ref_selected_notice: "✓ Обрано фото-референс із портфоліо!",
+        step2: "2. Оберіть ваш поточний стан волосся:",
+        step3: "3. Доступні послуги та довжина:",
+        length_label: "Довжина волосся:",
+        len_shoulders: "До плечей",
+        len_blades: "Від плечей до лопаток",
+        len_below: "Нижче лопаток",
+        rules_title: "📌 Важливі примітки та правила майстра:",
+        rule_1: "Якщо ваше коріння більше 2 см, послуга фарбування вважається первинною.",
+        rule_2: "Я не роблю блонд у техніці (AirTouch, балаяж і т. д.).",
+        rule_3: "Я не роблю вихід із чорного або рудого.",
+        rule_4: "Я не фарбую волосся після біозавивки, ботоксу, кератину.",
+        photo_current_label: "4. Завантажте фото вашого волосся:",
+        photo_ref_label: "5. Завантажте фото-референс:",
+        selected_service_label: "Обрана послуга та час",
+        select_service_placeholder: "Спочатку оберіть категорію вище",
+        date_label: "Дата",
+        name_label: "Ім'я",
+        name_placeholder: "Як звертатись",
+        phone_label: "Телефон",
+        email_label: "Email (обов'язково)",
+        social_label: "Нік / соцмережа",
+        slots_label: "Доступні слоти часу",
+        slot_notice_init: "⚡ <b>Слот заброньовано на:</b> оберіть послугу та час.",
+        deposit_notice: "⚡ <b>Умова броні:</b> Завдаток <b>500 грн</b> підтверджує запис.",
+        pay_btn: "Сплатити завдаток 500 ₴ та забронювати",
+        modal_title: "Публічний договір оферти",
+        modal_btn: "Зрозуміло",
+        loc_info: "📍 <b>Локація:</b> м. Дніпро, вул. Володимира Вернадського, 35-Б.<br><br>Приватний простір, мінімалізм та фокус на якості.",
+        map_btn: "Відкрити в Google Maps"
     }
 };
 
@@ -91,7 +130,7 @@ async function readFileAsBase64(fileInputId) {
     });
 }
 
-// Виправлене завантаження робіт з кабінету на сайт
+// Завантаження та стиснення робіт для галереї
 async function uploadWorkToMainSite() {
     let titleInput = document.getElementById('newWorkTitleInput');
     let title = titleInput ? titleInput.value.trim() : 'Нова робота';
@@ -102,21 +141,43 @@ async function uploadWorkToMainSite() {
         return;
     }
 
+    let file = fileInput.files[0];
     let reader = new FileReader();
-    reader.onload = function(e) {
-        let fileBase64 = e.target.result;
-        let customWorks = JSON.parse(localStorage.getItem('illiana_custom_works') || '[]');
-        customWorks.push({ title: title, url: fileBase64, date: new Date().toISOString() });
-        localStorage.setItem('illiana_custom_works', JSON.stringify(customWorks));
 
-        alert("✨ Робота успішно завантажена на сайт!");
-        if (titleInput) titleInput.value = '';
-        fileInput.value = '';
+    reader.onload = function(e) {
+        let img = new Image();
+        img.src = e.target.result;
+        img.onload = function() {
+            let canvas = document.createElement('canvas');
+            let ctx = canvas.getContext('2d');
+            let MAX_WIDTH = 800;
+            let MAX_HEIGHT = 800;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+                if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+            } else {
+                if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+
+            let compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+
+            let customWorks = JSON.parse(localStorage.getItem('illiana_custom_works') || '[]');
+            customWorks.push({ title: title, url: compressedBase64, date: new Date().toISOString() });
+            localStorage.setItem('illiana_custom_works', JSON.stringify(customWorks));
+
+            alert("✨ Робота успішно завантажена на сайт і з'явиться в галереї!");
+            if (titleInput) titleInput.value = '';
+            fileInput.value = '';
+        };
     };
-    reader.onerror = function() {
-        alert("Помилка читання файлу.");
-    };
-    reader.readAsDataURL(fileInput.files[0]);
+    reader.onerror = function() { alert("Помилка читання файлу зображення."); };
+    reader.readAsDataURL(file);
 }
 
 window.onload = async function() {
@@ -136,7 +197,7 @@ window.onload = async function() {
 
     let today = new Date().toISOString().split('T')[0];
     let dateInput = document.getElementById('clientDate');
-    if (dateInput) { dateInput.value = today; }
+    if (dateInput) dateInput.value = today;
 
     renderTimeSlots();
     loadExpensesFromStorage();
@@ -596,9 +657,13 @@ function updateDashboardStats() {
     let totalExpenses = 0;
     expenses.forEach(e => { totalExpenses += Number(e.amount || 0); });
 
-    document.getElementById('statCompleted').innerText = totalCompleted + ' ₴';
-    document.getElementById('statExpenses').innerText = totalExpenses + ' ₴';
-    document.getElementById('statNetProfit').innerText = (totalCompleted - totalExpenses) + ' ₴';
+    let compEl = document.getElementById('statCompleted');
+    let expEl = document.getElementById('statExpenses');
+    let netEl = document.getElementById('statNetProfit');
+
+    if (compEl) compEl.innerText = totalCompleted + ' ₴';
+    if (expEl) expEl.innerText = totalExpenses + ' ₴';
+    if (netEl) netEl.innerText = (totalCompleted - totalExpenses) + ' ₴';
 }
 
 function exportToExcel() {
@@ -608,7 +673,6 @@ function exportToExcel() {
     XLSX.writeFile(wb, "Illiana_Studio_Bookings.xlsx");
 }
 
-// Функції експорту та імпорту бази клієнтів через Excel
 function exportClientsToExcel() {
     if (regularClientsList.length === 0) { alert("База клієнтів порожня!"); return; }
     let ws = XLSX.utils.json_to_sheet(regularClientsList);
@@ -644,11 +708,10 @@ function importClientsFromExcel(event) {
     reader.readAsArrayBuffer(file);
 }
 
-// Експорт фінансової аналітики у форматі PDF (використовує друк сторінки у PDF)
 function exportFinancesToPDF() {
-    let income = document.getElementById('statCompleted').innerText;
-    let expenses = document.getElementById('statExpenses').innerText;
-    let profit = document.getElementById('statNetProfit').innerText;
+    let income = document.getElementById('statCompleted')?.innerText || '0 ₴';
+    let expenses = document.getElementById('statExpenses')?.innerText || '0 ₴';
+    let profit = document.getElementById('statNetProfit')?.innerText || '0 ₴';
     
     let win = window.open('', '_blank');
     win.document.write(`
@@ -658,7 +721,7 @@ function exportFinancesToPDF() {
             <style>
                 body { font-family: Arial, sans-serif; padding: 20px; color: #111; }
                 h2 { border-bottom: 2px solid #b83232; padding-bottom: 5px; color: #b83232; }
-                .stat { font-size: 16px; margin: 10px 0; }
+                .stat { font-size: 16px; margin: 12px 0; }
             </style>
         </head>
         <body>
@@ -666,7 +729,7 @@ function exportFinancesToPDF() {
             <div class="stat"><b>Загальні доходи:</b> ${income}</div>
             <div class="stat"><b>Загальні витрати:</b> ${expenses}</div>
             <div class="stat"><b>Чистий прибуток:</b> ${profit}</div>
-            <br><p>Дата звіту: ${new Date().toLocaleDateString()}</p>
+            <br><p style="color: #666; font-size: 12px;">Дата формування звіту: ${new Date().toLocaleDateString()}</p>
         </body>
         </html>
     `);
