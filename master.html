@@ -38,6 +38,12 @@
             background: rgba(184, 50, 50, 0.3); border: 1px solid var(--accent);
             padding: 10px; border-radius: 10px; font-size: 10px; color: var(--text-main);
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
+            animation: pulseBanner 1.5s infinite;
+        }
+        @keyframes pulseBanner {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; transform: scale(1.01); }
+            100% { opacity: 0.8; }
         }
     </style>
 </head>
@@ -79,8 +85,9 @@
         <!-- Панель управління CRM -->
         <div id="masterDashboard" style="display: none; flex-direction: column; gap: 12px;">
 
+            <!-- Банер зі звуковим та візуальним сповіщенням -->
             <div id="newBookingAlertBanner" class="notification-banner" style="display: none;">
-                <span id="alertBannerText">🔔 Є нові записи або активні броні!</span>
+                <span id="alertBannerText">🔔 Новий запис!</span>
                 <button class="control-btn" onclick="switchMasterSection('secCalendar', document.querySelector('.drawer-item'))">Переглянути</button>
             </div>
 
@@ -135,7 +142,7 @@
                 <button class="control-btn" onclick="exportFinancesToPDF()" style="margin-top: 6px; width: 100%; border-color: #4ade80; color: #4ade80;">📄 Завантажити звіт у PDF</button>
             </div>
 
-            <!-- 3. БАЗА КЛІЄНТІВ (Імпорт/Експорт Excel + нікнейми) -->
+            <!-- 3. БАЗА КЛІЄНТІВ -->
             <div id="secClients" class="master-section form-card" style="display: none;">
                 <h3 style="font-size: 13px; font-family:'Syne',sans-serif; text-transform:uppercase;">База клієнтів</h3>
                 <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px;">
@@ -192,7 +199,7 @@
             } else { alert("Невірний PIN-код!"); }
         }
 
-        // Звуковий сигнал сповіщення про новий запис
+        // Функція відтворення аудіосигналу сповіщення (Web Audio API)
         function playNotificationSound() {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -200,8 +207,8 @@
                 const gainNode = audioCtx.createGain();
                 
                 oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-                oscillator.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15);
+                oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // Нота Ре (D5)
+                oscillator.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15); // Нота Ля (A5)
                 
                 gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
@@ -214,6 +221,7 @@
             } catch(e) {}
         }
 
+        // Автоматична фонова перевірка нових записів кожні 6 секунд зі звуковим сигналом
         let lastKnownBookingsCount = -1;
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -223,7 +231,7 @@
                     let books = await res.json() || [];
                     
                     if (lastKnownBookingsCount !== -1 && books.length > lastKnownBookingsCount) {
-                        playNotificationSound();
+                        playNotificationSound(); // Грає звук при появі нового запису
                     }
                     lastKnownBookingsCount = books.length;
 
@@ -234,7 +242,7 @@
                         if (bannerText) bannerText.innerText = `🔔 Новий запис! Активних бронювань: ${books.length}`;
                     }
                 } catch(e) {}
-            }, 8000);
+            }, 6000);
         });
     </script>
 </body>
