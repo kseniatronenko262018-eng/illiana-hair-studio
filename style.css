@@ -325,6 +325,7 @@ option { background: #23201e; color: #f5f2ed; }
     padding-bottom: 6px;
 }
 
+/* Слот часу (не заброньований — активний) */
 .time-cell {
     flex: 0 0 65px;
     height: 36px;
@@ -339,6 +340,9 @@ option { background: #23201e; color: #f5f2ed; }
     display: flex;
     align-items: center;
     justify-content: center;
+}
+.time-cell:hover {
+    border-color: var(--accent);
 }
 .time-cell.selected { background: var(--accent); color: var(--accent-invert); border-color: var(--accent); }
 .time-cell.booked { opacity: 0.4; pointer-events: none; background: rgba(184,50,50,0.15); }
@@ -490,32 +494,8 @@ option { background: #23201e; color: #f5f2ed; }
     cursor: pointer;
 }
 
-/* --- ЕФЕКТ ПРУЖИНКИ ТА ПІДСВІТКИ ПРИ НАТИСКАННІ --- */
-button:active, 
-.control-btn:active, 
-.nav-chip:active, 
-.service-card-mini:active, 
-.sub-service-card:active, 
-.time-cell:active, 
-.cal-day:active, 
-.haircut-carousel-item:active, 
-.works-carousel-item:active, 
-.btn-main:active {
-    transform: scale(0.96);
-    filter: brightness(1.15);
-    transition: transform 0.1s ease, filter 0.1s ease;
-}
-
-.control-btn, .nav-chip, .service-card-mini, .sub-service-card, .time-cell, .cal-day, .btn-main {
-    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.control-btn:hover, .nav-chip:hover, .sub-service-card:hover {
-    border-color: var(--accent);
-    box-shadow: 0 0 10px rgba(184, 50, 50, 0.2);
-}
-/* Примусовий ефект натискання та підсвітки для всіх кнопок */
-button, .control-btn, .nav-chip, .service-card-mini, .sub-service-card, .time-cell, .cal-day, .btn-main {
+/* --- ІДЕАЛЬНИЙ ЕФЕКТ ПРУЖИНКИ ТА ПІДСВІТКИ ПРИ НАТИСКАННІ ДЛЯ ВСІХ КНОПОК --- */
+button, .control-btn, .nav-chip, .service-card-mini, .sub-service-card, .time-cell:not(.booked), .cal-day, .haircut-carousel-item, .works-carousel-item, .btn-main {
     transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
     cursor: pointer;
 }
@@ -525,8 +505,10 @@ button:active,
 .nav-chip:active, 
 .service-card-mini:active, 
 .sub-service-card:active, 
-.time-cell:active, 
+.time-cell:not(.booked):active, 
 .cal-day:active, 
+.haircut-carousel-item:active, 
+.works-carousel-item:active, 
 .btn-main:active {
     transform: scale(0.95) !important;
     background-color: var(--accent) !important;
