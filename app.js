@@ -130,6 +130,34 @@ async function readFileAsBase64(fileInputId) {
     });
 }
 
+// Завантаження робіт у галерею з кабінету майстра
+async function uploadWorkToMainSite() {
+    let titleInput = document.getElementById('newWorkTitleInput');
+    let title = titleInput ? titleInput.value.trim() : 'Нова робота';
+    
+    let fileInput = document.getElementById('newWorkImageFile');
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        alert("Будь ласка, оберіть фотографію для завантаження!");
+        return;
+    }
+
+    let reader = new FileReader();
+    reader.onload = function(e) {
+        let fileBase64 = e.target.result;
+        let customWorks = JSON.parse(localStorage.getItem('illiana_custom_works') || '[]');
+        customWorks.push({ title: title, url: fileBase64, date: new Date().toISOString() });
+        localStorage.setItem('illiana_custom_works', JSON.stringify(customWorks));
+
+        alert("✨ Робота успішно додана та збережена в галереї!");
+        if (titleInput) titleInput.value = '';
+        fileInput.value = '';
+    };
+    reader.onerror = function() {
+        alert("Помилка читання файлу зображення.");
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+}
+
 window.onload = async function() {
     try {
         let resBlocks = await fetch('/api/blocked-days');
@@ -312,7 +340,6 @@ function updateServiceInputText() {
     if (srvInput) srvInput.value = text;
 }
 
-// Рендеринг слотів часу з перевіркою мінімум за 3 години на сьогодні
 function renderTimeSlots() {
     let grid = document.getElementById('timeSlotsGrid');
     if (!grid) return;
@@ -339,12 +366,11 @@ function renderTimeSlots() {
     }
 
     let serviceDuration = selectedServiceObj?.duration || 90;
-    let workStartMinutes = 10 * 60; // 10:00
-    let workEndMinutes = 20 * 60;   // 20:00
+    let workStartMinutes = 10 * 60;
+    let workEndMinutes = 20 * 60;
     let intervalMinutes = 30;
     let slots = [];
 
-    // Поточний час + 3 години запасу для запису день у день
     let currentTotalMinutes = now.getHours() * 60 + now.getMinutes() + 180;
     let maxStartMinutes = workEndMinutes - serviceDuration;
 
@@ -457,8 +483,10 @@ function logoutMaster() {
 }
 
 function showMasterDashboard() {
-    document.getElementById('masterLoginBox').style.display = 'none';
-    document.getElementById('masterDashboard').style.display = 'flex';
+    let loginBox = document.getElementById('masterLoginBox');
+    let dash = document.getElementById('masterDashboard');
+    if (loginBox) loginBox.style.display = 'none';
+    if (dash) dash.style.display = 'flex';
     loadExpensesFromStorage();
     updateDashboardStats();
     renderCalendar();
@@ -472,12 +500,27 @@ function toggleMasterMenu() {
 
 function setCalendarMode(mode) {
     calendarMode = mode;
+    let btnMonth = document.getElementById('btnModeMonth');
+    let btnWeek = document.getElementById('btnModeWeek');
+    
+    if (btnMonth && btnWeek) {
+        if (mode === 'month') {
+            btnMonth.style.borderColor = 'var(--accent)';
+            btnWeek.style.borderColor = 'var(--border)';
+        } else {
+            btnWeek.style.borderColor = 'var(--accent)';
+            btnMonth.style.borderColor = 'var(--border)';
+        }
+    }
     renderCalendar();
 }
 
 function changePeriod(direction) {
-    if (calendarMode === 'month') calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + direction);
-    else calendarCurrentDate.setDate(calendarCurrentDate.getDate() + (direction * 7));
+    if (calendarMode === 'month') {
+        calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + direction);
+    } else {
+        calendarCurrentDate.setDate(calendarCurrentDate.getDate() + (direction * 7));
+    }
     renderCalendar();
 }
 
@@ -490,32 +533,60 @@ function renderCalendar() {
     let month = calendarCurrentDate.getMonth();
     const monthNames = ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"];
     let titleEl = document.getElementById('calendarTitle');
-    if (titleEl) titleEl.innerText = `${monthNames[month]} ${year}`;
+    
+    if (calendarMode === 'month') {
+        if (titleEl) titleEl.innerText = `${monthNames[month]} ${year}`;
+        
+        let gridHtml = '<div class="cal-grid">';
+        ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'].forEach(d => { gridHtml += `<div class="cal-header-day">${d}</div>`; });
 
-    let gridHtml = '<div class="cal-grid">';
-    ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'].forEach(d => { gridHtml += `<div class="cal-header-day">${d}</div>`; });
+        let firstDayIndex = new Date(year, month, 1).getDay();
+        let shift = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
+        let totalDays = new Date(year, month + 1, 0).getDate();
 
-    let firstDayIndex = new Date(year, month, 1).getDay();
-    let shift = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
-    let totalDays = new Date(year, month + 1, 0).getDate();
+        for (let i = 0; i < shift; i++) { gridHtml += `<div></div>`; }
 
-    for (let i = 0; i < shift; i++) { gridHtml += `<div></div>`; }
+        for (let d = 1; d <= totalDays; d++) {
+            let dStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            let isBlocked = serverBlockedDays.includes(dStr);
+            let hasBooking = serverBookingsList.some(b => b.date === dStr);
+            let isSelected = (dStr === selectedCalendarDateStr);
 
-    for (let d = 1; d <= totalDays; d++) {
-        let dStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-        let isBlocked = serverBlockedDays.includes(dStr);
-        let hasBooking = serverBookingsList.some(b => b.date === dStr);
-        let isSelected = (dStr === selectedCalendarDateStr);
+            let cls = 'cal-day';
+            if (isBlocked) cls += ' day-blocked';
+            if (hasBooking) cls += ' active-booking';
+            if (isSelected) cls += ' selected-day';
 
-        let cls = 'cal-day';
-        if (isBlocked) cls += ' day-blocked';
-        if (hasBooking) cls += ' active-booking';
-        if (isSelected) cls += ' style="border-color: var(--accent); background: rgba(184,50,50,0.2);"';
+            gridHtml += `<div class="${cls}" onclick="selectCalendarDate('${dStr}')"><span>${d}</span>${hasBooking ? '<div class="dot"></div>' : ''}</div>`;
+        }
+        gridHtml += '</div>';
+        container.innerHTML = gridHtml;
+    } else {
+        // Режим тижня
+        if (titleEl) titleEl.innerText = `Тиждень від ${calendarCurrentDate.toLocaleDateString()}`;
+        let gridHtml = '<div class="cal-grid" style="grid-template-columns: repeat(7, 1fr);">';
+        
+        let curr = new Date(calendarCurrentDate);
+        let firstDayOfWeek = curr.getDate() - curr.getDay() + (curr.getDay() === 0 ? -6 : 1);
+        let weekDaysArr = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
 
-        gridHtml += `<div class="${cls}" onclick="selectCalendarDate('${dStr}')"><span>${d}</span>${hasBooking ? '<div class="dot"></div>' : ''}</div>`;
+        weekDaysArr.forEach((dayName, idx) => {
+            let dayDate = new Date(curr.setDate(firstDayOfWeek + idx));
+            let dStr = dayDate.toISOString().split('T')[0];
+            let isBlocked = serverBlockedDays.includes(dStr);
+            let hasBooking = serverBookingsList.some(b => b.date === dStr);
+            let isSelected = (dStr === selectedCalendarDateStr);
+
+            let cls = 'cal-day';
+            if (isBlocked) cls += ' day-blocked';
+            if (hasBooking) cls += ' active-booking';
+            if (isSelected) cls += ' selected-day';
+
+            gridHtml += `<div class="${cls}" onclick="selectCalendarDate('${dStr}')"><span style="font-size:8px;">${dayName}</span><span style="font-size:11px;">${dayDate.getDate()}</span>${hasBooking ? '<div class="dot"></div>' : ''}</div>`;
+        });
+        gridHtml += '</div>';
+        container.innerHTML = gridHtml;
     }
-    gridHtml += '</div>';
-    container.innerHTML = gridHtml;
 }
 
 function selectCalendarDate(dateStr) {
