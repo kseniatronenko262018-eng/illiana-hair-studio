@@ -325,7 +325,6 @@ option { background: #23201e; color: #f5f2ed; }
     box-shadow: 0 0 10px rgba(184, 50, 50, 0.4);
 }
 
-/* Карусель для прикладів робіт */
 .works-carousel {
     display: flex;
     gap: 10px;
@@ -418,7 +417,6 @@ option { background: #23201e; color: #f5f2ed; }
     }
 }
 
-/* Горизонтальна рулетка часу */
 .time-grid { 
     display: flex !important; 
     flex-direction: row !important;
@@ -464,7 +462,6 @@ option { background: #23201e; color: #f5f2ed; }
     border-color: var(--accent); 
 }
 
-/* Зменшений текст для статусів слота та правил */
 .notice-badge, .policy-highlight-card {
     font-size: 9px !important;
     line-height: 1.35;
@@ -531,14 +528,13 @@ option { background: #23201e; color: #f5f2ed; }
     margin-top: 10px;
 }
 
-/* Модальне вікно оферти */
 #offerModal {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100vw; height: 100vh;
     background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(8px);
-    z-index: 5000;
+    z-index: 99999;
     padding: 15px;
     justify-content: center;
     align-items: center;
@@ -573,7 +569,6 @@ option { background: #23201e; color: #f5f2ed; }
 }
 .offer-text-content b { color: var(--text-main); }
 
-/* ЛАЙТБОКС */
 #imageLightboxModal {
     display: none;
     position: fixed;
