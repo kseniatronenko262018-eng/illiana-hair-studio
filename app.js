@@ -2,7 +2,7 @@
 let currentLang = 'ua';
 let currentTheme = 'light';
 let selectedMainCat = null;
-let selectedBaseCondition = null; // 'natural' або 'colored'
+let selectedBaseCondition = null;
 let selectedSubItem = null;
 let selectedServiceObj = null;
 let selectedTimeSlot = null;
@@ -16,107 +16,41 @@ let serverBlockedDays = [];
 let serverBookingsList = [];
 let regularClientsList = [];
 
-// Повний словник для перекладу UA / EN
-const translations = {
-    ua: {
-        tab_book: "Запис",
-        tab_works: "Приклади робіт",
-        tab_loc: "Локація",
-        profile_sub: "квір хейр стиліст • перукар дніпро",
-        profile_bio: "не відрощуй волосся — відрощуй індивідуальність",
-        step1: "1. Оберіть категорію послуг",
-        cut_title: "Стрижка",
-        cut_sub: "1000 ₴ • 1.5 год",
-        color_title: "Фарбування",
-        color_sub: "Підбір за станом",
-        complex_title: "Стрижка + Фарбування коріння",
-        complex_sub: "3000 ₴ • 3 год (до 2 см)",
-        haircut_ref_title: "✨ Оберіть приклад стрижки (натисніть, щоб обрати як референс):",
-        choose_btn: "Обрати",
-        ref_selected_notice: "✓ Обрано фото-референс із портфоліо!",
-        step2: "2. Історія фарбування волосся:",
-        step_len: "Довжина волосся:",
-        step3: "3. Доступні послуги:",
-        length_label: "Довжина волосся:",
-        len_shoulders: "До плечей",
-        len_blades: "Від плечей до лопаток",
-        len_below: "Нижче лопаток",
-        rules_title: "📌 Важливі примітки та правила майстра:",
-        rule_1: "Якщо ваше коріння більше 2 см, послуга фарбування вважається первинною відповідно до довжини відрослого волосся.",
-        rule_2: "Я не роблю блонд у техніці (AirTouch, балаяж і т. д.).",
-        rule_3: "Я не роблю вихід із чорного або рудого.",
-        rule_4: "Я не фарбую волосся після біозавивки, ботоксу, кератину.",
-        rule_5: "Якщо не знайшли підходящого варіанту — напишіть мені в дірект для консультації.",
-        photo_current_label: "4. Завантажте фото вашого волосся:",
-        photo_ref_label: "5. Завантажте фото-референс або оберіть з портфоліо вище:",
-        selected_service_label: "Обрана послуга та час",
-        select_service_placeholder: "Спочатку оберіть категорію вище",
-        date_label: "Дата",
-        name_label: "Ім'я",
-        name_placeholder: "Як звертатись",
-        phone_label: "Телефон",
-        email_label: "Email (обов'язково)",
-        social_label: "Нік / соцмережа",
-        slots_label: "Доступні слоти часу (реальний час)",
-        slot_notice_init: "⚡ <b>Слот заброньовано на:</b> оберіть послугу та час.",
-        deposit_notice: "⚡ <b>Умова броні:</b> Завдаток <b>500 грн</b> підтверджує запис.",
-        policy_text: "⚠️ <b>Правила скасування:</b> Зміна або скасування можливі не пізніш ніж за 48 годин.<br>📄 Оформлюючи запис, ви погоджуєтесь із умовами <a href=\"javascript:void(0)\" onclick=\"openOffer()\">Публічного договору оферти</a>.",
-        pay_btn: "Сплатити завдаток 500 ₴ та забронювати",
-        modal_title: "Публічний договір оферти",
-        modal_btn: "Зрозуміло",
-        loc_info: "📍 <b>Локація:</b> м. Дніпро, вул. Володимира Вернадського, 35-Б.<br><br>Приватний простір, мінімалізм та фокус на якості.",
-        map_btn: "Відкрити в Google Maps"
-    },
-    en: {
-        tab_book: "Booking",
-        tab_works: "Works",
-        tab_loc: "Location",
-        profile_sub: "queer hair stylist • dnipro hairdresser",
-        profile_bio: "don't grow your hair — grow your individuality",
-        step1: "1. Select service category",
-        cut_title: "Haircut",
-        cut_sub: "1000 UAH • 1.5 hrs",
-        color_title: "Coloring",
-        color_sub: "Consultation based",
-        complex_title: "Haircut + Root Coloring",
-        complex_sub: "3000 UAH • 3 hrs (up to 2 cm)",
-        haircut_ref_title: "✨ Select a haircut example (click to choose as reference):",
-        choose_btn: "Select",
-        ref_selected_notice: "✓ Reference photo selected from portfolio!",
-        step2: "2. Hair coloring history:",
-        step_len: "Hair length:",
-        step3: "3. Available services:",
-        length_label: "Hair length:",
-        len_shoulders: "Shoulder length",
-        len_blades: "Shoulder to blades",
-        len_below: "Below blades",
-        rules_title: "📌 Important notes & master's rules:",
-        rule_1: "If your roots are more than 2 cm, coloring is considered primary based on regrown length.",
-        rule_2: "I do not do blonding techniques (AirTouch, balayage, etc.).",
-        rule_3: "I do not transition clients out of black or red hair.",
-        rule_4: "I do not dye hair after bio-perm, botox, or keratin treatments.",
-        rule_5: "If you didn't find a suitable option — message me on direct for consultation.",
-        photo_current_label: "4. Upload a photo of your hair:",
-        photo_ref_label: "5. Upload a reference photo or pick from archive above:",
-        selected_service_label: "Selected service & time",
-        select_service_placeholder: "First select a category above",
-        date_label: "Date",
-        name_label: "Name",
-        name_placeholder: "How to address you",
-        phone_label: "Phone",
-        email_label: "Email (required)",
-        social_label: "Social / Nickname",
-        slots_label: "Available time slots (real time)",
-        slot_notice_init: "⚡ <b>Slot status:</b> select service and time.",
-        deposit_notice: "⚡ <b>Deposit rule:</b> <b>500 UAH</b> deposit confirms booking.",
-        policy_text: "⚠️ <b>Cancellation policy:</b> Changes or cancellations are allowed up to 48 hours in advance.<br>📄 By booking, you agree to the terms of the <a href=\"javascript:void(0)\" onclick=\"openOffer()\">Public Offer Agreement</a>.",
-        pay_btn: "Pay deposit 500 UAH & Book",
-        modal_title: "Public Offer Agreement",
-        modal_btn: "Understood",
-        loc_info: "📍 <b>Location:</b> Dnipro, Volodymyra Vernadskoho St, 35-Б.<br><br>Private space, minimalism and focus on quality.",
-        map_btn: "Open in Google Maps"
+// --- ЛОГІКА ВХОДУ В КАБІНЕТ МАЙСТРА ---
+function loginMaster() {
+    const pinInput = document.getElementById('masterPinInput');
+    const pin = pinInput ? pinInput.value.trim() : '';
+    
+    if (pin === '1988') {
+        localStorage.setItem('illiana_master_logged', 'true');
+        showMasterDashboard();
+    } else {
+        alert("Невірний PIN-код! Спробуйте ще раз (за замовчуванням: 1988).");
     }
-};
+}
+
+function forceBypassPin() {
+    localStorage.setItem('illiana_master_logged', 'true');
+    showMasterDashboard();
+}
+
+function logoutMaster() {
+    localStorage.removeItem('illiana_master_logged');
+    location.reload();
+}
+
+function showMasterDashboard() {
+    const loginBox = document.getElementById('masterLoginBox');
+    const dashboard = document.getElementById('masterDashboard');
+    if (loginBox) loginBox.style.display = 'none';
+    if (dashboard) dashboard.style.display = 'flex';
+    
+    loadExpensesFromStorage();
+    updateDashboardStats();
+    renderCalendar();
+    renderDayBookings(selectedCalendarDateStr);
+    renderRegularClientsList();
+}
 
 // Модальні вікна та галерея
 function openOffer() {
@@ -185,6 +119,13 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
     }
+
+    // Перевірка чи відкрита сторінка кабінету майстра і чи був вхід
+    if (document.getElementById('masterDashboard')) {
+        if (localStorage.getItem('illiana_master_logged') === 'true') {
+            showMasterDashboard();
+        }
+    }
 });
 
 async function syncServerData() {
@@ -228,65 +169,192 @@ window.onload = async function() {
     if (bgImgEl && savedBg) bgImgEl.src = savedBg;
 };
 
-function toggleLang() {
-    currentLang = currentLang === 'ua' ? 'en' : 'ua';
-    const langBtn = document.getElementById('langToggle');
-    if (langBtn) langBtn.innerText = currentLang.toUpperCase() + ' / ' + (currentLang === 'ua' ? 'EN' : 'UA');
+// --- КАЛЕНДАР ТА УПРАВЛІННЯ ДНЯМИ В CRM ---
+function setCalendarMode(mode) {
+    calendarMode = mode;
+    document.getElementById('btnModeMonth').style.borderColor = (mode === 'month') ? 'var(--accent)' : 'var(--border)';
+    document.getElementById('btnModeWeek').style.borderColor = (mode === 'week') ? 'var(--accent)' : 'var(--border)';
+    renderCalendar();
+}
 
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        let key = el.getAttribute('data-i18n');
-        if (translations[currentLang][key]) {
-            el.innerText = translations[currentLang][key];
-        }
-    });
-
-    document.querySelectorAll('[data-i18n-html]').forEach(el => {
-        let key = el.getAttribute('data-i18n-html');
-        if (translations[currentLang][key]) {
-            el.innerHTML = translations[currentLang][key];
-        }
-    });
-
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-        let key = el.getAttribute('data-i18n-placeholder');
-        if (translations[currentLang][key]) {
-            el.setAttribute('placeholder', translations[currentLang][key]);
-        }
-    });
-
-    if (selectedMainCat === 'color') {
-        renderColorBaseSelection();
+function changePeriod(direction) {
+    if (calendarMode === 'month') {
+        calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + direction);
+    } else {
+        calendarCurrentDate.setDate(calendarCurrentDate.getDate() + (direction * 7));
     }
+    renderCalendar();
 }
 
-function toggleTheme() {
-    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', currentTheme);
-    const themeBtn = document.getElementById('themeToggle');
-    if (themeBtn) themeBtn.innerText = currentTheme === 'dark' ? '☀️ / 🌙' : '🌙 / ☀️';
+function renderCalendar() {
+    const container = document.getElementById('calendarGridContainer');
+    const titleEl = document.getElementById('calendarTitle');
+    if (!container) return;
+    container.innerHTML = '';
+
+    let year = calendarCurrentDate.getFullYear();
+    let month = calendarCurrentDate.getMonth();
+
+    const monthNames = ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"];
+    if (titleEl) titleEl.innerText = `${monthNames[month]} ${year}`;
+
+    let gridHtml = '<div class="cal-grid">';
+    let daysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
+    daysOfWeek.forEach(d => { gridHtml += `<div class="cal-header-day">${d}</div>`; });
+
+    let firstDayIndex = new Date(year, month, 1).getDay();
+    let shift = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
+    let totalDays = new Date(year, month + 1, 0).getDate();
+
+    for (let i = 0; i < shift; i++) {
+        gridHtml += `<div></div>`;
+    }
+
+    for (let d = 1; d <= totalDays; d++) {
+        let dStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        let isBlocked = serverBlockedDays.includes(dStr);
+        let hasBooking = serverBookingsList.some(b => b.date === dStr);
+        let isSelected = (dStr === selectedCalendarDateStr);
+
+        let cls = 'cal-day';
+        if (isBlocked) cls += ' day-blocked';
+        if (hasBooking) cls += ' active-booking';
+        if (isSelected) cls += ' style="border-color: var(--accent); background: rgba(184,50,50,0.2);"';
+
+        gridHtml += `
+            <div class="${cls}" onclick="selectCalendarDate('${dStr}')">
+                <span>${d}</span>
+                ${hasBooking ? '<div class="dot"></div>' : ''}
+            </div>
+        `;
+    }
+    gridHtml += '</div>';
+    container.innerHTML = gridHtml;
 }
 
-function switchTab(tabName, el) {
-    document.querySelectorAll('.section-pane').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.quick-nav .nav-chip').forEach(c => c.classList.remove('active'));
+function selectCalendarDate(dateStr) {
+    selectedCalendarDateStr = dateStr;
+    document.getElementById('selectedDateLabel').innerText = `Записи на обраний день (${dateStr}):`;
+    renderCalendar();
+    renderDayBookings(dateStr);
     
-    if (tabName === 'book') {
-        let pane = document.getElementById('paneBook');
-        if (pane) pane.classList.add('active');
+    let btn = document.getElementById('blockDayBtn');
+    if (btn) {
+        if (serverBlockedDays.includes(dateStr)) {
+            btn.innerText = `🔓 Розблокувати день (${dateStr})`;
+        } else {
+            btn.innerText = `🔒 Заблокувати день (${dateStr}) вихідний`;
+        }
     }
-    if (tabName === 'works') {
-        let pane = document.getElementById('paneWorks');
-        if (pane) pane.classList.add('active');
-    }
-    if (tabName === 'loc') {
-        let pane = document.getElementById('paneLoc');
-        if (pane) pane.classList.add('active');
-    }
-    
-    if (el) el.classList.add('active');
 }
 
-// Оновлена логіка дашборду фінансів (Тиждень, Місяць, Рік)
+async function toggleBlockSelectedDate() {
+    let pin = prompt("Введіть PIN-код майстра для зміни статусу дня (за замовчуванням 1988):");
+    if (pin !== '1988') { alert("Невірний PIN-код!"); return; }
+
+    let isBlocked = serverBlockedDays.includes(selectedCalendarDateStr);
+    let endpoint = isBlocked ? '/api/unblock-day' : '/api/block-day';
+
+    try {
+        let res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ date: selectedCalendarDateStr, password: pin })
+        });
+        let data = await res.json();
+        if (data.success) {
+            serverBlockedDays = data.blockedDays || [];
+            selectCalendarDate(selectedCalendarDateStr);
+        } else {
+            alert(data.error || "Помилка");
+        }
+    } catch (e) {
+        alert("Помилка з'єднання з сервером");
+    }
+}
+
+function renderDayBookings(dateStr) {
+    const container = document.getElementById('dayBookingsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    let filtered = serverBookingsList.filter(b => b.date === dateStr);
+    if (filtered.length === 0) {
+        container.innerHTML = `<div style="font-size:10px; color:var(--text-muted);">На цей день немає записів.</div>`;
+        return;
+    }
+
+    filtered.forEach(b => {
+        container.innerHTML += `
+            <div class="booking-item">
+                <div><b>⏰ ${b.time}</b> — ${b.name} (${b.phone})</div>
+                <div style="font-size:9px; color:var(--accent);">Послуга: ${b.service}</div>
+                <div style="font-size:9px;">Email: ${b.email} | Соцмережі: ${b.social || 'не вказано'}</div>
+                <div style="display: flex; gap: 6px; margin-top: 4px;">
+                    ${b.hairPhoto ? `<img src="${b.hairPhoto}" class="photo-thumb" onclick="openLightbox('${b.hairPhoto}')" title="Фото волосся">` : ''}
+                    ${b.refPhoto ? `<img src="${b.refPhoto}" class="photo-thumb" onclick="openLightbox('${b.refPhoto}')" title="Референс">` : ''}
+                </div>
+            </div>
+        `;
+    });
+}
+
+// --- УПРАВЛІННЯ ВИТРАТАМИ ТА ДАШБОРДОМ ---
+function addExpense() {
+    let nameInput = document.getElementById('expenseNameInput');
+    let amountInput = document.getElementById('expenseAmountInput');
+    let name = nameInput ? nameInput.value.trim() : '';
+    let amount = amountInput ? parseFloat(amountInput.value) : 0;
+
+    if (!name || isNaN(amount) || amount <= 0) {
+        alert("Введіть коректну назву витрати та суму!");
+        return;
+    }
+
+    let expenses = JSON.parse(localStorage.getItem('illiana_expenses') || '[]');
+    expenses.push({ id: 'e_' + Date.now(), name, amount, date: new Date().toISOString() });
+    localStorage.setItem('illiana_expenses', JSON.stringify(expenses));
+
+    if (nameInput) nameInput.value = '';
+    if (amountInput) amountInput.value = '';
+
+    loadExpensesFromStorage();
+    updateDashboardStats();
+}
+
+function loadExpensesFromStorage() {
+    let container = document.getElementById('expensesListContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    let expenses = JSON.parse(localStorage.getItem('illiana_expenses') || '[]');
+    if (expenses.length === 0) {
+        container.innerHTML = `<div style="font-size:9px; color:var(--text-muted);">Немає доданих витрат.</div>`;
+        return;
+    }
+
+    expenses.forEach((e, index) => {
+        container.innerHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 6px 8px; border-radius: 6px; font-size: 10px;">
+                <span><b>${e.name}</b>: ${e.amount} ₴</span>
+                <button class="danger-btn" onclick="deleteExpense(${index})">Видалити</button>
+            </div>
+        `;
+    });
+}
+
+function deleteExpense(index) {
+    let expenses = JSON.parse(localStorage.getItem('illiana_expenses') || '[]');
+    expenses.splice(index, 1);
+    localStorage.setItem('illiana_expenses', JSON.stringify(expenses));
+    loadExpensesFromStorage();
+    updateDashboardStats();
+}
+
+function onStatsMonthChange() {
+    updateDashboardStats();
+}
+
 function updateDashboardStats() {
     let periodSelect = document.getElementById('dashboardPeriodSelect');
     let period = periodSelect ? periodSelect.value : 'month';
@@ -360,4 +428,92 @@ function updateDashboardStats() {
     if (compEl) compEl.innerText = totalCompleted + ' ₴';
     if (expEl) expEl.innerText = totalExpenses + ' ₴';
     if (netEl) netEl.innerText = netProfit + ' ₴';
+}
+
+function exportToExcel() {
+    let ws = XLSX.utils.json_to_sheet(serverBookingsList);
+    let wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Записи");
+    XLSX.writeFile(wb, "Illiana_Studio_Bookings.xlsx");
+}
+
+function updateStudioBackground() {
+    let url = prompt("Введіть пряме посилання на нове фонове зображення:");
+    if (url) {
+        localStorage.setItem('illiana_custom_bg', url);
+        let bgImgEl = document.getElementById('bgImageElement');
+        if (bgImgEl) bgImgEl.src = url;
+        alert("Фон успішно змінено!");
+    }
+}
+
+function resetStudioBackground() {
+    localStorage.removeItem('illiana_custom_bg');
+    let bgImgEl = document.getElementById('bgImageElement');
+    if (bgImgEl) bgImgEl.src = "https://i.ibb.co/M5stSykh/photo-2026-09-30-14-50-24.jpg";
+    alert("Фон скинуто до стандартного!");
+}
+
+function renderRegularClientsList() {
+    const container = document.getElementById('regularClientsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    regularClientsList.forEach((c, idx) => {
+        container.innerHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 4px 8px; border-radius: 4px; font-size: 9px;">
+                <span>${c.name} (${c.phone})</span>
+                <button class="danger-btn" onclick="deleteRegularClient(${idx})" style="font-size:7px; padding:2px 4px;">Видалити</button>
+            </div>
+        `;
+    });
+}
+
+function addRegularClientManual() {
+    let nameInput = document.getElementById('regClientName');
+    let phoneInput = document.getElementById('regClientPhone');
+    let name = nameInput ? nameInput.value.trim() : '';
+    let phone = phoneInput ? phoneInput.value.trim() : '';
+
+    if (!name || !phone) { alert("Введіть ім'я та телефон клієнта!"); return; }
+
+    regularClientsList.push({ name, phone });
+    localStorage.setItem('illiana_regular_clients', JSON.stringify(regularClientsList));
+    if (nameInput) nameInput.value = '';
+    if (phoneInput) phoneInput.value = '';
+    renderRegularClientsList();
+    alert("Клієнта додано до бази постійних!");
+}
+
+function deleteRegularClient(index) {
+    regularClientsList.splice(index, 1);
+    localStorage.setItem('illiana_regular_clients', JSON.stringify(regularClientsList));
+    renderRegularClientsList();
+}
+
+function handleExcelImport(event) {
+    let file = event.target.files[0];
+    if (!file) return;
+    let reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            let data = new Uint8Array(e.target.result);
+            let workbook = XLSX.read(data, {type: 'array'});
+            let firstSheet = workbook.SheetNames[0];
+            let rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+            
+            rows.forEach(r => {
+                let name = r.name || r.Ім'я || r.Client || '';
+                let phone = r.phone || r.Телефон || r.Phone || '';
+                if (name && phone) {
+                    regularClientsList.push({ name: String(name), phone: String(phone) });
+                }
+            });
+            localStorage.setItem('illiana_regular_clients', JSON.stringify(regularClientsList));
+            renderRegularClientsList();
+            alert("Базу постійних клієнтів успішно імпортовано з Excel!");
+        } catch(err) {
+            alert("Поשлка читання Excel файлу.");
+        }
+    };
+    reader.readAsArrayBuffer(file);
 }
