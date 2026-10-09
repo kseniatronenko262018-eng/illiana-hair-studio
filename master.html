@@ -8,46 +8,50 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
-        :root {
-            --accent: #d88c9a; /* Ніжний пастельно-рожевий */
-            --accent-invert: #1c1a18;
-            --tg-bg: #161514; /* Глибокий теплий темний фон */
-            --tg-card: #22201e; /* Теплий кремово-сірий відтінок карток */
-            --tg-card-hover: #2e2a27;
-            --tg-border: rgba(226, 215, 204, 0.12); /* М'яка кремова рамка */
-            --tg-text: #f3efe9; /* Теплий світлий текст (кремовий) */
-            --tg-muted: #a69e94; /* Нюдово-сірий приглушений */
+        /* Теми оформлення: Темна та Світла кремова */
+        :root[data-theme="dark"] {
+            --accent: #d88c9a;
+            --accent-invert: #161514;
+            --tg-bg: #161514;
+            --tg-card: rgba(34, 32, 30, 0.92);
+            --tg-card-hover: rgba(46, 42, 39, 0.95);
+            --tg-border: rgba(226, 215, 204, 0.12);
+            --tg-text: #f3efe9;
+            --tg-muted: #a69e94;
+        }
+
+        :root[data-theme="light"] {
+            --accent: #b86b79;
+            --accent-invert: #ffffff;
+            --tg-bg: #e6dfd5;
+            --tg-card: rgba(255, 253, 250, 0.92);
+            --tg-card-hover: rgba(245, 240, 232, 0.95);
+            --tg-border: rgba(0, 0, 0, 0.1);
+            --tg-text: #2c2825;
+            --tg-muted: #756d65;
         }
 
         body {
             background-color: var(--tg-bg) !important;
             color: var(--tg-text) !important;
             padding-bottom: 80px;
+            transition: background 0.3s, color 0.3s;
         }
 
+        /* Фонова картинка з розмиттям та затемненням */
         .master-bg {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: -999; overflow: hidden; background-color: var(--tg-bg);
         }
         .master-bg img {
             width: 100%; height: 100%; object-fit: cover;
-            filter: blur(4px) brightness(0.35) contrast(1.05);
+            filter: blur(5px) brightness(0.4) contrast(1.05);
+            transform: scale(1.05);
+            transition: filter 0.3s;
         }
-
-        .tg-chat-item {
-            background: var(--tg-card);
-            border: 1px solid var(--tg-border);
-            border-radius: 14px;
-            padding: 12px 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
+        [data-theme="light"] .master-bg img {
+            filter: blur(5px) brightness(0.7) contrast(1.05);
         }
-        .tg-chat-item:active { background: var(--tg-card-hover); }
 
         .tg-bottom-nav {
             position: fixed;
@@ -56,7 +60,7 @@
             transform: translateX(-50%);
             width: 92%;
             max-width: 400px;
-            background: rgba(34, 32, 30, 0.88);
+            background: var(--tg-card);
             backdrop-filter: blur(20px);
             border: 1px solid var(--tg-border);
             border-radius: 24px;
@@ -64,7 +68,7 @@
             justify-content: space-around;
             padding: 8px 4px;
             z-index: 9999;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
         .tg-nav-btn {
             background: transparent;
@@ -80,14 +84,13 @@
             text-transform: uppercase;
             flex: 1;
             padding: 4px 0;
+            transition: color 0.2s;
         }
         .tg-nav-btn span.icon { font-size: 16px; }
-        .tg-nav-btn.active {
-            color: var(--accent);
-        }
+        .tg-nav-btn.active { color: var(--accent); }
 
         .tg-search-bar {
-            background: rgba(226, 215, 204, 0.05);
+            background: var(--tg-card-hover);
             border-radius: 20px;
             padding: 8px 14px;
             display: flex;
@@ -112,6 +115,12 @@
             cursor: pointer;
         }
 
+        .master-section {
+            background: var(--tg-card) !important;
+            border-color: var(--tg-border) !important;
+            backdrop-filter: blur(12px);
+        }
+
         .notification-banner {
             background: rgba(216, 140, 154, 0.25); border: 1px solid var(--accent);
             padding: 10px; border-radius: 12px; font-size: 10px; color: var(--tg-text);
@@ -125,10 +134,11 @@
         }
     </style>
 </head>
-<body>
+<body data-theme="dark">
 
+    <!-- Фонова картинка (використовуємо фото майстра як атмосферний фон) -->
     <div class="master-bg">
-        <img src="PXL_20260322_183655575.MP.jpg" alt="Master Background" onerror="this.src='https://i.ibb.co/M5stSykh/photo-2026-09-30-14-50-24.jpg'">
+        <img src="PXL_20241102_164641261.jpg" alt="Master Background" onerror="this.src='https://i.ibb.co/M5stSykh/photo-2026-09-30-14-50-24.jpg'">
     </div>
 
     <div class="mobile-container master-body">
@@ -136,17 +146,17 @@
         <div class="utility-bar" style="margin-bottom: 10px;">
             <div style="display: flex; align-items: center; gap: 8px;">
                 <div style="width: 32px; height: 32px; border-radius: 50%; overflow:hidden; border:1.5px solid var(--accent);">
-                    <img src="avatar.jpg/PXL_20241102_164641261.jpg" style="width:100%; height:100%; object-fit:cover;" alt="Ілляна">
+                    <img src="PXL_20241102_164641261.jpg" style="width:100%; height:100%; object-fit:cover;" alt="Ілляна">
                 </div>
                 <span style="font-family:'Syne',sans-serif; font-size:12px; font-weight:800; color:var(--tg-text);">ЯВІР ІЛЛЯНА // CRM</span>
             </div>
-            <button class="control-btn" onclick="toggleTheme()" style="border-radius:50%; width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--tg-card); border-color:var(--tg-border); color:var(--tg-text);">☀️</button>
+            <button class="control-btn" onclick="toggleMasterTheme()" style="border-radius:50%; width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--tg-card); border-color:var(--tg-border); color:var(--tg-text);">☀️/🌙</button>
         </div>
 
         <!-- Екран авторизації -->
-        <div id="masterLoginBox" class="form-card" style="text-align: center; margin-top: 40px; background: var(--tg-card); border-color: var(--tg-border);">
+        <div id="masterLoginBox" class="form-card master-section" style="text-align: center; margin-top: 40px;">
             <h2 style="font-family:'Syne',sans-serif; font-size: 16px; margin-bottom: 10px; color:var(--tg-text);">ДОСТУП ДО CRM</h2>
-            <input type="password" id="masterPinInput" class="input-box" placeholder="PIN (1988)" style="text-align: center; margin-bottom: 10px; background: rgba(0,0,0,0.3); border-color:var(--tg-border); color:var(--tg-text);">
+            <input type="password" id="masterPinInput" class="input-box" placeholder="PIN (1988)" style="text-align: center; margin-bottom: 10px; background: rgba(0,0,0,0.1); border-color:var(--tg-border); color:var(--tg-text);">
             <button class="btn-main" onclick="loginMainPin()">Увійти</button>
             <button class="control-btn" onclick="forceBypassPin()" style="margin-top: 8px; width: 100%; background:var(--tg-card-hover); border-color:var(--tg-border); color:var(--tg-text);">Швидкий вхід</button>
         </div>
@@ -160,14 +170,26 @@
                 <button class="control-btn" onclick="handleBannerClick()" style="background:var(--tg-card); border-color:var(--accent); color:var(--tg-text);">Переглянути</button>
             </div>
 
-            <!-- Рядок пошуку -->
+            <!-- Робочий рядок пошуку по записах та клієнтах -->
             <div class="tg-search-bar">
                 <span>🔍</span>
-                <input type="text" id="crmSearchInput" placeholder="Пошук записів, клієнтів, послуг..." oninput="filterCrmData(this.value)">
+                <input type="text" id="crmSearchInput" placeholder="Пошук клієнта, послуги або телефону..." oninput="filterCrmBookings(this.value)">
+            </div>
+
+            <!-- Статистичний міні-віджет -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div class="form-card master-section" style="padding: 10px; text-align: center; margin: 0;">
+                    <div style="font-size: 8px; color: var(--tg-muted);">УСЬОГО ЗАПИСІВ</div>
+                    <div id="totalBookingsCountBadge" style="font-size: 14px; font-weight: 700; font-family:'Syne',sans-serif; color: var(--accent);">0</div>
+                </div>
+                <div class="form-card master-section" style="padding: 10px; text-align: center; margin: 0;">
+                    <div style="font-size: 8px; color: var(--tg-muted);">БАЗА КЛІЄНТІВ</div>
+                    <div id="totalClientsCountBadge" style="font-size: 14px; font-weight: 700; font-family:'Syne',sans-serif; color: var(--accent);">0</div>
+                </div>
             </div>
 
             <!-- 1. КАЛЕНДАР -->
-            <div id="secCalendar" class="master-section form-card" style="background: var(--tg-card); border-color: var(--tg-border);">
+            <div id="secCalendar" class="master-section form-card">
                 <div class="calendar-controls">
                     <button class="control-btn" onclick="changePeriod(-1)" style="background:var(--tg-card-hover); border-color:var(--tg-border);">◀</button>
                     <h3 id="calendarTitle" style="font-size: 12px; font-family:'Syne',sans-serif; color:var(--tg-text);">Місяць</h3>
@@ -186,18 +208,18 @@
             </div>
 
             <!-- 2. ФІНАНСИ -->
-            <div id="secFinances" class="master-section form-card" style="display: none; background: var(--tg-card); border-color: var(--tg-border);">
+            <div id="secFinances" class="master-section form-card" style="display: none;">
                 <h3 style="font-size: 13px; font-family:'Syne',sans-serif; text-transform:uppercase; color:var(--tg-text);">Фінанси та аналітика</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; text-align: center;">
-                    <div style="background:rgba(226,215,204,0.04); padding:8px; border-radius:10px; border:1px solid var(--tg-border);">
+                    <div style="background:var(--tg-card-hover); padding:8px; border-radius:10px; border:1px solid var(--tg-border);">
                         <div style="font-size:8px; color:var(--tg-muted);">ДОХОДИ</div>
                         <div id="statCompleted" style="font-size:11px; font-weight:700; color:var(--tg-text);">0 ₴</div>
                     </div>
-                    <div style="background:rgba(226,215,204,0.04); padding:8px; border-radius:10px; border:1px solid var(--tg-border);">
+                    <div style="background:var(--tg-card-hover); padding:8px; border-radius:10px; border:1px solid var(--tg-border);">
                         <div style="font-size:8px; color:var(--tg-muted);">ВИТРАТИ</div>
                         <div id="statExpenses" style="font-size:11px; font-weight:700; color:var(--accent);">0 ₴</div>
                     </div>
-                    <div style="background:rgba(226,215,204,0.04); padding:8px; border-radius:10px; border:1px solid var(--tg-border);">
+                    <div style="background:var(--tg-card-hover); padding:8px; border-radius:10px; border:1px solid var(--tg-border);">
                         <div style="font-size:8px; color:var(--tg-muted);">ПРИБУТОК</div>
                         <div id="statNetProfit" style="font-size:11px; font-weight:700; color:#4ade80;">0 ₴</div>
                     </div>
@@ -206,8 +228,8 @@
                 <div style="margin-top: 8px;">
                     <label class="field-label" style="color:var(--tg-muted);">Додати витрату:</label>
                     <div style="display: flex; gap: 6px;">
-                        <input type="text" id="expenseNameInput" class="input-box" placeholder="Назва" style="background:rgba(0,0,0,0.3); border-color:var(--tg-border); color:var(--tg-text);">
-                        <input type="number" id="expenseAmountInput" class="input-box" placeholder="Сума ₴" style="max-width: 90px; background:rgba(0,0,0,0.3); border-color:var(--tg-border); color:var(--tg-text);">
+                        <input type="text" id="expenseNameInput" class="input-box" placeholder="Назва" style="background:var(--tg-card-hover); border-color:var(--tg-border); color:var(--tg-text);">
+                        <input type="number" id="expenseAmountInput" class="input-box" placeholder="Сума ₴" style="max-width: 90px; background:var(--tg-card-hover); border-color:var(--tg-border); color:var(--tg-text);">
                         <button class="control-btn" onclick="addExpense()" style="background:var(--tg-card-hover); border-color:var(--tg-border);">+</button>
                     </div>
                     <div id="expensesListContainer" style="display: flex; flex-direction: column; gap: 4px; margin-top: 6px; max-height: 120px; overflow-y: auto;"></div>
@@ -218,12 +240,12 @@
             </div>
 
             <!-- 3. БАЗА КЛІЄНТІВ -->
-            <div id="secClients" class="master-section form-card" style="display: none; background: var(--tg-card); border-color: var(--tg-border);">
+            <div id="secClients" class="master-section form-card" style="display: none;">
                 <h3 style="font-size: 13px; font-family:'Syne',sans-serif; text-transform:uppercase; color:var(--tg-text);">База клієнтів</h3>
                 <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px;">
-                    <input type="text" id="regClientName" class="input-box" placeholder="Ім'я клієнта" style="background:rgba(0,0,0,0.3); border-color:var(--tg-border); color:var(--tg-text);">
-                    <input type="tel" id="regClientPhone" class="input-box" placeholder="Телефон" style="background:rgba(0,0,0,0.3); border-color:var(--tg-border); color:var(--tg-text);">
-                    <input type="text" id="regClientSocial" class="input-box" placeholder="Нікнейм (Inst / Telegram)" style="background:rgba(0,0,0,0.3); border-color:var(--tg-border); color:var(--tg-text);">
+                    <input type="text" id="regClientName" class="input-box" placeholder="Ім'я клієнта" style="background:var(--tg-card-hover); border-color:var(--tg-border); color:var(--tg-text);">
+                    <input type="tel" id="regClientPhone" class="input-box" placeholder="Телефон" style="background:var(--tg-card-hover); border-color:var(--tg-border); color:var(--tg-text);">
+                    <input type="text" id="regClientSocial" class="input-box" placeholder="Нікнейм (Inst / Telegram)" style="background:var(--tg-card-hover); border-color:var(--tg-border); color:var(--tg-text);">
                     <button class="control-btn" onclick="addRegularClientManual()" style="background:var(--tg-card-hover); border-color:var(--tg-border);">Додати клієнта</button>
                 </div>
                 
@@ -238,15 +260,15 @@
             </div>
 
             <!-- 4. ЗАВАНТАЖИТИ РОБОТИ НА САЙТ -->
-            <div id="secWorks" class="master-section form-card" style="display: none; background: var(--tg-card); border-color: var(--tg-border);">
+            <div id="secWorks" class="master-section form-card" style="display: none;">
                 <h3 style="font-size: 13px; font-family:'Syne',sans-serif; text-transform:uppercase; color:var(--tg-text);">Завантажити приклади робіт</h3>
                 <div>
                     <label class="field-label" style="color:var(--tg-muted);">Назва / опис роботи:</label>
-                    <input type="text" id="newWorkTitleInput" class="input-box" placeholder="Стрижка / Тонування" style="background:rgba(0,0,0,0.3); border-color:var(--tg-border); color:var(--tg-text);">
+                    <input type="text" id="newWorkTitleInput" class="input-box" placeholder="Стрижка / Тонування" style="background:var(--tg-card-hover); border-color:var(--tg-border); color:var(--tg-text);">
                 </div>
                 <div>
                     <label class="field-label" style="color:var(--tg-muted);">Фотографія роботи:</label>
-                    <input type="file" id="newWorkImageFile" class="input-box" accept="image/*" style="padding: 6px; background:rgba(0,0,0,0.3); border-color:var(--tg-border); color:var(--tg-text);">
+                    <input type="file" id="newWorkImageFile" class="input-box" accept="image/*" style="padding: 6px; background:var(--tg-card-hover); border-color:var(--tg-border); color:var(--tg-text);">
                 </div>
                 <button class="btn-main" onclick="uploadWorkToMainSite()">Завантажити на сайт</button>
             </div>
@@ -281,7 +303,7 @@
 
     <!-- Модальне вікно для нового запису -->
     <div id="bookingModalPopup" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:99999; justify-content:center; align-items:center; padding:20px;">
-        <div style="background:var(--tg-card); border:1px solid var(--accent); border-radius:16px; padding:18px; width:100%; max-width:340px; max-height:85vh; overflow-y:auto; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
+        <div class="master-section" style="border:1px solid var(--accent); border-radius:16px; padding:18px; width:100%; max-width:340px; max-height:85vh; overflow-y:auto; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
             <h3 style="font-family:'Syne',sans-serif; font-size:14px; color:var(--accent); margin-bottom:10px;">✨ Новий запис клієнта</h3>
             <div id="modalBookingDetails" style="font-size:11px; line-height:1.6; color:var(--tg-text); margin-bottom:14px;"></div>
             <button class="btn-main" onclick="closeBookingModal()">Зрозуміло / Закрити</button>
@@ -290,8 +312,55 @@
 
     <script src="app.js"></script>
     <script>
+        // Перемикання тем оформлення (Світла / Темна)
+        function toggleMasterTheme() {
+            let body = document.body;
+            let current = body.getAttribute('data-theme');
+            let next = current === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', next);
+            localStorage.setItem('illiana_master_theme', next);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            let savedTheme = localStorage.getItem('illiana_master_theme') || 'dark';
+            document.body.setAttribute('data-theme', savedTheme);
+        });
+
+        // Потужна функція пошуку (фільтрація записів та клієнтів)
+        async function filterCrmBookings(query) {
+            let q = query.toLowerCase().trim();
+            try {
+                let res = await fetch('/api/bookings');
+                let books = await res.json() || [];
+                let container = document.getElementById('dayBookingsContainer');
+                
+                if (!q) {
+                    if (typeof renderSelectedDayBookings === 'function') renderSelectedDayBookings();
+                    return;
+                }
+
+                let filtered = books.filter(b => 
+                    (b.name && b.name.toLowerCase().includes(q)) ||
+                    (b.phone && b.phone.includes(q)) ||
+                    (b.service && b.service.toLowerCase().includes(q)) ||
+                    (b.date && b.date.includes(q))
+                );
+
+                if (container) {
+                    container.innerHTML = filtered.length > 0 ? filtered.map(b => `
+                        <div class="booking-item" style="background:var(--tg-card-hover);">
+                            <div><b>${b.date} о ${b.time}</b> — ${b.name} (${b.phone})</div>
+                            <div style="font-size:8px; color:var(--tg-muted);">${b.service}</div>
+                        </div>
+                    `).join('') : `<div style="font-size:9px; color:var(--tg-muted); text-align:center; padding:10px;">Нічого не знайдено</div>`;
+                }
+            } catch(e) {}
+        }
+
         function switchMasterSection(sectionId, el) {
-            document.querySelectorAll('.master-section').forEach(s => s.style.display = 'none');
+            document.querySelectorAll('.master-section').forEach(s => {
+                if(s.id !== 'masterLoginBox') s.style.display = 'none';
+            });
             let target = document.getElementById(sectionId);
             if (target) target.style.display = 'flex';
             
@@ -307,6 +376,20 @@
             if (dash) dash.style.display = 'flex';
             if (nav) nav.style.display = 'flex';
             switchMasterSection('secCalendar', document.querySelector('.tg-nav-btn'));
+            updateCrmCounters();
+        }
+
+        async function updateCrmCounters() {
+            try {
+                let resB = await fetch('/api/bookings');
+                let books = await resB.json() || [];
+                let bBadge = document.getElementById('totalBookingsCountBadge');
+                if (bBadge) bBadge.innerText = books.length;
+
+                let clients = JSON.parse(localStorage.getItem('illiana_regular_clients') || '[]');
+                let cBadge = document.getElementById('totalClientsCountBadge');
+                if (cBadge) cBadge.innerText = clients.length;
+            } catch(e) {}
         }
 
         function loginMainPin() {
@@ -420,6 +503,7 @@
                         let bannerText = document.getElementById('alertBannerText');
                         if (banner) banner.style.display = 'flex';
                         if (bannerText) bannerText.innerText = `🔔 Новий запис! Бронювань: ${books.length}`;
+                        updateCrmCounters();
                     }
                 } catch(e) {}
             }, 5000);
