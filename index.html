@@ -126,11 +126,16 @@
                     </div>
                 </div>
 
+                <!-- Вертикальні блоки завантаження фотографій -->
                 <div id="photoUploadSection">
-                    <label class="field-label" data-i18n="photo_current_label">4. Завантажте фото вашого волосся:</label>
-                    <input type="file" id="clientHairPhoto" class="input-box" accept="image/*" style="padding: 6px;">
-                    <label class="field-label" style="margin-top: 4px;" data-i18n="photo_ref_label">5. Завантажте фото-референс:</label>
-                    <input type="file" id="clientRefPhoto" class="input-box" accept="image/*" style="padding: 6px;">
+                    <div class="photo-upload-container">
+                        <label data-i18n="photo_current_label">4. Завантажте фото вашого волосся:</label>
+                        <input type="file" id="clientHairPhoto" accept="image/*">
+                    </div>
+                    <div class="photo-upload-container" style="margin-top: 8px;">
+                        <label data-i18n="photo_ref_label">5. Завантажте фото-референс:</label>
+                        <input type="file" id="clientRefPhoto" accept="image/*">
+                    </div>
                 </div>
             </div>
 
@@ -261,7 +266,6 @@
 
     <script src="app.js"></script>
     <script>
-        // Підвантаження робіт з кабінету майстра
         window.addEventListener('DOMContentLoaded', () => {
             let customWorks = JSON.parse(localStorage.getItem('illiana_custom_works') || '[]');
             if (customWorks.length > 0) {
