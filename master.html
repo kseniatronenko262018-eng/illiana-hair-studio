@@ -8,44 +8,114 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
+        :root {
+            --accent: #d88c9a; /* Ніжний пастельно-рожевий */
+            --accent-invert: #1c1a18;
+            --tg-bg: #161514; /* Глибокий теплий темний фон */
+            --tg-card: #22201e; /* Теплий кремово-сірий відтінок карток */
+            --tg-card-hover: #2e2a27;
+            --tg-border: rgba(226, 215, 204, 0.12); /* М'яка кремова рамка */
+            --tg-text: #f3efe9; /* Теплий світлий текст (кремовий) */
+            --tg-muted: #a69e94; /* Нюдово-сірий приглушений */
+        }
+
+        body {
+            background-color: var(--tg-bg) !important;
+            color: var(--tg-text) !important;
+            padding-bottom: 80px;
+        }
+
         .master-bg {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: -999; overflow: hidden; background-color: #111;
+            z-index: -999; overflow: hidden; background-color: var(--tg-bg);
         }
         .master-bg img {
             width: 100%; height: 100%; object-fit: cover;
-            filter: blur(3px) brightness(0.6) contrast(1.1);
+            filter: blur(4px) brightness(0.35) contrast(1.05);
         }
-        .app-drawer {
-            position: fixed; top: 0; left: -280px; width: 260px; height: 100vh;
-            background: var(--card-bg); backdrop-filter: blur(16px);
-            border-right: 1px solid var(--border); z-index: 9999;
-            transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            display: flex; flex-direction: column; padding: 20px 14px; gap: 12px;
-            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+
+        .tg-chat-item {
+            background: var(--tg-card);
+            border: 1px solid var(--tg-border);
+            border-radius: 14px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
         }
-        .app-drawer.open { left: 0; }
-        
-        button, input, select, .control-btn, .btn-main, .drawer-item, .cal-day {
+        .tg-chat-item:active { background: var(--tg-card-hover); }
+
+        .tg-bottom-nav {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 92%;
+            max-width: 400px;
+            background: rgba(34, 32, 30, 0.88);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--tg-border);
+            border-radius: 24px;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 4px;
+            z-index: 9999;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+        .tg-nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--tg-muted);
+            font-size: 9px;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            cursor: pointer;
+            text-transform: uppercase;
+            flex: 1;
+            padding: 4px 0;
+        }
+        .tg-nav-btn span.icon { font-size: 16px; }
+        .tg-nav-btn.active {
+            color: var(--accent);
+        }
+
+        .tg-search-bar {
+            background: rgba(226, 215, 204, 0.05);
+            border-radius: 20px;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            border: 1px solid var(--tg-border);
+        }
+        .tg-search-bar input {
+            background: transparent;
+            border: none;
+            color: var(--tg-text);
+            font-size: 12px;
+            outline: none;
+            width: 100%;
+        }
+
+        button, input, select, .control-btn, .btn-main, .cal-day {
             position: relative;
             z-index: 10;
             pointer-events: auto !important;
             cursor: pointer;
         }
 
-        .drawer-item {
-            padding: 12px 14px; border-radius: 10px; background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border); font-size: 11px; font-weight: 700;
-            color: var(--text-main); text-transform: uppercase;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .drawer-item:hover, .drawer-item.active {
-            background: var(--accent); color: var(--accent-invert); border-color: var(--accent);
-        }
         .notification-banner {
-            background: rgba(184, 50, 50, 0.3); border: 1px solid var(--accent);
-            padding: 10px; border-radius: 10px; font-size: 10px; color: var(--text-main);
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;
+            background: rgba(216, 140, 154, 0.25); border: 1px solid var(--accent);
+            padding: 10px; border-radius: 12px; font-size: 10px; color: var(--tg-text);
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
             animation: pulseBanner 1.5s infinite;
         }
         @keyframes pulseBanner {
@@ -61,108 +131,105 @@
         <img src="PXL_20260322_183655575.MP.jpg" alt="Master Background" onerror="this.src='https://i.ibb.co/M5stSykh/photo-2026-09-30-14-50-24.jpg'">
     </div>
 
-    <!-- Виїзне меню -->
-    <div id="masterMenuDrawer" class="app-drawer">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h3 style="font-family:'Syne',sans-serif; font-size:14px; color:var(--text-main);">МЕНЮ МАЙСТРА</h3>
-            <button class="control-btn" onclick="toggleMasterMenu()">✕</button>
-        </div>
-        <div class="drawer-item active" onclick="switchMasterSection('secCalendar', this)">📅 Календар та записи</div>
-        <div class="drawer-item" onclick="switchMasterSection('secFinances', this)">💰 Доходи та витрати</div>
-        <div class="drawer-item" onclick="switchMasterSection('secClients', this)">👥 База клієнтів</div>
-        <div class="drawer-item" onclick="switchMasterSection('secWorks', this)">✨ Завантажити приклади робіт</div>
-        <div class="drawer-item" onclick="logoutMaster()" style="margin-top: auto; border-color: var(--accent); color: var(--accent);">🚪 Вийти з CRM</div>
-    </div>
-
     <div class="mobile-container master-body">
         
-        <div class="utility-bar">
-            <button class="control-btn" onclick="toggleMasterMenu()">☰ Меню</button>
-            <span>CRM // ЯВІР ІЛЛЯНА</span>
-            <button class="control-btn" onclick="toggleTheme()">☀️/🌙</button>
+        <div class="utility-bar" style="margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 32px; height: 32px; border-radius: 50%; overflow:hidden; border:1.5px solid var(--accent);">
+                    <img src="avatar.jpg/PXL_20241102_164641261.jpg" style="width:100%; height:100%; object-fit:cover;" alt="Ілляна">
+                </div>
+                <span style="font-family:'Syne',sans-serif; font-size:12px; font-weight:800; color:var(--tg-text);">ЯВІР ІЛЛЯНА // CRM</span>
+            </div>
+            <button class="control-btn" onclick="toggleTheme()" style="border-radius:50%; width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--tg-card); border-color:var(--tg-border); color:var(--tg-text);">☀️</button>
         </div>
 
         <!-- Екран авторизації -->
-        <div id="masterLoginBox" class="form-card" style="text-align: center; margin-top: 40px;">
-            <h2 style="font-family:'Syne',sans-serif; font-size: 18px; margin-bottom: 10px;">КАБІНЕТ МАЙСТРА</h2>
-            <input type="password" id="masterPinInput" class="input-box" placeholder="PIN (1988)" style="text-align: center; margin-bottom: 10px;">
+        <div id="masterLoginBox" class="form-card" style="text-align: center; margin-top: 40px; background: var(--tg-card); border-color: var(--tg-border);">
+            <h2 style="font-family:'Syne',sans-serif; font-size: 16px; margin-bottom: 10px; color:var(--tg-text);">ДОСТУП ДО CRM</h2>
+            <input type="password" id="masterPinInput" class="input-box" placeholder="PIN (1988)" style="text-align: center; margin-bottom: 10px; background: rgba(0,0,0,0.3); border-color:var(--tg-border); color:var(--tg-text);">
             <button class="btn-main" onclick="loginMainPin()">Увійти</button>
-            <button class="control-btn" onclick="forceBypassPin()" style="margin-top: 8px; width: 100%;">Швидкий вхід</button>
+            <button class="control-btn" onclick="forceBypassPin()" style="margin-top: 8px; width: 100%; background:var(--tg-card-hover); border-color:var(--tg-border); color:var(--tg-text);">Швидкий вхід</button>
         </div>
 
         <!-- Панель управління CRM -->
-        <div id="masterDashboard" style="display: none; flex-direction: column; gap: 12px;">
+        <div id="masterDashboard" style="display: none; flex-direction: column; gap: 10px;">
 
-            <!-- Банер зі звуковим та візуальним сповіщенням -->
+            <!-- Банер сповіщення -->
             <div id="newBookingAlertBanner" class="notification-banner" style="display: none;">
                 <span id="alertBannerText">🔔 Новий запис!</span>
-                <button class="control-btn" onclick="handleBannerClick()">Переглянути</button>
+                <button class="control-btn" onclick="handleBannerClick()" style="background:var(--tg-card); border-color:var(--accent); color:var(--tg-text);">Переглянути</button>
+            </div>
+
+            <!-- Рядок пошуку -->
+            <div class="tg-search-bar">
+                <span>🔍</span>
+                <input type="text" id="crmSearchInput" placeholder="Пошук записів, клієнтів, послуг..." oninput="filterCrmData(this.value)">
             </div>
 
             <!-- 1. КАЛЕНДАР -->
-            <div id="secCalendar" class="master-section form-card">
+            <div id="secCalendar" class="master-section form-card" style="background: var(--tg-card); border-color: var(--tg-border);">
                 <div class="calendar-controls">
-                    <button class="control-btn" onclick="changePeriod(-1)">◀</button>
-                    <h3 id="calendarTitle" style="font-size: 12px; font-family:'Syne',sans-serif;">Місяць</h3>
-                    <button class="control-btn" onclick="changePeriod(1)">▶</button>
+                    <button class="control-btn" onclick="changePeriod(-1)" style="background:var(--tg-card-hover); border-color:var(--tg-border);">◀</button>
+                    <h3 id="calendarTitle" style="font-size: 12px; font-family:'Syne',sans-serif; color:var(--tg-text);">Місяць</h3>
+                    <button class="control-btn" onclick="changePeriod(1)" style="background:var(--tg-card-hover); border-color:var(--tg-border);">▶</button>
                 </div>
                 <div style="display: flex; gap: 4px; margin-bottom: 6px;">
-                    <button class="control-btn" id="btnModeMonth" onclick="setCalendarMode('month')" style="flex:1;">Місяць</button>
-                    <button class="control-btn" id="btnModeWeek" onclick="setCalendarMode('week')" style="flex:1;">Тиждень</button>
+                    <button class="control-btn" id="btnModeMonth" onclick="setCalendarMode('month')" style="flex:1; background:var(--tg-card-hover); border-color:var(--tg-border);">Місяць</button>
+                    <button class="control-btn" id="btnModeWeek" onclick="setCalendarMode('week')" style="flex:1; background:var(--tg-card-hover); border-color:var(--tg-border);">Тиждень</button>
                 </div>
                 <div id="calendarGridContainer"></div>
-                <button class="control-btn" id="blockDayBtn" onclick="toggleBlockSelectedDate()" style="margin-top: 8px; width: 100%;">🔒 Заблокувати день (вихідний)</button>
+                <button class="control-btn" id="blockDayBtn" onclick="toggleBlockSelectedDate()" style="margin-top: 8px; width: 100%; background:var(--tg-card-hover); border-color:var(--tg-border);">🔒 Заблокувати день (вихідний)</button>
                 <div style="margin-top: 10px;">
-                    <label class="field-label" id="selectedDateLabel">Записи на обраний день:</label>
+                    <label class="field-label" id="selectedDateLabel" style="color:var(--tg-muted);">Записи на обраний день:</label>
                     <div id="dayBookingsContainer" style="display: flex; flex-direction: column; gap: 6px; max-height: 200px; overflow-y: auto;"></div>
                 </div>
             </div>
 
-            <!-- 2. ФІНАНСИ ТА PDF ЗВІТИ -->
-            <div id="secFinances" class="master-section form-card" style="display: none;">
-                <h3 style="font-size: 13px; font-family:'Syne',sans-serif; text-transform:uppercase;">Фінанси та аналітика</h3>
+            <!-- 2. ФІНАНСИ -->
+            <div id="secFinances" class="master-section form-card" style="display: none; background: var(--tg-card); border-color: var(--tg-border);">
+                <h3 style="font-size: 13px; font-family:'Syne',sans-serif; text-transform:uppercase; color:var(--tg-text);">Фінанси та аналітика</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; text-align: center;">
-                    <div style="background:var(--card-hover); padding:8px; border-radius:8px; border:1px solid var(--border);">
-                        <div style="font-size:8px; color:var(--text-muted);">ДОХОДИ</div>
-                        <div id="statCompleted" style="font-size:11px; font-weight:700;">0 ₴</div>
+                    <div style="background:rgba(226,215,204,0.04); padding:8px; border-radius:10px; border:1px solid var(--tg-border);">
+                        <div style="font-size:8px; color:var(--tg-muted);">ДОХОДИ</div>
+                        <div id="statCompleted" style="font-size:11px; font-weight:700; color:var(--tg-text);">0 ₴</div>
                     </div>
-                    <div style="background:var(--card-hover); padding:8px; border-radius:8px; border:1px solid var(--border);">
-                        <div style="font-size:8px; color:var(--text-muted);">ВИТРАТИ</div>
+                    <div style="background:rgba(226,215,204,0.04); padding:8px; border-radius:10px; border:1px solid var(--tg-border);">
+                        <div style="font-size:8px; color:var(--tg-muted);">ВИТРАТИ</div>
                         <div id="statExpenses" style="font-size:11px; font-weight:700; color:var(--accent);">0 ₴</div>
                     </div>
-                    <div style="background:var(--card-hover); padding:8px; border-radius:8px; border:1px solid var(--border);">
-                        <div style="font-size:8px; color:var(--text-muted);">ПРИБУТОК</div>
+                    <div style="background:rgba(226,215,204,0.04); padding:8px; border-radius:10px; border:1px solid var(--tg-border);">
+                        <div style="font-size:8px; color:var(--tg-muted);">ПРИБУТОК</div>
                         <div id="statNetProfit" style="font-size:11px; font-weight:700; color:#4ade80;">0 ₴</div>
                     </div>
                 </div>
 
                 <div style="margin-top: 8px;">
-                    <label class="field-label">Додати витрату:</label>
+                    <label class="field-label" style="color:var(--tg-muted);">Додати витрату:</label>
                     <div style="display: flex; gap: 6px;">
-                        <input type="text" id="expenseNameInput" class="input-box" placeholder="Назва">
-                        <input type="number" id="expenseAmountInput" class="input-box" placeholder="Сума ₴" style="max-width: 90px;">
-                        <button class="control-btn" onclick="addExpense()">+</button>
+                        <input type="text" id="expenseNameInput" class="input-box" placeholder="Назва" style="background:rgba(0,0,0,0.3); border-color:var(--tg-border); color:var(--tg-text);">
+                        <input type="number" id="expenseAmountInput" class="input-box" placeholder="Сума ₴" style="max-width: 90px; background:rgba(0,0,0,0.3); border-color:var(--tg-border); color:var(--tg-text);">
+                        <button class="control-btn" onclick="addExpense()" style="background:var(--tg-card-hover); border-color:var(--tg-border);">+</button>
                     </div>
                     <div id="expensesListContainer" style="display: flex; flex-direction: column; gap: 4px; margin-top: 6px; max-height: 120px; overflow-y: auto;"></div>
                 </div>
 
-                <button class="control-btn" onclick="exportToExcel()" style="margin-top: 6px; width: 100%;">📥 Експортувати записи в Excel</button>
-                <button class="control-btn" onclick="exportFinancesToPDF()" style="margin-top: 6px; width: 100%; border-color: #4ade80; color: #4ade80;">📄 Завантажити звіт у PDF</button>
+                <button class="control-btn" onclick="exportToExcel()" style="margin-top: 6px; width: 100%; background:var(--tg-card-hover); border-color:var(--tg-border);">📥 Експортувати записи в Excel</button>
+                <button class="control-btn" onclick="exportFinancesToPDF()" style="margin-top: 6px; width: 100%; border-color: #4ade80; color: #4ade80; background:var(--tg-card-hover);">📄 Завантажити звіт у PDF</button>
             </div>
 
             <!-- 3. БАЗА КЛІЄНТІВ -->
-            <div id="secClients" class="master-section form-card" style="display: none;">
-                <h3 style="font-size: 13px; font-family:'Syne',sans-serif; text-transform:uppercase;">База клієнтів</h3>
+            <div id="secClients" class="master-section form-card" style="display: none; background: var(--tg-card); border-color: var(--tg-border);">
+                <h3 style="font-size: 13px; font-family:'Syne',sans-serif; text-transform:uppercase; color:var(--tg-text);">База клієнтів</h3>
                 <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px;">
-                    <input type="text" id="regClientName" class="input-box" placeholder="Ім'я клієнта">
-                    <input type="tel" id="regClientPhone" class="input-box" placeholder="Телефон">
-                    <input type="text" id="regClientSocial" class="input-box" placeholder="Нікнейм (Inst / Telegram)">
-                    <button class="control-btn" onclick="addRegularClientManual()">Додати клієнта</button>
+                    <input type="text" id="regClientName" class="input-box" placeholder="Ім'я клієнта" style="background:rgba(0,0,0,0.3); border-color:var(--tg-border); color:var(--tg-text);">
+                    <input type="tel" id="regClientPhone" class="input-box" placeholder="Телефон" style="background:rgba(0,0,0,0.3); border-color:var(--tg-border); color:var(--tg-text);">
+                    <input type="text" id="regClientSocial" class="input-box" placeholder="Нікнейм (Inst / Telegram)" style="background:rgba(0,0,0,0.3); border-color:var(--tg-border); color:var(--tg-text);">
+                    <button class="control-btn" onclick="addRegularClientManual()" style="background:var(--tg-card-hover); border-color:var(--tg-border);">Додати клієнта</button>
                 </div>
                 
                 <div style="display: flex; gap: 6px; margin-top: 8px;">
-                    <button class="control-btn" onclick="exportClientsToExcel()" style="flex:1;">📤 Експорт бази (Excel)</button>
-                    <label class="control-btn" style="flex:1; text-align:center; cursor:pointer;">
+                    <button class="control-btn" onclick="exportClientsToExcel()" style="flex:1; background:var(--tg-card-hover); border-color:var(--tg-border);">📤 Експорт бази (Excel)</button>
+                    <label class="control-btn" style="flex:1; text-align:center; cursor:pointer; background:var(--tg-card-hover); border-color:var(--tg-border);">
                         📥 Імпорт бази
                         <input type="file" accept=".xlsx, .xls" onchange="importClientsFromExcel(event)" style="display: none;">
                     </label>
@@ -171,15 +238,15 @@
             </div>
 
             <!-- 4. ЗАВАНТАЖИТИ РОБОТИ НА САЙТ -->
-            <div id="secWorks" class="master-section form-card" style="display: none;">
-                <h3 style="font-size: 13px; font-family:'Syne',sans-serif; text-transform:uppercase;">Завантажити приклади робіт</h3>
+            <div id="secWorks" class="master-section form-card" style="display: none; background: var(--tg-card); border-color: var(--tg-border);">
+                <h3 style="font-size: 13px; font-family:'Syne',sans-serif; text-transform:uppercase; color:var(--tg-text);">Завантажити приклади робіт</h3>
                 <div>
-                    <label class="field-label">Назва / опис роботи:</label>
-                    <input type="text" id="newWorkTitleInput" class="input-box" placeholder="Стрижка / Тонування">
+                    <label class="field-label" style="color:var(--tg-muted);">Назва / опис роботи:</label>
+                    <input type="text" id="newWorkTitleInput" class="input-box" placeholder="Стрижка / Тонування" style="background:rgba(0,0,0,0.3); border-color:var(--tg-border); color:var(--tg-text);">
                 </div>
                 <div>
-                    <label class="field-label">Фотографія роботи:</label>
-                    <input type="file" id="newWorkImageFile" class="input-box" accept="image/*" style="padding: 6px;">
+                    <label class="field-label" style="color:var(--tg-muted);">Фотографія роботи:</label>
+                    <input type="file" id="newWorkImageFile" class="input-box" accept="image/*" style="padding: 6px; background:rgba(0,0,0,0.3); border-color:var(--tg-border); color:var(--tg-text);">
                 </div>
                 <button class="btn-main" onclick="uploadWorkToMainSite()">Завантажити на сайт</button>
             </div>
@@ -188,11 +255,35 @@
 
     </div>
 
+    <!-- Нижня панель навігації -->
+    <div class="tg-bottom-nav" id="tgBottomNav" style="display: none;">
+        <button class="tg-nav-btn active" onclick="switchMasterSection('secCalendar', this)">
+            <span class="icon">📅</span>
+            <span>Календар</span>
+        </button>
+        <button class="tg-nav-btn" onclick="switchMasterSection('secFinances', this)">
+            <span class="icon">💰</span>
+            <span>Фінанси</span>
+        </button>
+        <button class="tg-nav-btn" onclick="switchMasterSection('secClients', this)">
+            <span class="icon">👥</span>
+            <span>Клієнти</span>
+        </button>
+        <button class="tg-nav-btn" onclick="switchMasterSection('secWorks', this)">
+            <span class="icon">✨</span>
+            <span>Роботи</span>
+        </button>
+        <button class="tg-nav-btn" onclick="logoutMaster()">
+            <span class="icon">🚪</span>
+            <span>Вихід</span>
+        </button>
+    </div>
+
     <!-- Модальне вікно для нового запису -->
     <div id="bookingModalPopup" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:99999; justify-content:center; align-items:center; padding:20px;">
-        <div style="background:var(--card-bg); border:1px solid var(--accent); border-radius:14px; padding:18px; width:100%; max-width:340px; max-height:85vh; overflow-y:auto; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
+        <div style="background:var(--tg-card); border:1px solid var(--accent); border-radius:16px; padding:18px; width:100%; max-width:340px; max-height:85vh; overflow-y:auto; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
             <h3 style="font-family:'Syne',sans-serif; font-size:14px; color:var(--accent); margin-bottom:10px;">✨ Новий запис клієнта</h3>
-            <div id="modalBookingDetails" style="font-size:11px; line-height:1.6; color:var(--text-main); margin-bottom:14px;"></div>
+            <div id="modalBookingDetails" style="font-size:11px; line-height:1.6; color:var(--tg-text); margin-bottom:14px;"></div>
             <button class="btn-main" onclick="closeBookingModal()">Зрозуміло / Закрити</button>
         </div>
     </div>
@@ -203,10 +294,19 @@
             document.querySelectorAll('.master-section').forEach(s => s.style.display = 'none');
             let target = document.getElementById(sectionId);
             if (target) target.style.display = 'flex';
-            document.querySelectorAll('.drawer-item').forEach(i => i.classList.remove('active'));
+            
+            document.querySelectorAll('.tg-nav-btn').forEach(i => i.classList.remove('active'));
             if (el) el.classList.add('active');
-            let drawer = document.getElementById('masterMenuDrawer');
-            if (drawer && drawer.classList.contains('open')) toggleMasterMenu();
+        }
+
+        function showMasterDashboard() {
+            let loginBox = document.getElementById('masterLoginBox');
+            let dash = document.getElementById('masterDashboard');
+            let nav = document.getElementById('tgBottomNav');
+            if (loginBox) loginBox.style.display = 'none';
+            if (dash) dash.style.display = 'flex';
+            if (nav) nav.style.display = 'flex';
+            switchMasterSection('secCalendar', document.querySelector('.tg-nav-btn'));
         }
 
         function loginMainPin() {
@@ -220,6 +320,11 @@
         function forceBypassPin() {
             localStorage.setItem('illiana_master_logged', 'true');
             showMasterDashboard();
+        }
+
+        function logoutMaster() {
+            localStorage.removeItem('illiana_master_logged');
+            location.reload();
         }
 
         function playNotificationSound() {
@@ -247,7 +352,6 @@
         let lastKnownBookingsCount = -1;
         let latestBookingDate = null;
 
-        // Клік на банер: відкриває окреме модальне вікно з інформацією та перемикає календар
         async function handleBannerClick() {
             playNotificationSound();
             try {
@@ -278,7 +382,7 @@
                 }
             } catch(e) {}
 
-            switchMasterSection('secCalendar', document.querySelector('.drawer-item'));
+            switchMasterSection('secCalendar', document.querySelector('.tg-nav-btn'));
             if (latestBookingDate && typeof selectCalendarDate === 'function') {
                 selectCalendarDate(latestBookingDate);
             }
