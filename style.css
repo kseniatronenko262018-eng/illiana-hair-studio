@@ -47,7 +47,7 @@ body {
     height: 100vh;
     z-index: -1;
     overflow: hidden;
-    pointer-events: none; /* Гарантирует, что фон не перекрывает клики */
+    pointer-events: none;
 }
 
 .bg-texture img {
@@ -236,6 +236,37 @@ option { background: #23201e; color: #f5f2ed; }
 
 #clientDate {
     max-width: 160px !important;
+}
+
+/* Нові акуратні вертикальні блоки завантаження фото */
+.photo-upload-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+    padding: 10px;
+    background: var(--card-hover);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.photo-upload-container label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+}
+
+.photo-upload-container input[type="file"] {
+    width: 100%;
+    padding: 8px;
+    background: var(--card-bg);
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    color: var(--text-muted);
+    font-size: 10px;
+    cursor: pointer;
 }
 
 .services-grid {
@@ -504,7 +535,6 @@ option { background: #23201e; color: #f5f2ed; }
     cursor: pointer;
 }
 
-/* Эффект легкого нажатия (без блокировки кликов) */
 button:active, 
 .control-btn:active, 
 .nav-chip:active, 
