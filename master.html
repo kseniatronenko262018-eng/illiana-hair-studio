@@ -170,7 +170,7 @@
 
     <!-- Фонова картинка -->
     <div class="master-bg">
-        <img src="PXL_20241102_164641261.jpg" alt="Master Background" onerror="this.src='https://i.ibb.co/M5stSykh/photo-2026-09-30-14-50-24.jpg'">
+        <img id="bgMasterImage" src="PXL_20241102_164641261.jpg" alt="Master Background" onerror="this.src='https://i.ibb.co/M5stSykh/photo-2026-09-30-14-50-24.jpg'">
     </div>
 
     <div class="mobile-container master-body">
@@ -178,8 +178,9 @@
         <!-- Верхній рядок: аватар та кнопка теми -->
         <div class="master-utility-bar">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 38px; height: 38px; border-radius: 50%; overflow:hidden; border:2px solid var(--accent); flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-                    <img src="PXL_20241102_164641261.jpg" style="width:100%; height:100%; object-fit:cover;" alt="Ілляна" onerror="this.src='https://i.ibb.co/M5stSykh/photo-2026-09-30-14-50-24.jpg'">
+                <div style="width: 38px; height: 38px; border-radius: 50%; overflow:hidden; border:2px solid var(--accent); flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.3); position:relative; cursor:pointer;" title="Натисніть, щоб змінити фото">
+                    <img id="avatarMasterImage" src="PXL_20241102_164641261.jpg" style="width:100%; height:100%; object-fit:cover;" alt="Ілляна" onerror="this.src='https://i.ibb.co/M5stSykh/photo-2026-09-30-14-50-24.jpg'">
+                    <input type="file" accept="image/*" onchange="handleMasterPhotoUpload(event)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;">
                 </div>
                 <span style="font-family:'Syne',sans-serif; font-size:12px; font-weight:800; color:var(--tg-text); letter-spacing: 0.5px;">ЯВІР ІЛЛЯНА // CRM</span>
             </div>
@@ -340,6 +341,31 @@
 
     <script src="app.js"></script>
     <script>
+        // Завантаження збереженої фотографії для фону та аватара з пам'яті
+        function loadMasterSavedPhoto() {
+            let savedPhoto = localStorage.getItem('illiana_custom_master_photo');
+            if (savedPhoto) {
+                let bgImg = document.getElementById('bgMasterImage');
+                let avImg = document.getElementById('avatarMasterImage');
+                if (bgImg) bgImg.src = savedPhoto;
+                if (avImg) avImg.src = savedPhoto;
+            }
+        }
+
+        // Функція для встановлення вашої фотографії через аватарку
+        function handleMasterPhotoUpload(event) {
+            let file = event.target.files[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    let base64Image = e.target.result;
+                    localStorage.setItem('illiana_custom_master_photo', base64Image);
+                    loadMasterSavedPhoto();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
         function toggleMasterTheme() {
             let body = document.body;
             let current = body.getAttribute('data-theme') || 'dark';
@@ -354,6 +380,7 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
+            loadMasterSavedPhoto();
             let savedTheme = localStorage.getItem('illiana_master_theme') || 'dark';
             document.body.setAttribute('data-theme', savedTheme);
             let themeBtn = document.querySelector('.master-utility-bar button');
