@@ -12,7 +12,7 @@
             --accent: #d88c9a;
             --accent-invert: #141312;
             --tg-bg: #141312;
-            --tg-card: rgba(26, 24, 22, 0.82);
+            --tg-card: rgba(26, 24, 22, 0.85);
             --tg-card-hover: rgba(38, 35, 32, 0.92);
             --tg-border: rgba(255, 255, 255, 0.1);
             --tg-text: #f5f2ed;
@@ -23,8 +23,8 @@
             --accent: #b86b79;
             --accent-invert: #ffffff;
             --tg-bg: #e6dfd5;
-            --tg-card: rgba(255, 252, 248, 0.88);
-            --tg-card-hover: rgba(242, 237, 228, 0.94);
+            --tg-card: rgba(255, 252, 248, 0.9);
+            --tg-card-hover: rgba(242, 237, 228, 0.95);
             --tg-border: rgba(0, 0, 0, 0.08);
             --tg-text: #2c2825;
             --tg-muted: #756d65;
@@ -33,13 +33,13 @@
         body {
             background-color: var(--tg-bg) !important;
             color: var(--tg-text) !important;
-            padding-bottom: 40px;
+            padding-bottom: 50px;
             transition: background 0.35s ease, color 0.35s ease;
             position: relative;
             min-height: 100vh;
         }
 
-        /* Гарантоване фонове зображення на весь екран */
+        /* Фонове зображення на весь екран */
         .master-bg {
             position: fixed; 
             top: 0; 
@@ -62,7 +62,6 @@
             filter: blur(14px) brightness(0.7) contrast(1.05);
         }
 
-        /* Корейський дизайн карток (Glassmorphism) */
         .master-section, .form-card {
             background: var(--tg-card) !important;
             border: 1px solid var(--tg-border) !important;
@@ -80,7 +79,7 @@
             margin-bottom: 12px;
         }
 
-        /* Горизонтальні таби у корейському стилі */
+        /* Корейські таби навігації */
         .korea-nav-bar {
             display: flex;
             gap: 6px;
@@ -169,7 +168,7 @@
 </head>
 <body data-theme="dark">
 
-    <!-- Фонова картинка з резервним посиланням -->
+    <!-- Фонова картинка -->
     <div class="master-bg">
         <img src="PXL_20241102_164641261.jpg" alt="Master Background" onerror="this.src='https://i.ibb.co/M5stSykh/photo-2026-09-30-14-50-24.jpg'">
     </div>
@@ -204,7 +203,7 @@
                 <button class="control-btn" onclick="handleBannerClick()" style="background:var(--tg-card); border-color:var(--accent); color:var(--tg-text);">Переглянути</button>
             </div>
 
-            <!-- Корейська горизонтальна навігація (Clean Tabs) -->
+            <!-- Корейська горизонтальна навігація -->
             <div class="korea-nav-bar" id="koreaNavContainer" style="display: none;">
                 <div class="korea-nav-chip active" onclick="switchMasterSection('secCalendar', this)">
                     <span>📅</span> Календар
@@ -341,7 +340,6 @@
 
     <script src="app.js"></script>
     <script>
-        // Надійне перемикання теми з оновленням іконки сонце/місяць
         function toggleMasterTheme() {
             let body = document.body;
             let current = body.getAttribute('data-theme') || 'dark';
@@ -349,7 +347,7 @@
             body.setAttribute('data-theme', next);
             localStorage.setItem('illiana_master_theme', next);
             
-            let themeBtn = event.currentTarget;
+            let themeBtn = document.querySelector('.master-utility-bar button');
             if (themeBtn) {
                 themeBtn.innerText = next === 'dark' ? '☀️' : '🌙';
             }
@@ -521,7 +519,7 @@
                 } catch(e) {}
             }, { once: true });
 
-            if (localStorage.getItem('illiana_master_logged'] === 'true') {
+            if (localStorage.getItem('illiana_master_logged') === 'true') {
                 showMasterDashboard();
             }
 
