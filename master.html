@@ -11,21 +11,21 @@
         :root[data-theme="dark"] {
             --accent: #d88c9a;
             --accent-invert: #161514;
-            --tg-bg: #161514;
-            --tg-card: rgba(28, 26, 24, 0.86);
-            --tg-card-hover: rgba(40, 36, 33, 0.9);
-            --tg-border: rgba(226, 215, 204, 0.12);
-            --tg-text: #f3efe9;
-            --tg-muted: #a69e94;
+            --tg-bg: #141312;
+            --tg-card: rgba(26, 24, 22, 0.78);
+            --tg-card-hover: rgba(38, 35, 32, 0.88);
+            --tg-border: rgba(255, 255, 255, 0.08);
+            --tg-text: #f5f2ed;
+            --tg-muted: #9e958b;
         }
 
         :root[data-theme="light"] {
             --accent: #b86b79;
             --accent-invert: #ffffff;
             --tg-bg: #e6dfd5;
-            --tg-card: rgba(255, 252, 248, 0.88);
-            --tg-card-hover: rgba(242, 237, 228, 0.92);
-            --tg-border: rgba(0, 0, 0, 0.08);
+            --tg-card: rgba(255, 252, 248, 0.82);
+            --tg-card-hover: rgba(242, 237, 228, 0.9);
+            --tg-border: rgba(0, 0, 0, 0.06);
             --tg-text: #2c2825;
             --tg-muted: #756d65;
         }
@@ -33,13 +33,13 @@
         body {
             background-color: var(--tg-bg) !important;
             color: var(--tg-text) !important;
-            padding-bottom: 95px;
-            transition: background 0.3s ease, color 0.3s ease;
+            padding-bottom: 40px;
+            transition: background 0.35s ease, color 0.35s ease;
             position: relative;
             min-height: 100vh;
         }
 
-        /* Повноцінний фоновий шар з вашою фотографією на весь екран */
+        /* Повноцінний фоновий шар на весь екран */
         .master-bg {
             position: fixed; 
             top: 0; 
@@ -54,12 +54,22 @@
             width: 100%; 
             height: 100%; 
             object-fit: cover;
-            filter: blur(10px) brightness(0.32) contrast(1.1);
-            transform: scale(1.1);
+            filter: blur(12px) brightness(0.3) contrast(1.1);
+            transform: scale(1.12);
             transition: filter 0.4s ease;
         }
         [data-theme="light"] .master-bg img {
-            filter: blur(10px) brightness(0.68) contrast(1.05);
+            filter: blur(12px) brightness(0.65) contrast(1.05);
+        }
+
+        /* Преміальний корейський стиль скла (Glassmorphism) */
+        .master-section, .form-card {
+            background: var(--tg-card) !important;
+            border: 1px solid var(--tg-border) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border-radius: 20px !important;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
         }
 
         /* Ідеально вирівняний верхній рядок */
@@ -67,69 +77,56 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 4px 6px;
+            padding: 8px 4px;
             margin-bottom: 12px;
         }
 
-        /* Сучасна нижня панель у вигляді елегантної панелі керування */
-        .tg-bottom-nav {
-            position: fixed;
-            bottom: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 94%;
-            max-width: 410px;
+        /* Ультрасучасна корейська горизонтальна навігація (Clean Tabs) */
+        .korea-nav-bar {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            margin-bottom: 12px;
+            scrollbar-width: none;
+        }
+        .korea-nav-bar::-webkit-scrollbar { display: none; }
+
+        .korea-nav-chip {
             background: var(--tg-card);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
             border: 1px solid var(--tg-border);
-            border-radius: 20px;
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 10px;
-            z-index: 9999;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-        }
-        .tg-nav-btn {
-            background: transparent;
-            border: none;
-            color: var(--tg-muted);
-            font-size: 8px;
+            backdrop-filter: blur(15px);
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 9px;
             font-weight: 700;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-            cursor: pointer;
+            color: var(--tg-muted);
             text-transform: uppercase;
-            flex: 1;
-            padding: 6px 2px;
-            border-radius: 12px;
-            transition: all 0.2s ease;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.8px;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.25s ease;
         }
-        .tg-nav-btn span.icon { 
-            font-size: 16px; 
-            transition: transform 0.2s ease;
-        }
-        .tg-nav-btn.active {
-            color: var(--accent);
-            background: rgba(216, 140, 154, 0.15);
-        }
-        .tg-nav-btn.active span.icon {
-            transform: scale(1.12);
+        .korea-nav-chip.active {
+            background: var(--accent);
+            color: var(--accent-invert);
+            border-color: var(--accent);
+            box-shadow: 0 4px 15px rgba(216, 140, 154, 0.35);
         }
 
         .tg-search-bar {
             background: var(--tg-card-hover);
             border-radius: 16px;
-            padding: 9px 14px;
+            padding: 10px 14px;
             display: flex;
             align-items: center;
             gap: 8px;
             margin-bottom: 12px;
             border: 1px solid var(--tg-border);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
         }
         .tg-search-bar input {
             background: transparent;
@@ -150,20 +147,19 @@
             cursor: pointer;
         }
 
-        .master-section {
-            background: var(--tg-card) !important;
-            border-color: var(--tg-border) !important;
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-radius: 16px;
-        }
-
         .notification-banner {
-            background: rgba(216, 140, 154, 0.22); border: 1px solid var(--accent);
-            padding: 10px; border-radius: 14px; font-size: 10px; color: var(--tg-text);
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+            background: rgba(216, 140, 154, 0.2); 
+            border: 1px solid var(--accent);
+            padding: 10px 14px; 
+            border-radius: 16px; 
+            font-size: 10px; 
+            color: var(--tg-text);
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 12px;
+            backdrop-filter: blur(15px);
             animation: pulseBanner 1.5s infinite;
-            backdrop-filter: blur(10px);
         }
         @keyframes pulseBanner {
             0% { opacity: 0.85; }
@@ -184,18 +180,18 @@
         <!-- Верхній рядок із вирівнюванням по центру -->
         <div class="master-utility-bar">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 36px; height: 36px; border-radius: 50%; overflow:hidden; border:2px solid var(--accent); flex-shrink: 0;">
+                <div style="width: 38px; height: 38px; border-radius: 50%; overflow:hidden; border:2px solid var(--accent); flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
                     <img src="PXL_20241102_164641261.jpg" style="width:100%; height:100%; object-fit:cover;" alt="Ілляна">
                 </div>
                 <span style="font-family:'Syne',sans-serif; font-size:12px; font-weight:800; color:var(--tg-text); letter-spacing: 0.5px;">ЯВІР ІЛЛЯНА // CRM</span>
             </div>
-            <button class="control-btn" onclick="toggleMasterTheme()" style="border-radius:50%; width:36px; height:36px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--tg-card); border-color:var(--tg-border); color:var(--tg-text); flex-shrink: 0;">☀️/🌙</button>
+            <button class="control-btn" onclick="toggleMasterTheme()" style="border-radius:50%; width:38px; height:38px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--tg-card); border-color:var(--tg-border); color:var(--tg-text); flex-shrink: 0;">☀️/🌙</button>
         </div>
 
         <!-- Екран авторизації -->
-        <div id="masterLoginBox" class="form-card master-section" style="text-align: center; margin-top: 40px;">
-            <h2 style="font-family:'Syne',sans-serif; font-size: 16px; margin-bottom: 10px; color:var(--tg-text);">ДОСТУП ДО CRM</h2>
-            <input type="password" id="masterPinInput" class="input-box" placeholder="PIN (1988)" style="text-align: center; margin-bottom: 10px; background: rgba(0,0,0,0.15); border-color:var(--tg-border); color:var(--tg-text);">
+        <div id="masterLoginBox" class="form-card master-section" style="text-align: center; margin-top: 40px; padding: 20px;">
+            <h2 style="font-family:'Syne',sans-serif; font-size: 16px; margin-bottom: 12px; color:var(--tg-text);">ДОСТУП ДО CRM</h2>
+            <input type="password" id="masterPinInput" class="input-box" placeholder="PIN (1988)" style="text-align: center; margin-bottom: 12px; background: rgba(0,0,0,0.15); border-color:var(--tg-border); color:var(--tg-text);">
             <button class="btn-main" onclick="loginMainPin()">Увійти</button>
             <button class="control-btn" onclick="forceBypassPin()" style="margin-top: 8px; width: 100%; background:var(--tg-card-hover); border-color:var(--tg-border); color:var(--tg-text);">Швидкий вхід</button>
         </div>
@@ -209,6 +205,25 @@
                 <button class="control-btn" onclick="handleBannerClick()" style="background:var(--tg-card); border-color:var(--accent); color:var(--tg-text);">Переглянути</button>
             </div>
 
+            <!-- Корейська горизонтальна панель навігації (Clean Tabs) -->
+            <div class="korea-nav-bar" id="koreaNavContainer" style="display: none;">
+                <div class="korea-nav-chip active" onclick="switchMasterSection('secCalendar', this)">
+                    <span>📅</span> Календар
+                </div>
+                <div class="korea-nav-chip" onclick="switchMasterSection('secFinances', this)">
+                    <span>💰</span> Фінанси
+                </div>
+                <div class="korea-nav-chip" onclick="switchMasterSection('secClients', this)">
+                    <span>👥</span> Клієнти
+                </div>
+                <div class="korea-nav-chip" onclick="switchMasterSection('secWorks', this)">
+                    <span>✨</span> Роботи
+                </div>
+                <div class="korea-nav-chip" onclick="logoutMaster()" style="border-color: rgba(216,140,154,0.3); color: var(--accent);">
+                    <span>🚪</span> Вихід
+                </div>
+            </div>
+
             <!-- Рядок пошуку -->
             <div class="tg-search-bar">
                 <span>🔍</span>
@@ -217,13 +232,13 @@
 
             <!-- Статистичний міні-віджет -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                <div class="form-card master-section" style="padding: 10px; text-align: center; margin: 0;">
-                    <div style="font-size: 8px; color: var(--tg-muted);">УСЬОГО ЗАПИСІВ</div>
-                    <div id="totalBookingsCountBadge" style="font-size: 14px; font-weight: 700; font-family:'Syne',sans-serif; color: var(--accent);">0</div>
+                <div class="form-card master-section" style="padding: 12px; text-align: center; margin: 0;">
+                    <div style="font-size: 8px; color: var(--tg-muted); letter-spacing: 0.5px;">УСЬОГО ЗАПИСІВ</div>
+                    <div id="totalBookingsCountBadge" style="font-size: 15px; font-weight: 700; font-family:'Syne',sans-serif; color: var(--accent); margin-top: 2px;">0</div>
                 </div>
-                <div class="form-card master-section" style="padding: 10px; text-align: center; margin: 0;">
-                    <div style="font-size: 8px; color: var(--tg-muted);">БАЗА КЛІЄНТІВ</div>
-                    <div id="totalClientsCountBadge" style="font-size: 14px; font-weight: 700; font-family:'Syne',sans-serif; color: var(--accent);">0</div>
+                <div class="form-card master-section" style="padding: 12px; text-align: center; margin: 0;">
+                    <div style="font-size: 8px; color: var(--tg-muted); letter-spacing: 0.5px;">БАЗА КЛІЄНТІВ</div>
+                    <div id="totalClientsCountBadge" style="font-size: 15px; font-weight: 700; font-family:'Syne',sans-serif; color: var(--accent); margin-top: 2px;">0</div>
                 </div>
             </div>
 
@@ -316,35 +331,11 @@
 
     </div>
 
-    <!-- Сучасна нижня панель навігації -->
-    <div class="tg-bottom-nav" id="tgBottomNav" style="display: none;">
-        <button class="tg-nav-btn active" onclick="switchMasterSection('secCalendar', this)">
-            <span class="icon">📅</span>
-            <span>Календар</span>
-        </button>
-        <button class="tg-nav-btn" onclick="switchMasterSection('secFinances', this)">
-            <span class="icon">💰</span>
-            <span>Фінанси</span>
-        </button>
-        <button class="tg-nav-btn" onclick="switchMasterSection('secClients', this)">
-            <span class="icon">👥</span>
-            <span>Клієнти</span>
-        </button>
-        <button class="tg-nav-btn" onclick="switchMasterSection('secWorks', this)">
-            <span class="icon">✨</span>
-            <span>Роботи</span>
-        </button>
-        <button class="tg-nav-btn" onclick="logoutMaster()">
-            <span class="icon">🚪</span>
-            <span>Вихід</span>
-        </button>
-    </div>
-
     <!-- Модальне вікно для нового запису -->
     <div id="bookingModalPopup" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:99999; justify-content:center; align-items:center; padding:20px;">
-        <div class="master-section" style="border:1px solid var(--accent); border-radius:16px; padding:18px; width:100%; max-width:340px; max-height:85vh; overflow-y:auto; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
-            <h3 style="font-family:'Syne',sans-serif; font-size:14px; color:var(--accent); margin-bottom:10px;">✨ Новий запис клієнта</h3>
-            <div id="modalBookingDetails" style="font-size:11px; line-height:1.6; color:var(--tg-text); margin-bottom:14px;"></div>
+        <div class="master-section" style="border:1px solid var(--accent); border-radius:20px; padding:20px; width:100%; max-width:340px; max-height:85vh; overflow-y:auto; box-shadow: 0 15px 40px rgba(0,0,0,0.6);">
+            <h3 style="font-family:'Syne',sans-serif; font-size:14px; color:var(--accent); margin-bottom:12px;">✨ Новий запис клієнта</h3>
+            <div id="modalBookingDetails" style="font-size:11px; line-height:1.6; color:var(--tg-text); margin-bottom:16px;"></div>
             <button class="btn-main" onclick="closeBookingModal()">Зрозуміло / Закрити</button>
         </div>
     </div>
@@ -353,7 +344,7 @@
     <script>
         function toggleMasterTheme() {
             let body = document.body;
-            let current = body.getAttribute('data-theme');
+            let current = body.getAttribute('data-theme') || 'dark';
             let next = current === 'dark' ? 'light' : 'dark';
             body.setAttribute('data-theme', next);
             localStorage.setItem('illiana_master_theme', next);
@@ -401,18 +392,18 @@
             let target = document.getElementById(sectionId);
             if (target) target.style.display = 'flex';
             
-            document.querySelectorAll('.tg-nav-btn').forEach(i => i.classList.remove('active'));
+            document.querySelectorAll('.korea-nav-chip').forEach(i => i.classList.remove('active'));
             if (el) el.classList.add('active');
         }
 
         function showMasterDashboard() {
             let loginBox = document.getElementById('masterLoginBox');
             let dash = document.getElementById('masterDashboard');
-            let nav = document.getElementById('tgBottomNav');
+            let koreaNav = document.getElementById('koreaNavContainer');
             if (loginBox) loginBox.style.display = 'none';
             if (dash) dash.style.display = 'flex';
-            if (nav) nav.style.display = 'flex';
-            switchMasterSection('secCalendar', document.querySelector('.tg-nav-btn'));
+            if (koreaNav) koreaNav.style.display = 'flex';
+            switchMasterSection('secCalendar', document.querySelector('.korea-nav-chip'));
             updateCrmCounters();
         }
 
@@ -502,7 +493,7 @@
                 }
             } catch(e) {}
 
-            switchMasterSection('secCalendar', document.querySelector('.tg-nav-btn'));
+            switchMasterSection('secCalendar', document.querySelector('.korea-nav-chip'));
             if (latestBookingDate && typeof selectCalendarDate === 'function') {
                 selectCalendarDate(latestBookingDate);
             }
