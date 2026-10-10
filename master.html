@@ -170,21 +170,28 @@
 
     <!-- Фонова картинка -->
     <div class="master-bg">
-        <img id="bgMasterImage" src="PXL_20241102_164641261.jpg" alt="Master Background" onerror="this.src='https://i.ibb.co/M5stSykh/photo-2026-09-30-14-50-24.jpg'">
+        <img id="bgMasterImage" src="" alt="Master Background">
     </div>
 
     <div class="mobile-container master-body">
         
-        <!-- Верхній рядок: аватар та кнопка теми -->
+        <!-- Верхній рядок: аватар (клікабельний для зміни фото) та кнопка теми -->
         <div class="master-utility-bar">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 38px; height: 38px; border-radius: 50%; overflow:hidden; border:2px solid var(--accent); flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.3); position:relative; cursor:pointer;" title="Натисніть, щоб змінити фото">
-                    <img id="avatarMasterImage" src="PXL_20241102_164641261.jpg" style="width:100%; height:100%; object-fit:cover;" alt="Ілляна" onerror="this.src='https://i.ibb.co/M5stSykh/photo-2026-09-30-14-50-24.jpg'">
-                    <input type="file" accept="image/*" onchange="handleMasterPhotoUpload(event)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;">
+                <div style="width: 38px; height: 38px; border-radius: 50%; overflow:hidden; border:2px solid var(--accent); flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.3); position:relative; cursor:pointer;" title="Натисніть сюди, щоб обрати ваше фото!">
+                    <img id="avatarMasterImage" src="" style="width:100%; height:100%; object-fit:cover;" alt="Ілляна">
+                    <input type="file" accept="image/*" onchange="handleMasterPhotoUpload(event)" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:20;">
                 </div>
                 <span style="font-family:'Syne',sans-serif; font-size:12px; font-weight:800; color:var(--tg-text); letter-spacing: 0.5px;">ЯВІР ІЛЛЯНА // CRM</span>
             </div>
-            <button class="control-btn" onclick="toggleMasterTheme()" style="border-radius:50%; width:38px; height:38px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--tg-card); border-color:var(--tg-border); color:var(--tg-text); flex-shrink: 0; font-size:15px;">☀️</button>
+            <div style="display: flex; gap: 6px;">
+                <!-- Кнопка швидкого завантаження фото якщо аватар не видно -->
+                <label class="control-btn" style="border-radius:50%; width:38px; height:38px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--tg-card); border-color:var(--tg-border); color:var(--tg-text); font-size:14px; cursor:pointer;" title="Завантажити фото">
+                    📷
+                    <input type="file" accept="image/*" onchange="handleMasterPhotoUpload(event)" style="display:none;">
+                </label>
+                <button class="control-btn" onclick="toggleMasterTheme()" style="border-radius:50%; width:38px; height:38px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--tg-card); border-color:var(--tg-border); color:var(--tg-text); font-size:15px;">☀️</button>
+            </div>
         </div>
 
         <!-- Екран авторизації -->
@@ -341,18 +348,19 @@
 
     <script src="app.js"></script>
     <script>
-        // Завантаження збереженої фотографії для фону та аватара з пам'яті
+        // Завантаження фотографії з пам'яті браузера на фон та аватар
         function loadMasterSavedPhoto() {
             let savedPhoto = localStorage.getItem('illiana_custom_master_photo');
-            if (savedPhoto) {
-                let bgImg = document.getElementById('bgMasterImage');
-                let avImg = document.getElementById('avatarMasterImage');
-                if (bgImg) bgImg.src = savedPhoto;
-                if (avImg) avImg.src = savedPhoto;
-            }
+            let defaultFallback = 'https://i.ibb.co/M5stSykh/photo-2026-09-30-14-50-24.jpg';
+            let targetSrc = savedPhoto || defaultFallback;
+
+            let bgImg = document.getElementById('bgMasterImage');
+            let avImg = document.getElementById('avatarMasterImage');
+            if (bgImg) bgImg.src = targetSrc;
+            if (avImg) avImg.src = targetSrc;
         }
 
-        // Функція для встановлення вашої фотографії через аватарку
+        // Обробник вибору вашої фотографії
         function handleMasterPhotoUpload(event) {
             let file = event.target.files[0];
             if (file) {
@@ -373,7 +381,7 @@
             body.setAttribute('data-theme', next);
             localStorage.setItem('illiana_master_theme', next);
             
-            let themeBtn = document.querySelector('.master-utility-bar button');
+            let themeBtn = document.querySelector('.master-utility-bar button:last-child');
             if (themeBtn) {
                 themeBtn.innerText = next === 'dark' ? '☀️' : '🌙';
             }
@@ -382,12 +390,47 @@
         window.addEventListener('DOMContentLoaded', () => {
             loadMasterSavedPhoto();
             let savedTheme = localStorage.getItem('illiana_master_theme') || 'dark';
-            document.body.setAttribute('data-theme', savedTheme);
-            let themeBtn = document.querySelector('.master-utility-bar button');
-            if (themeBtn) {
-                themeBtn.innerText = savedTheme === 'dark' ? '☀️' : '🌙';
+            bodySetTheme(savedTheme);
+
+            document.body.addEventListener('click', () => {
+                try {
+                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    if (audioCtx.state === 'suspended') audioCtx.resume();
+                } catch(e) {}
+            }, { once: true });
+
+            if (localStorage.getItem('illiana_master_logged') === 'true') {
+                showMasterDashboard();
             }
+
+            setInterval(async () => {
+                try {
+                    let res = await fetch('/api/bookings');
+                    let books = await res.json() || [];
+                    
+                    if (window.lastKnownBookingsCount !== undefined && books.length > window.lastKnownBookingsCount) {
+                        playNotificationSound();
+                    }
+                    window.lastKnownBookingsCount = books.length;
+
+                    if (books.length > 0) {
+                        let banner = document.getElementById('newBookingAlertBanner');
+                        let bannerText = document.getElementById('alertBannerText');
+                        if (banner) banner.style.display = 'flex';
+                        if (bannerText) bannerText.innerText = `🔔 Новий запис! Бронювань: ${books.length}`;
+                        updateCrmCounters();
+                    }
+                } catch(e) {}
+            }, 5000);
         });
+
+        function bodySetTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+            let themeBtn = document.querySelector('.master-utility-bar button:last-child');
+            if (themeBtn) {
+                themeBtn.innerText = theme === 'dark' ? '☀️' : '🌙';
+            }
+        }
 
         async function filterCrmBookings(query) {
             let q = query.toLowerCase().trim();
@@ -481,7 +524,7 @@
                 
                 oscillator.type = 'sine';
                 oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-                oscillator.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15);
+                oscractor.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15);
                 
                 gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
@@ -494,7 +537,6 @@
             } catch(e) {}
         }
 
-        let lastKnownBookingsCount = -1;
         let latestBookingDate = null;
 
         async function handleBannerClick() {
@@ -537,39 +579,6 @@
             let modal = document.getElementById('bookingModalPopup');
             if (modal) modal.style.display = 'none';
         }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            document.body.addEventListener('click', () => {
-                try {
-                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    if (audioCtx.state === 'suspended') audioCtx.resume();
-                } catch(e) {}
-            }, { once: true });
-
-            if (localStorage.getItem('illiana_master_logged') === 'true') {
-                showMasterDashboard();
-            }
-
-            setInterval(async () => {
-                try {
-                    let res = await fetch('/api/bookings');
-                    let books = await res.json() || [];
-                    
-                    if (lastKnownBookingsCount !== -1 && books.length > lastKnownBookingsCount) {
-                        playNotificationSound();
-                    }
-                    lastKnownBookingsCount = books.length;
-
-                    if (books.length > 0) {
-                        let banner = document.getElementById('newBookingAlertBanner');
-                        let bannerText = document.getElementById('alertBannerText');
-                        if (banner) banner.style.display = 'flex';
-                        if (bannerText) bannerText.innerText = `🔔 Новий запис! Бронювань: ${books.length}`;
-                        updateCrmCounters();
-                    }
-                } catch(e) {}
-            }, 5000);
-        });
     </script>
 </body>
 </html>
