@@ -15,7 +15,7 @@
         <img id="bgImageElement" src="https://i.ibb.co/M5stSykh/photo-2026-09-30-14-50-24.jpg" alt="Background">
     </div>
 
-    <div class="mobile-container seoul-fade-in">
+    <div class="mobile-container">
         <div class="utility-bar">
             <span>dnipro // studio</span>
             <div class="controls-group">
@@ -67,7 +67,7 @@
                     </div>
                 </div>
 
-                <!-- Усі 21 фото для вибору референсу -->
+                <!-- 21 фото для вибору референсу -->
                 <div id="haircutExamplesSection" style="margin-top: 10px; display: none;">
                     <label class="field-label" data-i18n="haircut_ref_title">✨ Оберіть приклад стрижки (натисніть, щоб обрати як референс):</label>
                     <div class="haircut-carousel">
@@ -98,12 +98,12 @@
                     </div>
                 </div>
 
-                <div id="categorySubmenu">
+                <div id="categorySubmenu" style="display: none;">
                     <label class="field-label" style="margin-top: 6px;" data-i18n="step2">2. Оберіть ваш поточний стан волосся:</label>
                     <div id="submenuItems" style="display: flex; flex-direction: column; gap: 6px;"></div>
                 </div>
 
-                <div id="coloringSubOptions">
+                <div id="coloringSubOptions" style="display: none;">
                     <label class="field-label" data-i18n="step3">3. Доступні послуги та довжина:</label>
                     <div id="specificServicesList" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px;"></div>
                     <div id="lengthContainer">
@@ -126,8 +126,8 @@
                     </div>
                 </div>
 
-                <!-- Вертикальні блоки завантаження фотографій -->
-                <div id="photoUploadSection">
+                <!-- Блоки завантаження фотографій -->
+                <div id="photoUploadSection" style="display: none;">
                     <div class="photo-upload-container">
                         <label data-i18n="photo_current_label">4. Завантажте фото вашого волосся:</label>
                         <input type="file" id="clientHairPhoto" accept="image/*">
@@ -157,7 +157,7 @@
                     <div class="time-grid" id="timeSlotsGrid"></div>
                 </div>
 
-                <div class="notice-badge" id="slotNotice">
+                <div class="notice-badge" id="slotNotice" data-i18n="slot_notice_init">
                     ⚡ <b>Слот заброньовано на:</b> оберіть послугу та час.
                 </div>
 
@@ -183,7 +183,7 @@
                     </div>
                 </div>
 
-                <div class="notice-badge">
+                <div class="notice-badge" data-i18n="deposit_notice">
                     ⚡ <b>Умова броні:</b> Завдаток <b>500 грн</b> підтверджує запис.
                 </div>
 
@@ -192,7 +192,7 @@
                     📄 Оформлюючи запис, ви погоджуєтесь із умовами <a href="javascript:void(0)" onclick="openOffer()" style="color: var(--accent); text-decoration: underline; font-weight: 700;">Публічного договору оферти</a>.
                 </div>
 
-                <button class="btn-main" onclick="submitBooking()">Сплатити завдаток 500 ₴ та забронювати</button>
+                <button class="btn-main" onclick="submitBooking()" data-i18n="pay_btn">Сплатити завдаток 500 ₴ та забронювати</button>
             </div>
         </div>
 
@@ -235,10 +235,10 @@
 
         <!-- TAB: LOCATION -->
         <div id="paneLoc" class="section-pane">
-            <div class="info-card">
+            <div class="info-card" data-i18n="loc_info">
                 📍 <b>Локація:</b> м. Дніпро, вул. Володимира Вернадського, 35-Б.<br><br>
                 Приватний простір, мінімалізм та фокус на якості.<br>
-                <a href="https://maps.google.com/?q=вулиця+Володимира+Вернадського+35Б,+Дніпро" target="_blank" class="map-btn">Відкрити в Google Maps</a>
+                <a href="https://maps.google.com/?q=вулиця+Володимира+Вернадського+35Б,+Дніпро" target="_blank" class="map-btn" data-i18n="map_btn">Відкрити в Google Maps</a>
             </div>
         </div>
     </div>
@@ -246,7 +246,7 @@
     <!-- Modal Offer (Повний текст договору оферти) -->
     <div id="offerModal">
         <div class="modal-body">
-            <h3>ПУБЛІЧНИЙ ДОГОВІР ОФЕРТИ</h3>
+            <h3 data-i18n="modal_title">ПУБЛІЧНИЙ ДОГОВІР ОФЕРТИ</h3>
             <div class="offer-text-content">
                 <b>про надання інформаційно-консультаційних та перукарських послуг</b><br><br>
                 Цей договір є офіційною пропозицією (офертою) фізичної особи-підприємця <b>Явір Ілляна Володимирівна</b> (далі - «Виконавець»), адресованою невизначеному колу фізичних осіб (далі - «Замовник/Клієнт»), які звертаються за послугами через сайт студії.<br><br>
@@ -263,12 +263,12 @@
                 • РНОКПП: 3600209601<br>
                 • Рахунок (IBAN): UA923220010000026005320084201
             </div>
-            <button class="btn-main" onclick="closeOffer()" style="margin-top: 10px;">Зрозуміло</button>
+            <button class="btn-main" onclick="closeOffer()" style="margin-top: 10px;" data-i18n="modal_btn">Зрозуміло</button>
         </div>
     </div>
 
     <!-- Lightbox -->
-    <div id="imageLightboxModal" onclick="openLightbox()">
+    <div id="imageLightboxModal" onclick="closeLightbox()">
         <img id="lightboxImage" src="" alt="Збільшене фото">
     </div>
 
