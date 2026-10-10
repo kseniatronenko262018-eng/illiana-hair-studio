@@ -632,3 +632,81 @@ button:active,
     transform: scale(0.96) !important;
     opacity: 0.9;
 }
+/* --- КОРЕЙСЬКІ ПРЕМІУМ-АНІМАЦІЇ (SEOUL MOTION) --- */
+
+/* 1. Плавний вхід сторінки з розмиттям */
+@keyframes seoulBlurIn {
+    0% {
+        opacity: 0;
+        transform: translateY(14px);
+        filter: blur(6px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+/* 2. Ефект дихання для аватарки та головної картки */
+@keyframes seoulBreath {
+    0%, 100% {
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+    }
+    50% {
+        box-shadow: 0 18px 55px rgba(216, 140, 154, 0.28);
+    }
+}
+
+/* Застосовуємо плавний вхід до контейнера */
+.mobile-container {
+    animation: seoulBlurIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Застосовуємо дихання до профілю */
+.profile-card {
+    animation: seoulBreath 6s ease-in-out infinite;
+}
+
+/* 3. Преміальні плавні переходи для інтерактивних елементів */
+.service-card-mini, .sub-service-card, .nav-chip, .control-btn, .time-cell, .cal-day, .works-carousel-item, .haircut-carousel-item {
+    transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+/* Магнітний ефект при наведенні */
+.service-card-mini:hover, .sub-service-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 10px 30px rgba(216, 140, 154, 0.18);
+}
+
+/* Плавне збільшення фоток у галереї при наведенні */
+.works-carousel-item img, .haircut-carousel-item img {
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.works-carousel-item:hover img, .haircut-carousel-item:hover img {
+    transform: scale(1.06);
+}
+
+/* 4. Пружинний ефект (Spring Click) на кнопки та таби */
+button:active, 
+.control-btn:active, 
+.nav-chip:active, 
+.service-card-mini:active, 
+.sub-service-card:active, 
+.time-cell:not(.booked):active, 
+.cal-day:active, 
+.btn-main:active {
+    transform: scale(0.95) !important;
+    opacity: 0.88;
+    transition: transform 0.1s ease !important;
+}
+
+/* Головна кнопка з підсвічуванням */
+.btn-main {
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+.btn-main:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(216, 140, 154, 0.45);
+}
