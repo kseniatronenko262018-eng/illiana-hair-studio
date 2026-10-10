@@ -37,7 +37,6 @@ body {
     padding: 14px 8px;
     position: relative;
     overflow-x: hidden;
-    transition: background 0.35s ease, color 0.35s ease;
 }
 
 .bg-texture {
@@ -46,8 +45,7 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 1;
-    overflow: hidden;
+    z-index: -1;
     pointer-events: none;
 }
 
@@ -55,13 +53,11 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: blur(14px) brightness(0.82) contrast(1.05);
-    transform: scale(1.08);
-    transition: filter 0.4s ease;
+    filter: blur(14px) brightness(0.82);
 }
 
 [data-theme="dark"] .bg-texture img {
-    filter: blur(14px) brightness(0.32) contrast(1.1);
+    filter: blur(14px) brightness(0.32);
 }
 
 .mobile-container {
@@ -71,9 +67,7 @@ body {
     flex-direction: column;
     gap: 12px;
     position: relative;
-    z-index: 5;
-    pointer-events: auto;
-    animation: seoulSmoothReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    z-index: 2;
 }
 
 .utility-bar {
@@ -102,24 +96,18 @@ body {
     font-size: 9px;
     font-weight: 700;
     cursor: pointer;
-    letter-spacing: 0.8px;
-    backdrop-filter: blur(15px);
     position: relative;
-    z-index: 20;
-    pointer-events: auto;
-    transition: all 0.2s ease;
+    z-index: 10;
 }
 
 .profile-card {
     background: var(--card-bg);
     backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--border);
     border-radius: 22px;
     padding: 24px 16px;
     text-align: center;
     box-shadow: 0 12px 40px rgba(0,0,0,0.2);
-    animation: cardGlowPulse 6s ease-in-out infinite;
 }
 
 .avatar-wrap {
@@ -129,7 +117,6 @@ body {
     margin: 0 auto 12px auto;
     overflow: hidden;
     border: 2px solid var(--accent);
-    box-shadow: 0 6px 20px rgba(216, 140, 154, 0.25);
 }
 
 .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
@@ -140,7 +127,6 @@ body {
     font-weight: 800;
     line-height: 1.1;
     margin-bottom: 4px;
-    letter-spacing: -0.5px;
     text-transform: uppercase;
     color: var(--text-main);
 }
@@ -151,7 +137,6 @@ body {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1.5px;
-    margin-top: 4px;
 }
 
 .profile-bio {
@@ -159,7 +144,6 @@ body {
     color: var(--text-muted);
     font-style: italic;
     margin-top: 8px;
-    letter-spacing: 0.3px;
 }
 
 .quick-nav {
@@ -170,7 +154,6 @@ body {
 
 .nav-chip {
     background: var(--card-bg);
-    backdrop-filter: blur(15px);
     border: 1px solid var(--border);
     padding: 12px 4px;
     border-radius: 14px;
@@ -180,32 +163,26 @@ body {
     cursor: pointer;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
     position: relative;
-    z-index: 20;
-    pointer-events: auto;
-    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    z-index: 10;
 }
 
 .nav-chip.active {
     background: var(--accent);
     color: var(--accent-invert);
     border-color: var(--accent);
-    box-shadow: 0 4px 15px rgba(216, 140, 154, 0.3);
 }
 
 .section-pane {
     display: none;
     flex-direction: column;
     gap: 12px;
-    animation: seoulSmoothReveal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 .section-pane.active { display: flex; }
 
 .form-card {
     background: var(--card-bg);
     backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 16px;
@@ -213,10 +190,8 @@ body {
     flex-direction: column;
     gap: 12px;
     box-shadow: 0 12px 40px rgba(0,0,0,0.2);
-    width: 100%;
     position: relative;
-    z-index: 10;
-    pointer-events: auto;
+    z-index: 5;
 }
 
 .field-label {
@@ -240,17 +215,13 @@ body {
     font-weight: 500;
     outline: none;
     position: relative;
-    z-index: 20;
-    pointer-events: auto;
-    transition: border-color 0.2s ease;
+    z-index: 10;
 }
 .input-box:focus { border-color: var(--accent); }
 select.input-box { appearance: none; cursor: pointer; }
 option { background: var(--bg-dark); color: var(--text-main); }
 
-#clientDate {
-    width: 100% !important;
-}
+#clientDate { width: 100% !important; }
 
 .photo-upload-container {
     display: flex;
@@ -261,16 +232,6 @@ option { background: var(--bg-dark); color: var(--text-main); }
     background: var(--card-hover);
     border: 1px solid var(--border);
     border-radius: 14px;
-    position: relative;
-    z-index: 15;
-}
-
-.photo-upload-container label {
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    letter-spacing: 0.5px;
 }
 
 .photo-upload-container input[type="file"] {
@@ -283,8 +244,7 @@ option { background: var(--bg-dark); color: var(--text-main); }
     font-size: 10px;
     cursor: pointer;
     position: relative;
-    z-index: 20;
-    pointer-events: auto;
+    z-index: 10;
 }
 
 .services-grid {
@@ -303,19 +263,12 @@ option { background: var(--bg-dark); color: var(--text-main); }
     flex-direction: column;
     justify-content: space-between;
     gap: 8px;
-    text-align: left;
     position: relative;
-    z-index: 20;
-    pointer-events: auto;
-    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    z-index: 10;
 }
 .service-card-mini.selected {
     border-color: var(--accent);
     background: rgba(216, 140, 154, 0.12);
-}
-.service-card-mini:hover {
-    transform: translateY(-2px);
-    border-color: var(--accent);
 }
 
 .service-card-mini img {
@@ -333,12 +286,7 @@ option { background: var(--bg-dark); color: var(--text-main); }
     gap: 8px;
     overflow-x: auto;
     padding-bottom: 6px;
-    scrollbar-width: thin;
-    position: relative;
-    z-index: 15;
 }
-.haircut-carousel::-webkit-scrollbar, .works-carousel::-webkit-scrollbar { height: 4px; }
-.haircut-carousel::-webkit-scrollbar-thumb, .works-carousel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
 .haircut-carousel-item {
     flex: 0 0 75px;
@@ -347,18 +295,15 @@ option { background: var(--bg-dark); color: var(--text-main); }
     overflow: hidden;
     border: 1px solid var(--border);
     cursor: pointer;
-    position: relative;
-    z-index: 20;
-    pointer-events: auto;
     background: var(--card-hover);
-    transition: all 0.3s ease;
+    position: relative;
+    z-index: 10;
 }
 .haircut-carousel-item.selected {
     border-color: var(--accent);
-    box-shadow: 0 0 10px rgba(216, 140, 154, 0.4);
 }
-.haircut-carousel-item img { width: 100%; height: 74px; object-fit: cover; transition: transform 0.4s ease; }
-.haircut-carousel-item span { display: block; text-align: center; font-size: 8px; font-weight: 700; background: var(--card-hover); padding: 3px 0; color: var(--text-muted); }
+.haircut-carousel-item img { width: 100%; height: 74px; object-fit: cover; }
+.haircut-carousel-item span { display: block; text-align: center; font-size: 8px; font-weight: 700; padding: 3px 0; color: var(--text-muted); }
 
 .works-carousel-item {
     flex: 0 0 110px;
@@ -369,17 +314,16 @@ option { background: var(--bg-dark); color: var(--text-main); }
     cursor: pointer;
     background: var(--card-hover);
     position: relative;
-    z-index: 20;
-    pointer-events: auto;
-    transition: all 0.3s ease;
+    z-index: 10;
 }
-.works-carousel-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.works-carousel-item img { width: 100%; height: 100%; object-fit: cover; }
 
+/* Важливо для клікабельності карток стану волосся (пункт 2) */
 .sub-service-card {
     background: var(--card-hover);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 10px 12px;
+    padding: 12px;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
@@ -387,24 +331,15 @@ option { background: var(--bg-dark); color: var(--text-main); }
     position: relative;
     z-index: 20;
     pointer-events: auto;
-    transition: all 0.3s ease;
 }
 .sub-service-card.selected {
     border-color: var(--accent);
-    background: rgba(216, 140, 154, 0.15);
-}
-.sub-service-card:hover {
-    transform: translateY(-2px);
-    border-color: var(--accent);
+    background: rgba(216, 140, 154, 0.18);
 }
 .sub-service-card .s-title { font-size: 10px; font-weight: 700; color: var(--text-main); }
 .sub-service-card .s-sub { font-size: 8px; color: var(--text-muted); }
 
-.form-row {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
+.form-row { display: flex; flex-direction: column; gap: 8px; }
 
 .time-grid { 
     display: flex; 
@@ -412,8 +347,6 @@ option { background: var(--bg-dark); color: var(--text-main); }
     gap: 6px; 
     overflow-x: auto;
     padding-bottom: 6px;
-    position: relative;
-    z-index: 15;
 }
 
 .time-cell {
@@ -431,12 +364,10 @@ option { background: var(--bg-dark); color: var(--text-main); }
     align-items: center;
     justify-content: center;
     position: relative;
-    z-index: 20;
-    pointer-events: auto;
-    transition: all 0.2s ease;
+    z-index: 10;
 }
 .time-cell.selected { background: var(--accent); color: var(--accent-invert); border-color: var(--accent); }
-.time-cell.booked { opacity: 0.4; pointer-events: none; background: rgba(216,140,154,0.1); }
+.time-cell.booked { opacity: 0.4; pointer-events: none; }
 
 .notice-badge, .policy-highlight-card {
     font-size: 9px !important;
@@ -462,27 +393,18 @@ option { background: var(--bg-dark); color: var(--text-main); }
     text-transform: uppercase;
     letter-spacing: 1px;
     cursor: pointer;
-    box-shadow: 0 6px 20px rgba(216, 140, 154, 0.35);
     position: relative;
-    z-index: 25;
-    pointer-events: auto;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.btn-main:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(216, 140, 154, 0.5);
+    z-index: 20;
 }
 
 .info-card {
     background: var(--card-bg);
-    backdrop-filter: blur(20px);
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 16px;
     font-size: 10px;
     line-height: 1.6;
     color: var(--text-muted);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.2);
 }
 .info-card b { color: var(--text-main); }
 
@@ -498,24 +420,16 @@ option { background: var(--bg-dark); color: var(--text-main); }
     font-weight: 700;
     font-size: 9px;
     text-transform: uppercase;
-    letter-spacing: 1px;
     margin-top: 10px;
     position: relative;
-    z-index: 20;
-    pointer-events: auto;
-    transition: all 0.2s ease;
+    z-index: 10;
 }
 
-/* Модальне вікно оферти */
 #offerModal, #imageLightboxModal {
     display: none;
     position: fixed;
-    top: 0; 
-    left: 0; 
-    width: 100vw; 
-    height: 100vh;
+    top: 0; left: 0; width: 100vw; height: 100vh;
     background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(10px);
     z-index: 99999;
     padding: 16px;
     justify-content: center;
@@ -532,66 +446,8 @@ option { background: var(--bg-dark); color: var(--text-main); }
     border-radius: 18px;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    position: relative;
-    z-index: 100000;
 }
 
-.modal-body h3 { 
-    font-size: 12px; 
-    color: var(--text-main); 
-    margin-bottom: 10px; 
-    text-align: center; 
-    text-transform: uppercase; 
-    font-family: 'Syne', sans-serif; 
-}
-
-.offer-text-content { 
-    font-size: 9.5px; 
-    color: var(--text-muted); 
-    line-height: 1.5; 
-    overflow-y: auto !important; 
-    max-height: 50vh !important;
-    padding-right: 6px; 
-    margin-bottom: 12px; 
-    flex-grow: 1; 
-}
-
-#lightboxImage {
-    max-width: 95vw !important;
-    max-height: 90vh !important;
-    object-fit: contain !important;
-    border-radius: 10px;
-}
-
-/* Анімації */
-@keyframes seoulSmoothReveal {
-    from {
-        opacity: 0;
-        transform: translateY(12px);
-        filter: blur(4px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-        filter: blur(0);
-    }
-}
-
-@keyframes cardGlowPulse {
-    0% { box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2); }
-    50% { box-shadow: 0 16px 50px rgba(216, 140, 154, 0.3); }
-    100% { box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2); }
-}
-
-button:active, 
-.control-btn:active, 
-.nav-chip:active, 
-.service-card-mini:active, 
-.sub-service-card:active, 
-.time-cell:not(.booked):active, 
-.cal-day:active, 
-.btn-main:active {
-    transform: scale(0.96) !important;
-    opacity: 0.9;
-}
+.modal-body h3 { font-size: 12px; color: var(--text-main); margin-bottom: 10px; text-align: center; text-transform: uppercase; }
+.offer-text-content { font-size: 9.5px; color: var(--text-muted); line-height: 1.5; overflow-y: auto; max-height: 50vh; margin-bottom: 12px; }
+#lightboxImage { max-width: 95vw; max-height: 90vh; object-fit: contain; border-radius: 10px; }
