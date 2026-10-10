@@ -46,7 +46,7 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: -1;
+    z-index: 1;
     overflow: hidden;
     pointer-events: none;
 }
@@ -71,15 +71,9 @@ body {
     flex-direction: column;
     gap: 12px;
     position: relative;
-    z-index: 2;
+    z-index: 5;
+    pointer-events: auto;
     animation: seoulSmoothReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.master-body {
-    max-width: 440px !important;
-    width: 100% !important;
-    padding: 12px !important;
-    margin: 0 auto !important;
 }
 
 .utility-bar {
@@ -111,7 +105,8 @@ body {
     letter-spacing: 0.8px;
     backdrop-filter: blur(15px);
     position: relative;
-    z-index: 5;
+    z-index: 20;
+    pointer-events: auto;
     transition: all 0.2s ease;
 }
 
@@ -187,7 +182,8 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     position: relative;
-    z-index: 5;
+    z-index: 20;
+    pointer-events: auto;
     transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
@@ -219,7 +215,8 @@ body {
     box-shadow: 0 12px 40px rgba(0,0,0,0.2);
     width: 100%;
     position: relative;
-    z-index: 2;
+    z-index: 10;
+    pointer-events: auto;
 }
 
 .field-label {
@@ -242,6 +239,9 @@ body {
     font-size: 11px;
     font-weight: 500;
     outline: none;
+    position: relative;
+    z-index: 20;
+    pointer-events: auto;
     transition: border-color 0.2s ease;
 }
 .input-box:focus { border-color: var(--accent); }
@@ -261,6 +261,8 @@ option { background: var(--bg-dark); color: var(--text-main); }
     background: var(--card-hover);
     border: 1px solid var(--border);
     border-radius: 14px;
+    position: relative;
+    z-index: 15;
 }
 
 .photo-upload-container label {
@@ -280,6 +282,9 @@ option { background: var(--bg-dark); color: var(--text-main); }
     color: var(--text-muted);
     font-size: 10px;
     cursor: pointer;
+    position: relative;
+    z-index: 20;
+    pointer-events: auto;
 }
 
 .services-grid {
@@ -300,7 +305,8 @@ option { background: var(--bg-dark); color: var(--text-main); }
     gap: 8px;
     text-align: left;
     position: relative;
-    z-index: 5;
+    z-index: 20;
+    pointer-events: auto;
     transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 .service-card-mini.selected {
@@ -328,6 +334,8 @@ option { background: var(--bg-dark); color: var(--text-main); }
     overflow-x: auto;
     padding-bottom: 6px;
     scrollbar-width: thin;
+    position: relative;
+    z-index: 15;
 }
 .haircut-carousel::-webkit-scrollbar, .works-carousel::-webkit-scrollbar { height: 4px; }
 .haircut-carousel::-webkit-scrollbar-thumb, .works-carousel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
@@ -340,7 +348,8 @@ option { background: var(--bg-dark); color: var(--text-main); }
     border: 1px solid var(--border);
     cursor: pointer;
     position: relative;
-    z-index: 5;
+    z-index: 20;
+    pointer-events: auto;
     background: var(--card-hover);
     transition: all 0.3s ease;
 }
@@ -349,7 +358,6 @@ option { background: var(--bg-dark); color: var(--text-main); }
     box-shadow: 0 0 10px rgba(216, 140, 154, 0.4);
 }
 .haircut-carousel-item img { width: 100%; height: 74px; object-fit: cover; transition: transform 0.4s ease; }
-.haircut-carousel-item:hover img { transform: scale(1.05); }
 .haircut-carousel-item span { display: block; text-align: center; font-size: 8px; font-weight: 700; background: var(--card-hover); padding: 3px 0; color: var(--text-muted); }
 
 .works-carousel-item {
@@ -361,11 +369,11 @@ option { background: var(--bg-dark); color: var(--text-main); }
     cursor: pointer;
     background: var(--card-hover);
     position: relative;
-    z-index: 5;
+    z-index: 20;
+    pointer-events: auto;
     transition: all 0.3s ease;
 }
 .works-carousel-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
-.works-carousel-item:hover img { transform: scale(1.05); }
 
 .sub-service-card {
     background: var(--card-hover);
@@ -377,7 +385,8 @@ option { background: var(--bg-dark); color: var(--text-main); }
     justify-content: space-between;
     align-items: center;
     position: relative;
-    z-index: 5;
+    z-index: 20;
+    pointer-events: auto;
     transition: all 0.3s ease;
 }
 .sub-service-card.selected {
@@ -403,6 +412,8 @@ option { background: var(--bg-dark); color: var(--text-main); }
     gap: 6px; 
     overflow-x: auto;
     padding-bottom: 6px;
+    position: relative;
+    z-index: 15;
 }
 
 .time-cell {
@@ -420,7 +431,8 @@ option { background: var(--bg-dark); color: var(--text-main); }
     align-items: center;
     justify-content: center;
     position: relative;
-    z-index: 5;
+    z-index: 20;
+    pointer-events: auto;
     transition: all 0.2s ease;
 }
 .time-cell.selected { background: var(--accent); color: var(--accent-invert); border-color: var(--accent); }
@@ -452,7 +464,8 @@ option { background: var(--bg-dark); color: var(--text-main); }
     cursor: pointer;
     box-shadow: 0 6px 20px rgba(216, 140, 154, 0.35);
     position: relative;
-    z-index: 5;
+    z-index: 25;
+    pointer-events: auto;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .btn-main:hover {
@@ -487,6 +500,9 @@ option { background: var(--bg-dark); color: var(--text-main); }
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-top: 10px;
+    position: relative;
+    z-index: 20;
+    pointer-events: auto;
     transition: all 0.2s ease;
 }
 
@@ -517,6 +533,8 @@ option { background: var(--bg-dark); color: var(--text-main); }
     display: flex;
     flex-direction: column;
     box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    position: relative;
+    z-index: 100000;
 }
 
 .modal-body h3 { 
@@ -546,61 +564,7 @@ option { background: var(--bg-dark); color: var(--text-main); }
     border-radius: 10px;
 }
 
-.calendar-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-    gap: 4px;
-}
-.cal-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 3px;
-    text-align: center;
-    font-size: 9px;
-}
-.cal-header-day { font-weight: 700; color: var(--text-muted); padding: 2px 0; }
-.cal-day {
-    background: var(--card-hover);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 6px 2px;
-    min-height: 38px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 9px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-.cal-day.active-booking { border-color: var(--accent); background: rgba(216,140,154,0.15); }
-.cal-day.day-blocked { background: rgba(100, 100, 100, 0.2); border-style: dashed; opacity: 0.5; }
-.cal-day .dot { width: 4px; height: 4px; background: var(--accent); border-radius: 50%; margin-top: 3px; }
-
-.booking-item {
-    background: var(--card-hover);
-    border: 1px solid var(--border);
-    padding: 8px;
-    border-radius: 10px;
-    margin-top: 4px;
-    font-size: 9px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-.danger-btn {
-    background: transparent;
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 8px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-/* Корейські моушен-анімації */
+/* Анімації */
 @keyframes seoulSmoothReveal {
     from {
         opacity: 0;
