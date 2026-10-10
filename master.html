@@ -8,14 +8,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Теми оформлення: Темна та Світла кремова */
         :root[data-theme="dark"] {
             --accent: #d88c9a;
             --accent-invert: #161514;
             --tg-bg: #161514;
-            --tg-card: rgba(34, 32, 30, 0.92);
-            --tg-card-hover: rgba(46, 42, 39, 0.95);
-            --tg-border: rgba(226, 215, 204, 0.12);
+            --tg-card: rgba(30, 28, 26, 0.88);
+            --tg-card-hover: rgba(42, 38, 35, 0.92);
+            --tg-border: rgba(226, 215, 204, 0.1);
             --tg-text: #f3efe9;
             --tg-muted: #a69e94;
         }
@@ -24,9 +23,9 @@
             --accent: #b86b79;
             --accent-invert: #ffffff;
             --tg-bg: #e6dfd5;
-            --tg-card: rgba(255, 253, 250, 0.92);
-            --tg-card-hover: rgba(245, 240, 232, 0.95);
-            --tg-border: rgba(0, 0, 0, 0.1);
+            --tg-card: rgba(255, 252, 248, 0.88);
+            --tg-card-hover: rgba(242, 237, 228, 0.92);
+            --tg-border: rgba(0, 0, 0, 0.08);
             --tg-text: #2c2825;
             --tg-muted: #756d65;
         }
@@ -34,41 +33,43 @@
         body {
             background-color: var(--tg-bg) !important;
             color: var(--tg-text) !important;
-            padding-bottom: 80px;
-            transition: background 0.3s, color 0.3s;
+            padding-bottom: 90px;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
-        /* Фонова картинка з розмиттям та затемненням */
+        /* Преміальний фоновий шар з вашою фотографією */
         .master-bg {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: -999; overflow: hidden; background-color: var(--tg-bg);
         }
         .master-bg img {
             width: 100%; height: 100%; object-fit: cover;
-            filter: blur(5px) brightness(0.4) contrast(1.05);
-            transform: scale(1.05);
-            transition: filter 0.3s;
+            filter: blur(8px) brightness(0.35) contrast(1.1);
+            transform: scale(1.08);
+            transition: filter 0.4s ease;
         }
         [data-theme="light"] .master-bg img {
-            filter: blur(5px) brightness(0.7) contrast(1.05);
+            filter: blur(8px) brightness(0.7) contrast(1.05);
         }
 
+        /* Ультрасучасна нижня панель навігації у вигляді капсули */
         .tg-bottom-nav {
             position: fixed;
-            bottom: 10px;
+            bottom: 16px;
             left: 50%;
             transform: translateX(-50%);
-            width: 92%;
-            max-width: 400px;
+            width: 90%;
+            max-width: 390px;
             background: var(--tg-card);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             border: 1px solid var(--tg-border);
-            border-radius: 24px;
+            border-radius: 30px;
             display: flex;
             justify-content: space-around;
-            padding: 8px 4px;
+            padding: 8px 6px;
             z-index: 9999;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.35);
         }
         .tg-nav-btn {
             background: transparent;
@@ -79,25 +80,36 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 3px;
+            gap: 2px;
             cursor: pointer;
             text-transform: uppercase;
             flex: 1;
-            padding: 4px 0;
-            transition: color 0.2s;
+            padding: 6px 2px;
+            border-radius: 20px;
+            transition: all 0.25s ease;
         }
-        .tg-nav-btn span.icon { font-size: 16px; }
-        .tg-nav-btn.active { color: var(--accent); }
+        .tg-nav-btn span.icon { 
+            font-size: 15px; 
+            transition: transform 0.2s ease;
+        }
+        .tg-nav-btn.active {
+            color: var(--accent);
+            background: rgba(216, 140, 154, 0.12);
+        }
+        .tg-nav-btn.active span.icon {
+            transform: scale(1.15);
+        }
 
         .tg-search-bar {
             background: var(--tg-card-hover);
             border-radius: 20px;
-            padding: 8px 14px;
+            padding: 9px 14px;
             display: flex;
             align-items: center;
             gap: 8px;
             margin-bottom: 12px;
             border: 1px solid var(--tg-border);
+            backdrop-filter: blur(10px);
         }
         .tg-search-bar input {
             background: transparent;
@@ -106,6 +118,9 @@
             font-size: 12px;
             outline: none;
             width: 100%;
+        }
+        .tg-search-bar input::placeholder {
+            color: var(--tg-muted);
         }
 
         button, input, select, .control-btn, .btn-main, .cal-day {
@@ -118,45 +133,48 @@
         .master-section {
             background: var(--tg-card) !important;
             border-color: var(--tg-border) !important;
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 16px;
         }
 
         .notification-banner {
-            background: rgba(216, 140, 154, 0.25); border: 1px solid var(--accent);
-            padding: 10px; border-radius: 12px; font-size: 10px; color: var(--tg-text);
+            background: rgba(216, 140, 154, 0.22); border: 1px solid var(--accent);
+            padding: 10px; border-radius: 14px; font-size: 10px; color: var(--tg-text);
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
             animation: pulseBanner 1.5s infinite;
+            backdrop-filter: blur(10px);
         }
         @keyframes pulseBanner {
-            0% { opacity: 0.8; }
+            0% { opacity: 0.85; }
             50% { opacity: 1; transform: scale(1.01); }
-            100% { opacity: 0.8; }
+            100% { opacity: 0.85; }
         }
     </style>
 </head>
 <body data-theme="dark">
 
-    <!-- Фонова картинка (використовуємо фото майстра як атмосферний фон) -->
+    <!-- Фонова картинка майстра -->
     <div class="master-bg">
-        <img src="PXL_20241102_164641261.jpg" alt="Master Background" onerror="this.src='https://i.ibb.co/M5stSykh/photo-2026-09-30-14-50-24.jpg'">
+        <img src="PXL_20241102_164641261.jpg" alt="Master Background">
     </div>
 
     <div class="mobile-container master-body">
         
         <div class="utility-bar" style="margin-bottom: 10px;">
             <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="width: 32px; height: 32px; border-radius: 50%; overflow:hidden; border:1.5px solid var(--accent);">
+                <div style="width: 34px; height: 34px; border-radius: 50%; overflow:hidden; border:1.5px solid var(--accent);">
                     <img src="PXL_20241102_164641261.jpg" style="width:100%; height:100%; object-fit:cover;" alt="Ілляна">
                 </div>
                 <span style="font-family:'Syne',sans-serif; font-size:12px; font-weight:800; color:var(--tg-text);">ЯВІР ІЛЛЯНА // CRM</span>
             </div>
-            <button class="control-btn" onclick="toggleMasterTheme()" style="border-radius:50%; width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--tg-card); border-color:var(--tg-border); color:var(--tg-text);">☀️/🌙</button>
+            <button class="control-btn" onclick="toggleMasterTheme()" style="border-radius:50%; width:34px; height:34px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--tg-card); border-color:var(--tg-border); color:var(--tg-text);">☀️/🌙</button>
         </div>
 
         <!-- Екран авторизації -->
         <div id="masterLoginBox" class="form-card master-section" style="text-align: center; margin-top: 40px;">
             <h2 style="font-family:'Syne',sans-serif; font-size: 16px; margin-bottom: 10px; color:var(--tg-text);">ДОСТУП ДО CRM</h2>
-            <input type="password" id="masterPinInput" class="input-box" placeholder="PIN (1988)" style="text-align: center; margin-bottom: 10px; background: rgba(0,0,0,0.1); border-color:var(--tg-border); color:var(--tg-text);">
+            <input type="password" id="masterPinInput" class="input-box" placeholder="PIN (1988)" style="text-align: center; margin-bottom: 10px; background: rgba(0,0,0,0.15); border-color:var(--tg-border); color:var(--tg-text);">
             <button class="btn-main" onclick="loginMainPin()">Увійти</button>
             <button class="control-btn" onclick="forceBypassPin()" style="margin-top: 8px; width: 100%; background:var(--tg-card-hover); border-color:var(--tg-border); color:var(--tg-text);">Швидкий вхід</button>
         </div>
@@ -277,7 +295,7 @@
 
     </div>
 
-    <!-- Нижня панель навігації -->
+    <!-- Ультрасучасна нижня панель навігації у вигляді капсули -->
     <div class="tg-bottom-nav" id="tgBottomNav" style="display: none;">
         <button class="tg-nav-btn active" onclick="switchMasterSection('secCalendar', this)">
             <span class="icon">📅</span>
@@ -312,7 +330,7 @@
 
     <script src="app.js"></script>
     <script>
-        // Перемикання тем оформлення (Світла / Темна)
+        // Перемикання світлої та темної тем
         function toggleMasterTheme() {
             let body = document.body;
             let current = body.getAttribute('data-theme');
@@ -326,7 +344,7 @@
             document.body.setAttribute('data-theme', savedTheme);
         });
 
-        // Потужна функція пошуку (фільтрація записів та клієнтів)
+        // Пошук та фільтрація записів
         async function filterCrmBookings(query) {
             let q = query.toLowerCase().trim();
             try {
@@ -359,7 +377,7 @@
 
         function switchMasterSection(sectionId, el) {
             document.querySelectorAll('.master-section').forEach(s => {
-                if(s.id !== 'masterLoginBox') s.style.display = 'none';
+                if(s.id !== 'masterLoginBox' && s.id !== 'bookingModalPopup') s.style.display = 'none';
             });
             let target = document.getElementById(sectionId);
             if (target) target.style.display = 'flex';
